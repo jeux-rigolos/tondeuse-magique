@@ -54,6 +54,10 @@
     .garden-select{min-height:50px;padding:6px 8px;background:#fffef5;color:#3c6436;border:2px solid #cfe5b5;border-radius:15px;font-size:clamp(12px,2.2vw,15px);font-weight:900;}
     .garden-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d;}
     .garden-heading{font-size:13px;font-weight:900;color:#64816d;margin:0 0 5px;}
+    .bin-hud{display:flex;align-items:center;gap:10px;background:#fff4cf;border:2px solid #e8c986;border-radius:15px;padding:8px 12px;margin:0 0 12px;font-weight:900;color:#725323;flex-wrap:wrap}
+    .bin-track{height:14px;flex:1;min-width:85px;border-radius:15px;overflow:hidden;background:#e6d9bd;border:1px solid #c5ae85}
+    .bin-fill{width:0%;height:100%;background:linear-gradient(90deg,#c48b30,#f7ce54);transition:width .12s linear}
+    .bin-value{min-width:42px;text-align:right}
     .size-selector{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 13px}
     .size-select{min-height:45px;padding:8px 4px;background:#fffef5;color:#3c6436;border:2px solid #cfe5b5;border-radius:15px;font-weight:900;font-size:clamp(12px,2.3vw,15px)}
     .size-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d}
@@ -95,6 +99,9 @@
     <button class="size-select" data-size="medium" type="button" aria-pressed="false">🌿 Moyen</button>
     <button class="size-select" data-size="large" type="button" aria-pressed="false">🌳 Grand</button>
   </div>
+  <div class="bin-hud" role="group" aria-label="Remplissage du bac de récolte">
+    <span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div id="bin-fill" class="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span>
+  </div>
   <div class="game-wrap">
     <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Champ à récolter. Utilise les flèches, la manette ou touche le champ."></canvas>
     <div class="hud"><div class="progress-box"><div class="progress-emoji">🌾</div><div><span class="progress-name">Récolte effectuée</span><div class="track"><div class="bar" id="bar"></div></div></div><span class="pct" id="pct">0 %</span></div><div class="tip" id="status">🌼 Amuse-toi !</div></div>
@@ -113,6 +120,8 @@
   const W=1000,H=600, field={l:77,t:65,r:923,b:538};
   const ui={bar:document.getElementById('bar'),pct:document.getElementById('pct'),msg:document.getElementById('message'),overlay:document.getElementById('overlay'),status:document.getElementById('status'),sound:document.getElementById('sound')};
   const keys=new Set();
+  const binBar=document.getElementById('bin-fill'),binValue=document.getElementById('bin-value'),binLabel=document.getElementById('bin-label');
+  let binTarget=0,binLevel=0,harvestAnimUntil=0;
   let vehicleType='wheat', gardenId='prairie', terrainScale=1;
    const crops={wheat:{name:'blé'},corn:{name:'maïs'},beet:{name:'betteraves'}};
   const terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
@@ -189,6 +198,7 @@
     }}
     mower={x:gardenId==='rond'?350:161,y:gardenId==='rond'?435:452,angle:Math.PI/2, bounce:0, speed:0};
     particles=[];animations=[];target=null;dragged=false;pointerId=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
+    binTarget=0;binLevel=0;harvestAnimUntil=0;binBar.style.width='0%';binValue.textContent='0 %';
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
     ui.bar.style.width='0%';ui.pct.textContent='0 %';
     // Le champ commence intact.
@@ -202,6 +212,7 @@
     let cut=0;for(const c of cells)if(c.cut)cut++;
     // 100 % est réservé à la toute dernière touffe.
     progress=cut===cells.length?100:Math.min(99,Math.round(cut/cells.length*100));
+    binTarget=cells.length?cut/cells.length:0;
     ui.bar.style.width=progress+'%';ui.pct.textContent=progress+' %';
     if(cut===cells.length&&!won){win();}
   }
@@ -323,7 +334,22 @@
     ctx.fillStyle='#39443d';for(const x of [-46,31])for(const y of [-27,23]){rounded(x,y,16,34,6);ctx.fill();}
     ctx.fillStyle='#9e8248';rounded(-44,-28,88,92,16);ctx.fill();
     ctx.fillStyle=color;rounded(-40,-38,80,94,17);ctx.fill();
-    ctx.fillStyle=roof;rounded(-31,16,62,37,11);ctx.fill();
+    // Bac ouvert vu de dessus : la masse de récolte avance vers l'avant du réservoir.
+    ctx.fillStyle=roof;rounded(-34,11,68,47,11);ctx.fill();
+    ctx.fillStyle='#524534';rounded(-28,17,56,36,6);ctx.fill();
+    ctx.save();ctx.beginPath();ctx.roundRect(-25,19,50,32,4);ctx.clip();
+    const binColor=wheat?'#eec34c':corn?'#f5d64e':'#b8654a';
+    ctx.fillStyle=binColor;ctx.fillRect(-25,51-32*binLevel,50,32*binLevel);
+    // Grains et betteraves visibles à travers la trémie.
+    if(binLevel>.04){
+      ctx.fillStyle=wheat?'#ffe294':corn?'#fff3a2':'#df8d6a';
+      for(let i=0;i<18;i++){
+        const xx=-21+(i*17%42),yy=21+(i*11%28);
+        if(yy>=51-32*binLevel){ctx.beginPath();ctx.ellipse(xx,yy,wheat?1.7:corn?2:3,wheat?1.4:corn?2:2.8,0,0,7);ctx.fill();}
+      }
+    }
+    ctx.restore();
+    ctx.strokeStyle=roof;ctx.lineWidth=3;rounded(-28,17,56,36,6);ctx.stroke();
     ctx.fillStyle='#7cb3c2';rounded(-30,-23,60,38,11);ctx.fill();
     ctx.fillStyle='#d6ece3';rounded(-22,-17,44,7,3);ctx.fill();
     // Trois têtes de récolte très distinctes.
@@ -346,6 +372,16 @@
       for(let i=0;i<9;i++){const x=-64+i*16;ctx.beginPath();ctx.moveTo(x,-75);ctx.lineTo(x-6,-91);ctx.stroke();}
       ctx.fillStyle='#a96337';rounded(-34,-45,68,24,6);ctx.fill();
       ctx.strokeStyle='#ffe2a1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-28,-42);ctx.lineTo(28,-42);ctx.stroke();
+    }
+    // Les particules glissent de la barre de récolte vers le bac.
+    if(clock<harvestAnimUntil){
+      ctx.fillStyle=wheat?'#ffdf71':corn?'#f9d747':'#d98660';
+      for(let i=0;i<6;i++){
+        const u=(clock*1.45+i/6)%1,xx=(i%2?1:-1)*(13+i%3*6),yy=-68+u*95;
+        ctx.globalAlpha=Math.sin(Math.PI*u)*.9;
+        ctx.beginPath();ctx.arc(xx,yy,wheat?2.7:3.5,0,7);ctx.fill();
+      }
+      ctx.globalAlpha=1;
     }
     ctx.fillStyle='#fff9df';for(const x of [-15,15]){ctx.beginPath();ctx.arc(x,-31,5,0,7);ctx.fill();}
     ctx.fillStyle='#425446';for(const x of [-14,16]){ctx.beginPath();ctx.arc(x,-31,1.9,0,7);ctx.fill();}
@@ -409,12 +445,16 @@
           c.cut=true;justCut++;
         }
       }
-      if(justCut){addCutParticles(mower.x,mower.y);updateProgress();}
+      if(justCut){harvestAnimUntil=clock+.65;addCutParticles(mower.x,mower.y);updateProgress();}
     }
   }
   function frame(time){
     const dt=last?Math.min(.035,(time-last)/1000):.016;last=time;clock+=dt;
     move(dt);
+    binLevel+=(binTarget-binLevel)*Math.min(1,dt*5);
+    if(binTarget===1&&binLevel>.999)binLevel=1;
+    const binPct=Math.round(binLevel*100);
+    binBar.style.width=binPct+'%';binValue.textContent=binPct+' %';
     const halfW=W/(2*terrainScale),halfH=H/(2*terrainScale);
     const desiredX=clamp(mower.x,halfW,W-halfW),desiredY=clamp(mower.y,halfH,H-halfH);
     camera.x+=(desiredX-camera.x)*Math.min(1,dt*8);
@@ -444,6 +484,8 @@
       b.setAttribute('aria-pressed',String(active));
     }
     document.getElementById('crop-label').textContent='🌾 Récolte : '+crops[next].name;
+    binLabel.textContent=(next==='wheat'?'🌾':next==='corn'?'🌽':'🥬')+' Bac de '+crops[next].name;
+    binBar.style.background=next==='beet'?'linear-gradient(90deg,#9d533e,#da8b63)':'linear-gradient(90deg,#c48b30,#f7ce54)';
     reset();ui.status.textContent='🚜 Machine prête pour les '+crops[next].name+' !';
   }
   document.querySelectorAll('[data-machine]').forEach(b=>b.addEventListener('click',()=>chooseVehicle(b.dataset.machine)));
