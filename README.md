@@ -2,7 +2,7 @@
 
 Des jeux de conduite, de récolte et de mathématiques pour les enfants, jouables directement dans le navigateur, sans installation ni dépendance externe.
 
-- **Droite graduée (CE1 à CM2)** : douze mini-jeux sur les entiers, les intervalles, les fractions et les décimaux, trois défis avancés (départ à 120 km, cassure entre 0 et 750 m, zéro au centre avec températures négatives), et un défi cuisine interactif avec balance graduée pour les masses et verre doseur pour les volumes. Indices, explications, cinq défis par jeu et progression locale. Accessible au tactile, à la souris et au clavier.
+- **Droite graduée (CE1 à CM2)** : treize aventures sur les entiers, les intervalles, fractions et décimaux. Défis avancés (départ à 120 km, cassure entre 0 et 750 m, thermomètre vertical de −10 à +10 °C), un jeu de cuisine avec trois recettes publiées, une balance et un verre doseur dessinés en SVG, et un compteur de vitesse à aiguille avec trois niveaux CE2/CM1/CM2. Indices, explications, cinq défis par jeu et progression locale. Accessible au tactile, à la souris et au clavier.
 - **2D** : jardin vu du dessus, tondeuse rouge / tracteur-tondeuse vert, sons, fleurs, papillons, progression.
 - **3D** : véritable scène WebGL 3D, herbe haute et fine, tondeuse / tracteur, caméra « Suivre ».
 - **Moissonneuse 2D** : vue du dessus, trois machines agricoles et trois cultures (blé, maïs, betteraves), récolte avec outils de coupe à l'avant.
@@ -25,6 +25,7 @@ Si le dépôt est `jeux-rigolos/tondeuse-magique`, les liens seront normalement 
 - Accueil : `https://jeux-rigolos.github.io/tondeuse-magique/`
 - La mission des graduations : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/`
 - Le défi du petit pâtissier : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/recette/`
+- Le compteur magique : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/compteur/`
 - 2D : `https://jeux-rigolos.github.io/tondeuse-magique/2d/`
 - 3D : `https://jeux-rigolos.github.io/tondeuse-magique/3d/`
 - Moissonneuse 2D : `https://jeux-rigolos.github.io/tondeuse-magique/moisson-2d/`
@@ -69,6 +70,14 @@ site/moisson/index.html              Jeu de récolte 3D : blé, maïs, betterave
 site/.nojekyll                      Site statique sans Jekyll
 README.md                           Documentation
 ```
+
+## Recettes authentiques utilisées pour le jeu
+
+- Crêpes de Chef Damien (750g) : https://www.750g.com/pate-a-crepes-r5436.htm
+- Pancakes maison (Mathilde, 750g) : https://www.750g.com/pancakes-r39365.htm
+- Gâteau au chocolat facile (Anne Hervier, 750g) : https://www.750g.com/gateau-au-chocolat-r10420.htm
+
+Le jeu fait mesurer les ingrédients quantifiables avec les instruments disponibles et rappelle les compléments à ajouter dans une vraie cuisine. Pour préparer ces recettes, consulter les instructions originales et cuisiner avec un adulte.
 
 ## Notes techniques
 
