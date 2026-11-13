@@ -1,6 +1,10 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>La Moissonneuse Magique 3D – Blé, maïs et betteraves</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#fff8e7;color:#5a491f;font:600 15px system-ui,Arial,sans-serif}.wrap{max-width:750px;margin:auto;padding:12px;display:grid;gap:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.title{font-size:20px;font-weight:900}.subtitle{font-size:12px;font-weight:500;color:#668265}.vehicles{display:flex;gap:8px}.vehicles button{min-width:0;flex:1;border:2px solid #c0d9a9;border-radius:16px;background:#fffefa;padding:10px 5px;color:#3a5e2c;font:800 14px system-ui;cursor:pointer}.vehicles button.active{border:3px solid #5ba943;background:#e3f7d3;padding:9px 4px}.vehicles .emoji{font-size:27px;display:block}@media(max-width:520px){.vehicles{gap:4px}.vehicles button{font-size:11px;padding:7px 3px;line-height:1.15}.vehicles button.active{padding:6px 2px}.vehicles .emoji{font-size:23px}}.gardens{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.gardens button{font:800 13px system-ui;padding:8px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.gardens button.active{border-color:#5aa748;background:#def1d5}.garden-label{font-size:12px;color:#70836a;font-weight:800}.sizes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:1px}.sizes button{font:800 13px system-ui;padding:9px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.sizes button.active{border-color:#5aa748;background:#def1d5}@media(max-width:520px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}.track{background:#f2e1ac;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#e0ad3a,#ffdc61);transition:width .25s}.stage{padding:6px;background:#ead4a1;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
+*{box-sizing:border-box}body{margin:0;background:#fff8e7;color:#5a491f;font:600 15px system-ui,Arial,sans-serif}.wrap{max-width:750px;margin:auto;padding:12px;display:grid;gap:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.title{font-size:20px;font-weight:900}.subtitle{font-size:12px;font-weight:500;color:#668265}.vehicles{display:flex;gap:8px}.vehicles button{min-width:0;flex:1;border:2px solid #c0d9a9;border-radius:16px;background:#fffefa;padding:10px 5px;color:#3a5e2c;font:800 14px system-ui;cursor:pointer}.vehicles button.active{border:3px solid #5ba943;background:#e3f7d3;padding:9px 4px}.vehicles .emoji{font-size:27px;display:block}@media(max-width:520px){.vehicles{gap:4px}.vehicles button{font-size:11px;padding:7px 3px;line-height:1.15}.vehicles button.active{padding:6px 2px}.vehicles .emoji{font-size:23px}}.gardens{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.gardens button{font:800 13px system-ui;padding:8px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.gardens button.active{border-color:#5aa748;background:#def1d5}.garden-label{font-size:12px;color:#70836a;font-weight:800}.sizes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:1px}.sizes button{font:800 13px system-ui;padding:9px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.sizes button.active{border-color:#5aa748;background:#def1d5}@media(max-width:520px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}.bin-hud{display:flex;align-items:center;gap:9px;border:2px solid #e6c67d;background:#fff4d2;padding:8px 11px;border-radius:14px;color:#6e5428;font-weight:900;font-size:13px}
+.bin-track{flex:1;min-width:85px;height:14px;background:#e9d9b3;border:1px solid #ccad74;border-radius:12px;overflow:hidden}
+.bin-fill{width:0%;height:100%;background:linear-gradient(90deg,#c28b30,#f8d75b);transition:width .13s linear}
+.bin-value{min-width:36px;text-align:right}
+.track{background:#f2e1ac;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#e0ad3a,#ffdc61);transition:width .25s}.stage{padding:6px;background:#ead4a1;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌾 La Moissonneuse Magique 3D</div><div class="subtitle">Conduis trois machines et découvre trois récoltes !</div></div><b id="pct">0 %</b></div>
@@ -14,7 +18,8 @@
 <div class="garden-label">📏 Taille du terrain :</div>
 <div class="sizes" role="group" aria-label="Choisir la taille du terrain"><button data-size="small" class="active" aria-pressed="true">🌱 Petit</button><button data-size="medium" aria-pressed="false">🌿 Moyen</button><button data-size="large" aria-pressed="false">🌳 Grand</button></div>
 <div class="track"><div class="bar" id="bar"></div></div>
-<div class="stage"><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions"></canvas><button class="view" id="camera" type="button">🎥 Suivre</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
+<div class="bin-hud" role="group" aria-label="Niveau du bac de récolte"><span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div class="bin-fill" id="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span></div>
+<div class="stage"><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions"></canvas><button class="view" id="camera" type="button">🌳 Jardin</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
 <div class="status" id="status">👆 Touche le champ pour conduire !</div>
 <div class="bottom"><div style="display:flex;flex-wrap:wrap;gap:6px"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌾 Champ suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="foot">↑ avancer · ↓ reculer · ← → tourner · Tactile et manette 🎮</div>
@@ -22,6 +27,8 @@
 (()=>{
 const root=document.getElementById('mow3d');if(root.dataset.ready)return;root.dataset.ready='1';
 const canvas=root.querySelector('#scene'),bar=root.querySelector('#bar'),pct=root.querySelector('#pct'),status=root.querySelector('#status'),win=root.querySelector('#win');
+const binBar=root.querySelector('#bin-fill'),binValue=root.querySelector('#bin-value'),binLabel=root.querySelector('#bin-label');
+let binTarget=0,binLevel=0,harvestEffectUntil=0,binPercentDisplayed=-1;
 const gl=canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'default'});if(!gl){status.innerHTML='Ce navigateur ne prend pas en charge WebGL 3D. <a href="../2d/">Jouer en 2D</a>';return;}
 const vs='attribute vec3 p;attribute vec3 c;uniform mat4 vp;uniform float breeze;uniform float tick;varying vec3 v;void main(){vec3 q=p;float h=max(p.y,0.0);q.x+=breeze*.11*h*sin(tick*1.5+p.x*2.1+p.z*1.4);q.z+=breeze*.07*h*cos(tick*1.2+p.z*2.6);gl_Position=vp*vec4(q,1.0);v=c;}';
 const fs='precision mediump float;varying vec3 v;void main(){gl_FragColor=vec4(v,1.0);}';
@@ -290,8 +297,11 @@ function reset(){
   let n=i+j*cols,x=(i-(cols-1)/2)*gap,z=(j-(rows-1)/2)*gap;
   if(!insideGarden(x,z,.10)||obstacleAt(x,z,.23))continue;
   grass.push({i,j,x,z,cut:false,v:(Math.sin(n*3.7)+1)/2});
- }vehicle={x:(gardenId==='rond'?-3.8:-5.3)*terrainScale,z:(gardenId==='rond'?3.35:3.9)*terrainScale,a:0};target=null;complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Touche le champ pour conduire !';bar.style.width='0%';pct.textContent='0 %';}
-function score(){let number=grass.filter(v=>v.cut).length,p=number===grass.length?100:Math.min(99,Math.round(number/grass.length*100));if(p!==scoreOld){scoreOld=p;bar.style.width=p+'%';pct.textContent=p+' %';}
+ }vehicle={x:(gardenId==='rond'?-3.8:-5.3)*terrainScale,z:(gardenId==='rond'?3.35:3.9)*terrainScale,a:0};target=null;complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Touche le champ pour conduire !';bar.style.width='0%';pct.textContent='0 %';
+  binTarget=0;binLevel=0;harvestEffectUntil=0;binPercentDisplayed=-1;binBar.style.width='0%';binValue.textContent='0 %';
+}
+function score(){let number=grass.filter(v=>v.cut).length,p=number===grass.length?100:Math.min(99,Math.round(number/grass.length*100));
+ binTarget=grass.length?number/grass.length:0;if(p!==scoreOld){scoreOld=p;bar.style.width=p+'%';pct.textContent=p+' %';}
  if(number===grass.length&&!complete){complete=true;target=null;win.classList.add('show');status.textContent='🎉 Bravo ! Tu as tout récolté !';}}
 function choose(t){
   type=t;
@@ -301,6 +311,8 @@ function choose(t){
     button.setAttribute('aria-pressed',String(active));
   }
   root.querySelector('#crop-label').textContent=crops[t].emoji+' Récolte : '+crops[t].name;
+  binLabel.textContent=crops[t].emoji+' Bac de '+crops[t].name;
+  binBar.style.background=t==='beet'?'linear-gradient(90deg,#9d533e,#df926b)':'linear-gradient(90deg,#c28b30,#f8d75b)';
   reset();
   status.textContent='🚜 Récolte des '+crops[t].name+' : c’est parti !';
 }
@@ -398,7 +410,15 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
    g.cut=true;changed=true;
   }
  }
- if(changed){dirty=true;grassDirty=true;score();}
+ if(changed){dirty=true;grassDirty=true;harvestEffectUntil=time+.78;score();}
+ }
+ // Le niveau du bac monte progressivement après chaque récolte.
+ binLevel+=(binTarget-binLevel)*Math.min(1,dt*.10);
+ if(binTarget===1&&binLevel>.999)binLevel=1;
+ const currentBinPercent=Math.round(binLevel*100);
+ if(currentBinPercent!==binPercentDisplayed){
+   binPercentDisplayed=currentBinPercent;
+   binBar.style.width=currentBinPercent+'%';binValue.textContent=currentBinPercent+' %';
  }
  let destEye,destAt;if(view==='garden'){destEye=[0,19*terrainScale,19*terrainScale];destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.07*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.07*Math.min(dt,2);}
  let w=Math.max(1,Math.floor(canvas.clientWidth*Math.min(devicePixelRatio||1,1.5))),h=Math.max(1,Math.floor(canvas.clientHeight*Math.min(devicePixelRatio||1,1.5)));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(VP,false,matrix());gl.uniform1f(TICK,time);if(dirty)updateStatic();if(grassDirty)updateGrass();
