@@ -1,0 +1,189 @@
+<!doctype html><html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e8f9ff"><meta name="description" content="Mini-jeu du CP au CM2 : gonfler un pneu avec un manomètre, lire les graduations sans afficher la réponse avant validation.">
+<title>Le gonfleur de vélo · La mission des graduations</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 8% 0,#fff1b4,transparent 38%),linear-gradient(130deg,#e9f8ff,#e8faef);font:16px/1.5 system-ui,Arial,sans-serif;color:#24445b}
+main{max-width:980px;margin:auto;padding:20px 16px 55px}
+a{color:#1765a2}a:focus-visible,button:focus-visible{outline:4px solid #ef9d2d;outline-offset:4px}
+.back{display:inline-block;padding:9px 14px;background:white;border-radius:14px;text-decoration:none;font-weight:850;box-shadow:0 4px #cfe1ee}
+header{text-align:center;padding:15px 0}header .big{font-size:48px}h1{color:#194d70;font-size:clamp(29px,5vw,46px);margin:8px 0;line-height:1.15}header p{max-width:680px;color:#52748b;margin:8px auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(242px,1fr));gap:14px}
+.card,.panel{border:4px solid white;border-radius:24px;background:white;box-shadow:0 7px #cce1ed;padding:clamp(16px,3vw,25px)}
+.card{display:flex;flex-direction:column;gap:9px}.card h2{margin:4px 0;font-size:24px}.card p{margin:0;flex:1;color:#5c7888}
+.tag{border-radius:30px;background:#e5f3fe;color:#25618b;padding:4px 11px;font-weight:850;align-self:start}
+button{border:0;border-radius:14px;padding:12px 15px;background:#e4f1fb;color:#225781;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 4px #bfd8e9}
+button:hover:not(:disabled){filter:brightness(1.04)}button:disabled{opacity:.48;cursor:default}
+.primary{color:white;background:#267ada;box-shadow:0 4px #14549e}.good{background:#81e1ad;color:#135f38;box-shadow:0 4px #44b57c}
+.top{display:flex;gap:11px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.dots{display:flex;gap:7px}.dot{width:22px;height:13px;background:#dceaf2;border-radius:15px}.dot.active{background:#ffc95c}.dot.done{background:#66d0a0}
+h2{font-size:clamp(22px,3.2vw,32px);margin:14px 0 10px}.story{background:#e9f6ff;border-radius:14px;padding:12px 15px;color:#446a80}
+.question{font-size:clamp(19px,2.7vw,25px);font-weight:900;margin:15px 0}.tip{color:#5a7b8c;font-size:14px}
+svg{width:100%;height:auto;display:block;background:#f6fbff;border-radius:18px}
+.gauge{border:2px solid #dbe9f3;border-radius:20px;padding:5px;margin:14px 0}
+.readout{text-align:center;font-size:clamp(18px,2.7vw,23px);font-weight:900;padding:9px 12px;border-radius:14px;background:#eef6fc;color:#436781}
+.readout.revealed{background:#e1f7eb;color:#206b46}
+.controls,.actions{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin:16px 0}.controls button{flex:1;min-width:160px}.actions button{flex:1;min-width:135px}
+.message{background:#edf5fa;border-radius:15px;padding:14px 16px;font-weight:750;min-height:60px;color:#47667b}
+.message.good{background:#e3f8ec;color:#1b673f}.message.bad{background:#fff0df;color:#8e4c20}
+.hint{border:2px solid #f4dca8;border-radius:17px;padding:16px;background:#fff9ec;margin:16px 0}
+.hint h3{margin:0 0 7px}.hint p{margin:7px 0;color:#795e35}
+.options{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.options button{background:#fff;border:2px solid #f0d8a7}
+.hint-result{font-weight:850;color:#785228}
+#finish{text-align:center;padding:25px}#finish .award{font-size:80px}
+footer{text-align:center;color:#657f92;font-size:13px;margin:25px 0}
+@media(max-width:480px){.controls button{min-width:135px;padding:12px 8px}.options button{flex:1}.dot{width:17px}}
+</style></head><body><main>
+<a href="../" class="back">← Les jeux des graduations</a>
+<header><div class="big">🚲🛞💨</div><h1>Le gonfleur de vélo</h1>
+<p>Ajoute ou enlève de l’air en observant les traits du manomètre. <strong>La pression choisie reste secrète jusqu’à validation</strong> — ou jusqu’à ce que tu aies débloqué l’indice !</p></header>
+<section id="menu"><div id="cards" class="grid"></div></section>
+<section id="game" class="panel" hidden>
+<div class="top"><button id="back" type="button">← Niveaux</button><div id="dots" class="dots"></div></div>
+<h2 id="level-title"></h2><p id="story" class="story"></p>
+<p class="question" id="question"></p><p class="tip">Lis les chiffres du cadran, puis compte les espaces entre les traits. Un clic sur « Ajouter » déplace l’aiguille d’une graduation.</p>
+<div class="gauge"><svg id="meter" viewBox="0 0 860 500" role="img" aria-label="Manomètre gradué ; la valeur actuelle est cachée"></svg></div>
+<div class="readout" id="reading">🔒 La pression est cachée : observe l’aiguille.</div>
+<div class="controls"><button id="plus">➕ Ajouter de l’air</button><button id="minus">➖ Enlever de l’air</button></div>
+<div id="feedback" class="message" role="status" aria-live="polite">Quand tu penses avoir trouvé, appuie sur Valider.</div>
+<div class="actions"><button id="verify" type="button" class="primary">✅ Valider</button><button id="hint" type="button">💡 Indice</button><button id="next" type="button" class="good" hidden>Défi suivant →</button></div>
+<div class="hint" id="hint-panel" hidden><h3>🧐 D’abord, combien vaut une graduation ?</h3>
+<p>Compte les espaces entre deux nombres écrits sur le cadran, puis choisis la valeur d’un petit intervalle.</p>
+<div class="options" id="hint-options"></div><p class="hint-result" id="hint-result" role="status"></p>
+<button type="button" id="show-help" hidden>Voir l’explication</button>
+</div></section>
+<section class="panel" id="finish" hidden><div class="award">🏆🚲</div><h2>Ta roue est prête !</h2><p>Bravo ! Tu as terminé les cinq défis de ce niveau.</p>
+<button type="button" id="replay" class="primary">Rejouer</button><button type="button" id="home">Autres niveaux</button></section>
+<footer>Les pressions du jeu sont fictives et servent à comprendre les graduations. Pour gonfler un vrai pneu, respecte les indications du fabricant et demande l’aide d’un adulte. Sans publicité ni inscription.</footer>
+</main><script>
+(function(){
+'use strict';
+var levels=[
+{id:'cp',grade:'CP',step:1,max:4,major:1,targets:[1,2,3,4,2],options:[0.5,2],emoji:'🐣',label:'La pompe des débutants',desc:'Les nombres entiers, de 1 en 1.'},
+{id:'ce1',grade:'CE1',step:0.5,max:4,major:1,targets:[1,2.5,3.5,1.5,3],options:[0.25,1],emoji:'🐸',label:'Les demi-bars',desc:'Repérer les moitiés entre deux nombres entiers.'},
+{id:'ce2',grade:'CE2',step:0.25,max:4,major:1,targets:[1.25,2.5,2.75,3.25,1.75],options:[0.5,0.1],emoji:'🦊',label:'La pompe des quarts',desc:'Trouver les quarts et compter quatre intervalles.'},
+{id:'cm1',grade:'CM1',step:0.2,max:4,major:1,targets:[1.2,2.4,3.6,2.8,1.8],options:[0.1,0.5],emoji:'🚴',label:'Le défi des décimaux',desc:'Compter de 0,2 en 0,2 bar.'},
+{id:'cm2',grade:'CM2',step:0.1,max:4,major:1,targets:[2.3,2.7,3.1,1.9,3.4],options:[0.2,0.5],emoji:'🏁',label:'Le gonfleur de précision',desc:'Lire une graduation de 0,1 bar.'}
+];
+var gradeIndex=0,round=0,pos=0,solved=false,validated=false,unlocked=false,tries=0;
+var $=function(id){return document.getElementById(id)};
+function level(){return levels[gradeIndex]}function target(){return level().targets[round]}
+function amount(){return Number((pos*level().step).toFixed(3))}
+function fmt(v){return Number(v.toFixed(3)).toLocaleString('fr-FR',{maximumFractionDigits:3})}
+function pressure(v){return fmt(v)+' bar'}
+function show(s,kind){$('feedback').textContent=s;$('feedback').className='message'+(kind?' '+kind:'')}
+function renderMenu(){
+ $('cards').innerHTML='';
+ levels.forEach(function(l,i){
+  var card=document.createElement('article');card.className='card';
+  var badge=document.createElement('span');badge.className='tag';badge.textContent=l.grade;card.appendChild(badge);
+  var h=document.createElement('h2');h.textContent=l.emoji+' '+l.label;card.appendChild(h);
+  var p=document.createElement('p');p.textContent=l.desc;card.appendChild(p);
+  var status=document.createElement('span');status.style.fontWeight='850';status.style.color='#91621e';status.textContent='5 défis à réaliser';
+  try{if(localStorage.getItem('mission-gonfleur-'+l.id)==='oui')status.textContent='⭐ Déjà terminé'}catch(e){}
+  card.appendChild(status);
+  var b=document.createElement('button');b.className='primary';b.textContent='Jouer ▶';b.addEventListener('click',function(){start(i)});card.appendChild(b);
+  $('cards').appendChild(card);
+ });
+}
+function home(){$('menu').hidden=false;$('game').hidden=true;$('finish').hidden=true;renderMenu();window.scrollTo({top:0,behavior:'smooth'})}
+function start(i){gradeIndex=i;round=0;$('menu').hidden=true;$('game').hidden=false;$('finish').hidden=true;newRound();window.scrollTo({top:0,behavior:'smooth'})}
+function progress(){$('dots').innerHTML='';for(var i=0;i<5;i++){var d=document.createElement('span');d.className='dot'+(i<round?' done':i===round?' active':'');$('dots').appendChild(d)}}
+function newRound(){
+ pos=0;solved=false;validated=false;unlocked=false;tries=0;
+ var l=level();
+ $('level-title').textContent=l.emoji+' '+l.grade+' — '+l.label+' · Défi '+(round+1)+'/5';
+ $('story').textContent='🚲 Un cycliste prépare son vélo. La roue doit atteindre la pression demandée. À toi de régler le manomètre !';
+ $('question').textContent='Gonfle la roue jusqu’à '+pressure(target())+'.';
+ $('hint-panel').hidden=true;$('hint-result').textContent='';$('show-help').hidden=true;
+ $('verify').hidden=false;$('next').hidden=true;$('hint').hidden=false;
+ $('plus').disabled=false;$('minus').disabled=false;
+ $('reading').className='readout';$('reading').textContent='🔒 La pression est cachée : observe l’aiguille.';
+ $('hint-options').innerHTML='';
+ progress();draw();show('Observe les chiffres écrits sur le cadran. À ton avis, où doit se trouver l’aiguille ?');
+}
+function change(n){if(solved)return;pos=Math.min(Math.round(level().max/level().step),Math.max(0,pos+n));draw();
+ if(validated||unlocked){$('reading').className='readout revealed';$('reading').textContent='Pression actuelle : '+pressure(amount())}
+ else{$('reading').className='readout';$('reading').textContent='🔒 Pression cachée : compte les graduations.'}
+ show('L’aiguille a bougé. '+(validated||unlocked?'Compare les valeurs et corrige ton dosage.':'Tu peux maintenant valider ton estimation.'));
+}
+function draw(){
+ var l=level(),maxTicks=Math.round(l.max/l.step),s='';
+ var cx=425,cy=267,r=197;
+ function p(v,rad){var a=Math.PI-(v/l.max)*Math.PI;return{x:cx+rad*Math.cos(a),y:cy-rad*Math.sin(a)}}
+ s+='<defs><radialGradient id="metal"><stop stop-color="#50778c"/><stop offset=".9" stop-color="#203f51"/><stop offset="1" stop-color="#0a283b"/></radialGradient><linearGradient id="pump" x1="0" x2="1"><stop stop-color="#88afb9"/><stop offset=".5" stop-color="#e5f3f4"/><stop offset="1" stop-color="#7b9da9"/></linearGradient></defs>';
+ s+='<rect x="13" y="13" width="834" height="476" rx="22" fill="#eff9ff"/>';
+ s+='<path d="M 16 406 Q 205 384 420 411 T 848 400 L 848 488 L 12 488 Z" fill="#e6f7df"/>';
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="234" fill="#a7bcc8" stroke="#6d8999" stroke-width="13"/>';
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="218" fill="#fafefe" stroke="#40677b" stroke-width="11"/>';
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="195" fill="#fbfdff" stroke="#c9e4f0" stroke-width="3"/>';
+ for(var i=0;i<=maxTicks;i++){
+  var val=Number((i*l.step).toFixed(3)),major=i===0||i===maxTicks||Math.abs(val/l.major-Math.round(val/l.major))<1e-6;
+  var a=p(val,major?153:166),b=p(val,184);
+  s+='<line x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" stroke="'+(major?'#264c67':'#477992')+'" stroke-width="'+(major?5:2.4)+'" stroke-linecap="round"/>';
+  if(major){var t=p(val,121);s+='<text x="'+t.x+'" y="'+(t.y+7)+'" text-anchor="middle" font-size="26" font-weight="850" fill="#254864">'+fmt(val)+'</text>'}
+ }
+ var q=p(amount(),146);
+ s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+q.x+'" y2="'+q.y+'" stroke="#de5549" stroke-width="11" stroke-linecap="round"/>';
+ s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+q.x+'" y2="'+q.y+'" stroke="#ffafa0" stroke-width="3" stroke-linecap="round"/>';
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="23" fill="#d84c45" stroke="#f6b3a3" stroke-width="7"/>';
+ s+='<text x="'+cx+'" y="'+(cy-42)+'" font-size="27" font-weight="900" text-anchor="middle" fill="#2c617c">bar</text>';
+ s+='<text x="'+cx+'" y="'+(cy+85)+'" font-size="18" font-weight="750" text-anchor="middle" fill="#507a90">PRESSION</text>';
+ s+='<rect x="370" y="497" width="110" height="18" fill="url(#pump)" rx="8" transform="translate(0 -39)"/>';
+ s+='<path d="M 482 465 C 550 437 626 475 690 437 S 767 389 810 435" stroke="#344d60" stroke-width="13" fill="none" stroke-linecap="round"/>';
+ s+='<text x="130" y="375" font-size="69" text-anchor="middle">🚲</text>';
+ s+='<text x="131" y="410" font-size="18" font-weight="750" text-anchor="middle" fill="#36677f">Roue à gonfler</text>';
+ $('meter').innerHTML=s;
+ $('meter').setAttribute('aria-label','Manomètre de 0 à '+fmt(l.max)+' bars, gradué de '+fmt(l.step)+' bar. Aiguille mobile ; sa valeur numérique est masquée jusqu’à validation ou déblocage de l’indice.');
+}
+function verify(){
+ if(solved)return;validated=true;
+ $('reading').className='readout revealed';$('reading').textContent='Pression mesurée : '+pressure(amount())+' · Objectif : '+pressure(target());
+ if(Math.abs(amount()-target())<0.000001){
+  solved=true;$('plus').disabled=true;$('minus').disabled=true;$('verify').hidden=true;$('hint').hidden=true;$('hint-panel').hidden=true;$('next').hidden=false;
+  $('next').textContent=round===4?'Voir le diplôme 🏆':'Défi suivant →';
+  show('🎉 Bravo ! Tu as trouvé '+pressure(target())+' en comptant les intervalles.','good');$('next').focus();
+ }else{
+  show('🔎 Tu as placé l’aiguille sur '+pressure(amount())+' alors que la mission demande '+pressure(target())+'. Tu peux corriger puis valider à nouveau.','bad');
+ }
+}
+function openHint(){
+ if(solved)return;
+ $('hint-panel').hidden=false;
+ if(unlocked){$('show-help').hidden=false;return}
+ if($('hint-options').children.length)return;
+ var l=level(),opts=[l.step].concat(l.options).sort(function(a,b){return a-b});
+ opts.forEach(function(v){
+  var b=document.createElement('button');b.textContent=fmt(v)+' bar';
+  b.addEventListener('click',function(){
+   if(unlocked)return;
+   if(Math.abs(v-l.step)<1e-6){
+    unlocked=true;$('hint-result').textContent='✅ Exact : un petit intervalle vaut '+pressure(l.step)+'.';
+    $('show-help').hidden=false;Array.from($('hint-options').children).forEach(function(x){x.disabled=true});
+    $('reading').className='readout revealed';$('reading').textContent='Pression actuelle : '+pressure(amount());
+   }else{
+    tries++;$('hint-result').textContent=tries<2?'Regarde à nouveau : combien y a-t-il d’espaces entre deux nombres écrits ?':'Ce n’est pas cette valeur. Compte les espaces, puis divise la différence entre les deux nombres par leur nombre.';
+   }
+  });$('hint-options').appendChild(b);
+ });
+}
+function help(){
+ if(!unlocked)return;
+ var l=level(),spaces=Math.round(l.major/l.step);
+ $('hint-result').textContent='💡 Entre 1 et 2 bars, il y a '+spaces+' intervalles égaux : chacun vaut '+pressure(l.step)+'. Pour arriver à '+pressure(target())+', compte '+Math.round(target()/l.step)+' petits espaces depuis zéro.';
+}
+$('plus').addEventListener('click',function(){change(1)});
+$('minus').addEventListener('click',function(){change(-1)});
+$('verify').addEventListener('click',verify);
+$('hint').addEventListener('click',openHint);
+$('show-help').addEventListener('click',help);
+$('next').addEventListener('click',function(){if(!solved)return;round++;if(round===5){finish()}else{newRound()}});
+function finish(){
+ $('game').hidden=true;$('finish').hidden=false;
+ try{localStorage.setItem('mission-gonfleur-'+level().id,'oui');localStorage.setItem('mission-gonfleur-done','oui')}catch(e){}
+}
+$('back').addEventListener('click',home);$('replay').addEventListener('click',function(){start(gradeIndex)});$('home').addEventListener('click',home);
+var params=new URLSearchParams(window.location.search),classe=(params.get('classe')||'').toLowerCase();var initial=levels.findIndex(function(l){return l.id===classe});
+renderMenu();if(initial>=0)start(initial);
+})();
+</script></body></html>
