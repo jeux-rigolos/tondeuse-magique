@@ -193,48 +193,67 @@ function newRound(){
  drawAxis();
 }
 function makeChoice(label,correct,parent){var b=document.createElement('button');b.className='choice';b.textContent=label;b.addEventListener('click',function(){if(solved)return;if(correct)success();else wrong('Tu as choisi '+label+'. Regarde les intervalles, puis réessaie !')});parent.appendChild(b)}
+function axisStart(l){return l.broken?200:60}
+function axisWidth(l){return l.broken?600:740}
 function drawAxis(){
- var l=levels[current],n=numberOfTicks(),out='',major=l.labels||[],w=740;
+ var l=levels[current],n=numberOfTicks(),out='',major=l.labels||[],w=axisWidth(l),x0=axisStart(l);
  out+='<rect x="16" y="14" width="828" height="181" rx="18" fill="#f7fcff"/>';
- out+='<line x1="60" y1="108" x2="800" y2="108" stroke="#2d5d80" stroke-width="7" stroke-linecap="round"/>';
+ if(l.broken){
+  out+='<line x1="38" y1="108" x2="85" y2="108" stroke="#2d5d80" stroke-width="7" stroke-linecap="round"/>';
+  out+='<line x1="183" y1="108" x2="800" y2="108" stroke="#2d5d80" stroke-width="7" stroke-linecap="round"/>';
+  out+='<path d="M 83 108 l 12 -13 l 12 26 l 12 -26 l 12 26 l 12 -13" fill="none" stroke="#d35a46" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
+  out+='<line x1="60" y1="82" x2="60" y2="134" stroke="#24537b" stroke-width="5"/>';
+  out+='<text x="60" y="166" font-size="25" font-weight="850" text-anchor="middle" fill="#214c73">0</text>';
+  out+='<text x="133" y="68" font-size="18" font-weight="900" text-anchor="middle" fill="#b84533">cassure</text>';
+  out+='<text x="129" y="184" font-size="14" text-anchor="middle" fill="#a54737">portion sautée</text>';
+ }else{
+  out+='<line x1="60" y1="108" x2="800" y2="108" stroke="#2d5d80" stroke-width="7" stroke-linecap="round"/>';
+ }
  out+='<path d="M 800 98 L 822 108 L 800 118 Z" fill="#2d5d80"/>';
  for(var i=0;i<=n;i++){
-  var x=60+w*i/n,v=value(i),isMajor=major.some(function(a){return Math.abs(a-v)<.0001});
+  var x=x0+w*i/n,v=value(i),isMajor=major.some(function(a){return Math.abs(a-v)<.0001});
   out+='<line x1="'+x+'" y1="'+(isMajor?82:91)+'" x2="'+x+'" y2="'+(isMajor?134:125)+'" stroke="'+(isMajor?'#24537b':'#679db5')+'" stroke-width="'+(isMajor?5:3)+'" stroke-linecap="round"/>';
   if(isMajor)out+='<text x="'+x+'" y="166" font-size="25" font-weight="850" text-anchor="middle" fill="#214c73">'+fmt(v)+'</text>';
  }
  if(l.type==='read'){
-  var px=60+w*target/n;
+  var px=x0+w*target/n;
   out+='<path d="M '+(px-15)+' 32 L '+(px+15)+' 32 L '+px+' 69 Z" fill="#e65c62"/><text x="'+px+'" y="24" font-size="19" font-weight="850" text-anchor="middle" fill="#b83043">?</text>';
  }
  if(l.type==='jump'){
-  var jp=60+w*position/n,tp=60+w*target/n;
+  var jp=x0+w*position/n,tp=x0+w*target/n;
   out+='<text x="'+tp+'" y="66" font-size="35" text-anchor="middle">🪐</text><circle cx="'+jp+'" cy="106" r="12" fill="#ffbf43" stroke="#b56e10" stroke-width="3"/>';
   out+='<text x="'+jp+'" y="66" font-size="31" text-anchor="middle">🚀</text>';
  }
  if(l.type==='place'&&selected!==null){
-  var sx=60+w*selected/n;
+  var sx=x0+w*selected/n;
   out+='<circle cx="'+sx+'" cy="108" r="12" stroke="white" stroke-width="4" fill="#ef7356"/>';
   out+='<path d="M '+(sx-13)+' 72 L '+(sx+13)+' 72 L '+sx+' 92 Z" fill="#ef7356"/>';
   out+='<text x="'+sx+'" y="48" font-size="22" font-weight="900" fill="#b94727" text-anchor="middle">'+named(value(selected))+'</text>';
  }
- if(l.type==='place')out+='<rect x="35" y="74" width="780" height="66" fill="transparent"/>';
+ if(l.type==='place')out+='<rect x="'+(l.broken?174:35)+'" y="74" width="'+(l.broken?642:780)+'" height="66" fill="transparent"/>';
  axis.innerHTML=out;
  axis.classList.toggle('place',l.type==='place');
- axis.setAttribute('aria-label','Droite de '+fmt(l.min)+' à '+fmt(l.max)+'. '+n+' intervalles. '+(l.type==='place'?'Appuie sur les flèches pour choisir un trait, puis Entrée pour vérifier.':'Observe les graduations.'));
+ axis.setAttribute('aria-label','Droite de '+fmt(l.min)+' à '+fmt(l.max)+'. '+n+' intervalles réguliers. '+(l.broken?'La cassure fait sauter toutes les valeurs de 0 à '+fmt(l.min)+'. ':'')+(l.type==='place'?'Appuie sur les flèches pour choisir un trait, puis Entrée pour vérifier.':'Observe les graduations.'));
  axis.setAttribute('tabindex',l.type==='place'?'0':'-1');
 }
 function wrong(message){roundFailed=true;errors++;setFeedback('🔎 '+message+' '+explain(false),'error')}
-function explain(good){var l=levels[current];if(l.type==='scale')return 'De 0 à 100, il y a '+numberOfTicks()+' espaces identiques. 100 ÷ '+numberOfTicks()+' = '+step+'.';
+function explain(good){
+ var l=levels[current];
+ if(l.type==='scale')return 'De 0 à 100, il y a '+numberOfTicks()+' espaces identiques. 100 ÷ '+numberOfTicks()+' = '+step+'.';
  if(l.id==='pizza')return 'Entre 0 et 1, il y a 4 espaces égaux. Chaque espace vaut 1/4.';
  if(l.id==='robot')return 'Entre 0 et 1, il y a 10 espaces. Chaque espace vaut 0,1.';
+ if(l.id==='compteur')return 'La droite commence à 120 km, pas à zéro. Chaque petit trait ajoute 5 km. '+(good?'On trouve ainsi '+named(value(target))+'.':'Commence par le trait 120 et compte de 5 en 5.');
+ if(l.broken)return 'La cassure fait passer directement de 0 à 750 m : cette portion est masquée et ne compte pas comme un petit intervalle. Ensuite, les traits avancent de 10 m en 10 m.'+(good?' Tu as repéré '+named(value(target))+'.':'');
+ if(l.id==='thermo')return 'Le zéro est au milieu. À gauche, on descend sous 0 : −1, −2, −3… À droite, on trouve les nombres positifs. Chaque trait vaut 1 °C.'+(good?' Le bon repère est '+named(value(target))+'.':'');
  return 'Chaque petit espace vaut '+fmt(step)+(l.unit?' '+l.unit:'')+'. '+(good?'En comptant les espaces depuis '+fmt(l.min)+', tu retrouves '+named(value(target))+'.':'Repère les nombres déjà écrits et compte les espaces.');
 }
 function success(){if(solved)return;solved=true;check.hidden=true;next.hidden=false;hint.hidden=true;Array.from(choices.querySelectorAll('button')).forEach(function(b){b.disabled=true});Array.from(jumps.querySelectorAll('button')).forEach(function(b){b.disabled=true});setFeedback('🎉 Bravo ! '+(roundFailed?'Tu as persévéré, et tu as trouvé ! ':'C’est la bonne réponse ! ')+explain(true),'success');next.textContent=round===4?'Voir mon diplôme 🏅':'Défi suivant →';next.focus()}
 function finish(){var l=levels[current],stars=errors===0?3:errors<=3?2:1;saved[l.id]=Math.max(saved[l.id]||0,stars);store();document.getElementById('regular').hidden=true;var el=document.getElementById('finished');el.hidden=false;el.innerHTML='<div class="medal">🏆</div><h2>Mission accomplie !</h2><p>Tu as réussi les 5 défis de <strong>'+l.title+'</strong> !</p><div style="font-size:39px;margin:15px 0">'+('⭐'.repeat(stars))+'</div><p>'+(stars===3?'Super précision !':'Tu progresses à chaque essai. Bravo pour ta persévérance !')+'</p><div class="actions" style="justify-content:center"><button class="btn primary" id="again" type="button">Rejouer cette aventure</button><button class="btn good" id="another" type="button">Choisir un autre jeu</button></div><p class="tiny">Progression enregistrée uniquement sur cet appareil.</p>';
  document.getElementById('again').addEventListener('click',function(){start(current)});document.getElementById('another').addEventListener('click',showHome);
 }
-axis.addEventListener('click',function(e){if(current<0||solved||levels[current].type!=='place')return;var r=axis.getBoundingClientRect(),svx=(e.clientX-r.left)*860/r.width,n=numberOfTicks();selected=Math.min(n,Math.max(0,Math.round((svx-60)/740*n)));check.disabled=false;drawAxis();setFeedback('Tu as pointé '+named(value(selected))+'. Vérifie si c’est la position demandée.','')});
+axis.addEventListener('click',function(e){if(current<0||solved||levels[current].type!=='place')return;var r=axis.getBoundingClientRect(),svx=(e.clientX-r.left)*860/r.width,n=numberOfTicks(),l=levels[current];
+ if(l.broken&&svx<axisStart(l)-25){setFeedback('⛔ La partie cassée ne contient pas de graduations à choisir. Cherche un trait après la cassure.','error');return}
+ selected=Math.min(n,Math.max(0,Math.round((svx-axisStart(l))/axisWidth(l)*n)));check.disabled=false;drawAxis();setFeedback('Tu as pointé '+named(value(selected))+'. Vérifie si c’est la position demandée.','')});
 axis.addEventListener('keydown',function(e){if(current<0||solved||levels[current].type!=='place')return;if(['ArrowLeft','ArrowRight','Home','End','Enter',' '].indexOf(e.key)<0)return;e.preventDefault();if(e.key==='Enter'||e.key===' '){if(selected!==null)check.click();return}var n=numberOfTicks();if(selected===null)selected=0;else if(e.key==='ArrowLeft')selected=Math.max(0,selected-1);else if(e.key==='ArrowRight')selected=Math.min(n,selected+1);else if(e.key==='Home')selected=0;else if(e.key==='End')selected=n;check.disabled=false;drawAxis();setFeedback('Trait sélectionné : '+named(value(selected))+'. Appuie sur Entrée pour vérifier.','')});
 check.addEventListener('click',function(){if(solved||selected===null||current<0)return;if(selected===target)success();else wrong('Tu as placé ton repère sur '+named(value(selected))+'. Réessaie !')});
 hint.addEventListener('click',function(){if(current<0)return;var l=levels[current];setFeedback('💡 Indice : '+(l.type==='scale'?'Compte les espaces, pas les traits.':l.type==='jump'?'Les bonds de +5 peuvent te faire avancer plus vite, puis ajuste avec +1 ou +2.':'Commence au nombre écrit le plus proche. '+explain(false)),'')});
