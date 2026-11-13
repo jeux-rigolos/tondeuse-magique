@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#dceeff"><meta name="description" content="Mini-jeu de mathématiques : lire et régler un compteur de vitesse à aiguille, avec graduations progressives du CE2 au CM2.">
+<title>Le compteur magique — Jeux rigolos</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#e9f5ff,transparent 40%),linear-gradient(125deg,#e9f4ff,#e7fbec);font:16px/1.5 system-ui,-apple-system,Arial,sans-serif;color:#243f55}
+main{max-width:1000px;padding:20px 16px 55px;margin:auto}a{color:#1965aa}a:focus-visible,button:focus-visible,svg:focus-visible{outline:4px solid #f4ad33;outline-offset:3px}
+.back{display:inline-block;text-decoration:none;background:white;border-radius:12px;padding:9px 13px;box-shadow:0 4px #c8dff0;font-weight:850}
+header{text-align:center;margin:12px auto 20px}.icon{font-size:51px}h1{font-size:clamp(30px,5vw,46px);line-height:1.12;margin:9px 0;color:#1d4971}.intro{margin:0 auto;max-width:640px;color:#56748b}
+.board{border:4px solid white;background:white;border-radius:27px;padding:clamp(15px,3vw,27px);box-shadow:0 8px #c7dff0}
+.mode-list{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.mode{border-radius:20px;padding:17px;background:linear-gradient(135deg,#f7fbff,#e5f2ff);border:2px solid #d6e8fa;text-align:center}.mode h2{margin:4px 0;font-size:24px}.mode p{font-size:14px;color:#476e88;min-height:66px}
+button{font:inherit;border:0;border-radius:13px;padding:12px 15px;font-weight:850;cursor:pointer;background:#e3effa;color:#1e507e;box-shadow:0 4px #c6dce9}
+button:disabled{opacity:.5;cursor:default}button:hover:not(:disabled){filter:brightness(1.05)}.primary{background:#2d7de1;box-shadow:0 4px #1755a2;color:white}.good{background:#67d6a1;box-shadow:0 4px #329f6b;color:#145234}
+h2{margin:12px 0;font-size:clamp(21px,3vw,29px)}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.dots{display:flex;gap:7px}.dot{width:27px;height:13px;border-radius:20px;background:#dce9f3}.dot.done{background:#65c996}.dot.now{background:#ffcc69}
+.note{background:#e9f6ff;border-radius:14px;padding:12px 15px;color:#3a647f;margin:13px 0}
+#dial{display:block;width:100%;height:auto;background:#e6f2fc;border-radius:18px;touch-action:manipulation}
+.dial-shell{border:2px solid #cfdfed;border-radius:20px;padding:6px;margin:15px 0}
+.question{font-size:clamp(18px,2.6vw,23px);font-weight:850;margin:14px 0}
+.controls,.answers{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:13px 0}
+.choice{font-size:21px;font-weight:900;min-width:88px;background:#f2f8ff;border:3px solid #d5e8f8}
+.message{min-height:58px;background:#f0f5f9;border-radius:15px;padding:13px 15px;margin:14px 0;color:#46687f;font-weight:770}
+.message.good{background:#e0f7e9;color:#1c6945}.message.bad{background:#ffeddd;color:#884c21}
+.actions{display:flex;gap:11px;flex-wrap:wrap;align-items:center}
+#finish{text-align:center;padding:22px}.big{font-size:85px}footer{font-size:14px;color:#688094;text-align:center;margin:24px 0}
+@media(max-width:690px){.mode-list{grid-template-columns:1fr}.mode p{min-height:auto}.mode{padding:12px}.choice{min-width:65px;font-size:18px;padding:10px 11px}.dot{width:18px}}
+</style></head><body><main>
+<a href="../" class="back">← La mission des graduations</a>
+<header><div class="icon">🚗🛣️🎯</div><h1>Le compteur magique</h1><p class="intro">Observe l’aiguille rouge d’un compteur de vitesse. Chaque trait indique une valeur. Tu peux lire la vitesse ou régler l’aiguille au bon endroit !</p></header>
+<section id="menu" class="board"><h2>Choisis ton niveau</h2><div id="modes" class="mode-list"></div></section>
+<section id="game" class="board" hidden>
+<div class="topline"><button id="back" type="button">← Les niveaux</button><span class="dots" id="dots"></span></div>
+<h2 id="title"></h2><p class="note" id="context"></p><p class="question" id="question"></p>
+<div class="dial-shell"><svg id="dial" viewBox="0 0 860 450" role="img" tabindex="0"></svg></div>
+<div id="choices" class="answers"></div><div id="controls" class="controls"></div>
+<div class="message" id="message" role="status" aria-live="polite"></div>
+<div class="actions"><button id="hint">💡 Un indice</button><button id="verify" class="primary" type="button" hidden>Vérifier l’aiguille</button><button id="next" class="good" type="button" hidden>Défi suivant →</button></div>
+</section>
+<section id="finish" class="board" hidden><div class="big">🏆🚗</div><h2>Permis des graduations obtenu !</h2><p id="result"></p><div class="actions" style="justify-content:center"><button id="restart" class="primary">Rejouer</button><button id="more">Choisir un autre niveau</button></div></section>
+<footer>Une illustration pour apprendre les nombres, pas une simulation de conduite. Les limites de vitesse réelles dépendent de la route et des règles en vigueur.</footer>
+</main><script>
+(function(){
+'use strict';
+var levels=[
+ {id:'ce2',name:'CE2',emoji:'🚙',step:20,max:120,major:20,targets:[2,4,3,5,1],description:'Graduations de 20 en 20. 0, 20, 40, 60…'},
+ {id:'cm1',name:'CM1',emoji:'🚕',step:10,max:120,major:20,targets:[3,7,5,9,11],description:'Entre deux grands traits, trouve les dizaines.'},
+ {id:'cm2',name:'CM2',emoji:'🏎️',step:5,max:120,major:20,targets:[7,11,17,13,19],description:'Petits traits de 5 en 5 : 35, 55, 85…'}
+];
+var index=0,round=0,pointer=0,solved=false,mistakes=0;
+var $=function(id){return document.getElementById(id)};
+function level(){return levels[index]}
+function target(){return level().targets[round]*level().step}
+function display(){return pointer*level().step}
+function status(text,style){$('message').textContent=text;$('message').className='message'+(style?' '+style:'')}
+function menu(){
+ $('modes').innerHTML='';
+ levels.forEach(function(l,i){
+  var card=document.createElement('article');card.className='mode';
+  var done='';try{done=localStorage.getItem('compteur-'+l.id)==='oui'?'⭐ Niveau réussi':''}catch(e){}
+  card.innerHTML='<div style="font-size:44px">'+l.emoji+'</div><h2>'+l.name+'</h2><p>'+l.description+'</p><p><strong>'+done+'</strong></p>';
+  var b=document.createElement('button');b.textContent='Jouer ▶';b.className='primary';b.addEventListener('click',function(){start(i)});card.appendChild(b);$('modes').appendChild(card);
+ });
+}
+function home(){$('menu').hidden=false;$('game').hidden=true;$('finish').hidden=true;menu();window.scrollTo({top:0,behavior:'smooth'})}
+function start(i){index=i;round=0;mistakes=0;$('menu').hidden=true;$('finish').hidden=true;$('game').hidden=false;newRound();window.scrollTo({top:0,behavior:'smooth'})}
+function isRead(){return round%2===0}
+function newRound(){
+ solved=false;pointer=isRead()?level().targets[round]:0;$('next').hidden=true;$('hint').hidden=false;$('controls').innerHTML='';$('choices').innerHTML='';
+ $('title').textContent=level().emoji+' '+level().name+' — Défi '+(round+1)+'/5';
+ $('context').textContent='Sur ce compteur, un petit espace vaut '+level().step+' km/h. Les nombres inscrits sont espacés de '+level().major+' km/h.';
+ $('question').textContent=isRead()?'🔎 Quelle vitesse l’aiguille rouge indique-t-elle ?':'🎯 Place l’aiguille exactement sur '+target()+' km/h.';
+ var dots=$('dots');dots.innerHTML='';for(var i=0;i<5;i++){var p=document.createElement('span');p.className='dot'+(i<round?' done':i===round?' now':'');dots.appendChild(p)}
+ if(isRead()){
+  $('verify').hidden=true;
+  var options=[target()],offsets=[-2,-1,1,2,3,-3];
+  offsets.forEach(function(off){var x=target()+off*level().step;if(x>=0&&x<=level().max&&options.indexOf(x)<0&&options.length<3)options.push(x)});
+  options.sort(function(){return Math.random()-.5});
+  options.forEach(function(v){var b=document.createElement('button');b.className='choice';b.textContent=v+' km/h';b.addEventListener('click',function(){if(solved)return;if(v===target())success();else wrong('Tu as choisi '+v+' km/h, mais regarde bien l’espace entre deux nombres.');});$('choices').appendChild(b)});
+ }else{
+  $('verify').hidden=false;
+  [-5,-1,1,5].forEach(function(d){var b=document.createElement('button');b.className='choice';b.textContent=(d>0?'+':'')+d+' trait'+(Math.abs(d)>1?'s':'');b.addEventListener('click',function(){if(solved)return;pointer=Math.min(level().max/level().step,Math.max(0,pointer+d));draw();status('Aiguille réglée sur '+display()+' km/h. Vérifie la graduation.');});$('controls').appendChild(b)});
+  var reset=document.createElement('button');reset.textContent='↺ Zéro';reset.addEventListener('click',function(){if(solved)return;pointer=0;draw();status('L’aiguille est revenue sur zéro.')});$('controls').appendChild(reset);
+ }
+ draw();status(isRead()?'Observe l’aiguille rouge, puis choisis une réponse.':'Déplace l’aiguille avec les boutons ou touche directement le cadran.');
+}
+function point(value,r){var a=Math.PI-Math.PI*(value/level().max);return{x:430+r*Math.cos(a),y:332-r*Math.sin(a)}}
+function draw(){
+ var l=level(),n=l.max/l.step,s='';
+ s+='<defs><linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#afd4ff"/><stop offset="1" stop-color="#deeffa"/></linearGradient><radialGradient id="dialbg"><stop stop-color="#344d63"/><stop offset="1" stop-color="#112b3d"/></radialGradient></defs>';
+ s+='<rect x="12" y="12" width="836" height="426" rx="24" fill="#e9f2fb"/>';
+ s+='<path d="M 36 38 Q 430 -20 824 38 L 824 129 L 36 129 Z" fill="url(#road)"/>';
+ s+='<path d="M 358 127 L 404 35 H 451 L 503 127 Z" fill="#9caab3" opacity=".45"/>';
+ s+='<line x1="430" y1="39" x2="430" y2="110" stroke="white" stroke-width="5" stroke-dasharray="16 17"/>';
+ s+='<rect x="60" y="103" width="740" height="319" rx="87" fill="#21394b" stroke="#526c7d" stroke-width="12"/>';
+ s+='<circle cx="430" cy="329" r="253" fill="url(#dialbg)" stroke="#92a8b6" stroke-width="16"/>';
+ s+='<circle cx="430" cy="329" r="242" fill="none" stroke="#2b5973" stroke-width="8"/>';
+ var arc='';for(var i=0;i<=60;i++){var p=point(l.max*i/60,231);arc+=(i?' L ':'M ')+p.x.toFixed(1)+' '+p.y.toFixed(1)}s+='<path d="'+arc+'" fill="none" stroke="#73c7ec" stroke-width="7" stroke-linecap="round"/>';
+ for(var j=0;j<=n;j++){
+  var val=j*l.step,big=val%l.major===0,p1=point(val,big?212:203),p2=point(val,227);
+  s+='<line x1="'+p1.x+'" y1="'+p1.y+'" x2="'+p2.x+'" y2="'+p2.y+'" stroke="'+(big?'#d7f5ff':'#8ab5cb')+'" stroke-width="'+(big?5:2.8)+'" stroke-linecap="round"/>';
+  if(big){var z=point(val,171);s+='<text x="'+z.x+'" y="'+(z.y+7)+'" text-anchor="middle" fill="#fff" font-size="26" font-weight="850">'+val+'</text>'}
+ }
+ s+='<text x="430" y="263" text-anchor="middle" font-size="23" font-weight="750" fill="#b4d5e8">VITESSE</text>';
+ s+='<text x="430" y="286" text-anchor="middle" font-size="20" fill="#d9eff8">km/h</text>';
+ var needle=point(display(),193);
+ s+='<line x1="430" y1="330" x2="'+needle.x+'" y2="'+needle.y+'" stroke="#eb4b45" stroke-width="13" stroke-linecap="round"/>';
+ s+='<line x1="430" y1="330" x2="'+needle.x+'" y2="'+needle.y+'" stroke="#ffb5a4" stroke-width="3" stroke-linecap="round"/>';
+ s+='<circle cx="430" cy="330" r="24" fill="#e65f4e" stroke="#faaf92" stroke-width="7"/>';
+ s+='<rect x="338" y="362" width="184" height="46" rx="13" fill="#0c2331" stroke="#557b93" stroke-width="3"/>';
+ s+='<text x="430" y="393" text-anchor="middle" font-size="22" font-weight="800" fill="#d6efff">'+(isRead()?'?':display()+' km/h')+'</text>';
+ s+='<circle cx="113" cy="360" r="25" fill="#2e586a" stroke="#7fa7bb" stroke-width="4"/>';
+ s+='<circle cx="748" cy="360" r="25" fill="#2e586a" stroke="#7fa7bb" stroke-width="4"/>';
+ $('dial').innerHTML=s;
+ $('dial').setAttribute('aria-label','Compteur de 0 à '+l.max+' km/h. Graduations de '+l.step+' km/h. '+(isRead()?'Observe l’aiguille et choisis la vitesse.':'Utilise les flèches du clavier pour régler l’aiguille. Position actuelle : '+display()+' km/h.'));
+}
+function wrong(t){mistakes++;status('🔎 '+t+' Chaque petit trait vaut '+level().step+' km/h.','bad')}
+function success(){
+ if(solved)return;solved=true;status('🎉 Bravo ! L’aiguille indique bien '+target()+' km/h : '+(target()/level().step)+' petits intervalles depuis zéro.','good');
+ $('next').hidden=false;$('hint').hidden=true;$('verify').hidden=true;
+ Array.from($('choices').children).forEach(function(b){b.disabled=true});Array.from($('controls').children).forEach(function(b){b.disabled=true});
+ $('next').textContent=round===4?'Voir mon diplôme 🏅':'Défi suivant →';$('next').focus();
+}
+$('verify').addEventListener('click',function(){if(solved||isRead())return;if(display()===target())success();else wrong('L’aiguille est sur '+display()+' km/h. La mission demande '+target()+' km/h.')});
+$('hint').addEventListener('click',function(){status('💡 Repère deux grands nombres : par exemple 40 et 60. Il y a '+(20/level().step)+' petit(s) espace(s) de '+level().step+' km/h entre les deux.')});
+$('next').addEventListener('click',function(){if(!solved)return;round++;if(round<5)newRound();else finish()});
+$('back').addEventListener('click',home);
+$('restart').addEventListener('click',function(){start(index)});
+$('more').addEventListener('click',home);
+function finish(){
+ $('game').hidden=true;$('finish').hidden=false;$('result').textContent='Bravo ! Tu as réussi les 5 défis de '+level().name+'. Tu sais lire et régler une aiguille graduée.';
+ try{localStorage.setItem('compteur-'+level().id,'oui');localStorage.setItem('compteur-done','oui')}catch(e){}
+}
+$('dial').addEventListener('click',function(e){
+ if(solved||isRead())return;
+ var r=$('dial').getBoundingClientRect(),x=(e.clientX-r.left)*860/r.width,y=(e.clientY-r.top)*450/r.height;
+ var a=Math.atan2(332-y,x-430);if(a<0.02||a>Math.PI-.02){if(y>350)return}
+ var distance=Math.hypot(x-430,y-332);if(distance<120||distance>267||y>345)return;
+ var proportion=Math.max(0,Math.min(1,(Math.PI-a)/Math.PI));
+ pointer=Math.max(0,Math.min(level().max/level().step,Math.round(proportion*level().max/level().step)));
+ draw();status('Aiguille placée sur '+display()+' km/h. Tu peux vérifier le résultat.');
+});
+$('dial').addEventListener('keydown',function(e){
+ if(['ArrowLeft','ArrowDown','ArrowRight','ArrowUp','Home','End','Enter',' '].indexOf(e.key)<0)return;
+ e.preventDefault();if(isRead()||solved)return;
+ if(e.key==='Enter'||e.key===' '){$('verify').click();return}
+ if(e.key==='Home')pointer=0;else if(e.key==='End')pointer=level().max/level().step;
+ else pointer=Math.max(0,Math.min(level().max/level().step,pointer+(['ArrowRight','ArrowUp'].indexOf(e.key)>=0?1:-1)));
+ draw();status('Vitesse choisie : '+display()+' km/h.');
+});
+menu();
+})();
+</script></body></html>
