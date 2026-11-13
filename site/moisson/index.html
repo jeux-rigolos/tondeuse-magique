@@ -46,6 +46,13 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 .gardens{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:710px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:375px){.touch-modes{grid-template-columns:1fr}}
+.camera-panel{position:absolute;z-index:6;top:12px;right:12px;width:min(210px,calc(100% - 22px));display:grid;gap:6px;pointer-events:auto}
+.camera-panel .view{position:static;display:block;width:100%;min-height:43px;font:850 14px system-ui;text-align:center;touch-action:manipulation}
+.camera-tilt{display:grid;grid-template-columns:50px minmax(0,1fr) 50px;gap:5px;padding:4px;border-radius:14px;background:#fffef2eb;border:1px solid #cbd8bf}
+.camera-tilt button{min-height:47px;min-width:0;border:1px solid #c7d9b8;border-radius:11px;background:#fffefa;color:#375c37;font:900 19px system-ui;cursor:pointer;touch-action:manipulation}
+.camera-tilt #camera-reset{font-size:14px;font-variant-numeric:tabular-nums}
+.camera-tilt button:active{background:#d5edc7}
+@media(max-width:540px){.camera-panel{top:65px;right:7px;width:175px}.camera-tilt{grid-template-columns:42px minmax(0,1fr) 42px}.camera-tilt button{min-height:44px}.camera-panel .view{font-size:13px}}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌾 La Moissonneuse Magique 3D</div><div class="subtitle">Conduis trois machines et découvre trois récoltes !</div></div><b id="pct">0 %</b></div>
@@ -74,7 +81,14 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 </div></div></details>
 <div class="track"><div class="bar" id="bar"></div></div>
 <div class="bin-hud" role="group" aria-label="Niveau du bac de récolte"><span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div class="bin-fill" id="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span></div>
-<div class="stage"><button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><button class="view" id="camera" type="button">⬆️ Vue de dessus</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
+<div class="stage"><button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><div class="camera-panel" role="group" aria-label="Réglages de la caméra">
+ <button class="view" id="camera" type="button">⬆️ Vue de dessus</button>
+ <div class="camera-tilt" aria-label="Inclinaison de la caméra">
+  <button type="button" id="camera-lower" title="Caméra plus basse" aria-label="Caméra plus basse">↘</button>
+  <button type="button" id="camera-reset" title="Rétablir l'angle initial" aria-label="Remettre l’angle de caméra initial">43°</button>
+  <button type="button" id="camera-higher" title="Caméra plus haute" aria-label="Caméra plus haute">↗</button>
+ </div>
+ </div><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
 <div class="status" id="status">👆 Maintiens ton doigt pour guider doucement la moissonneuse !</div>
 <div class="bottom"><div class="game-actions"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌾 Champ suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="foot">👆 Glisse et relâche pour arrêter · Flèches · Manette 🎮</div>
@@ -151,9 +165,49 @@ function startingVehicle(){
  }
  return{x:0,z:0,a:0};
 }
+const cameraDefaults={follow:43,garden:74};
+const cameraAngles={follow:cameraDefaults.follow,garden:cameraDefaults.garden};
+const cameraStorageKey='moissonneuse-3d-angles-v1';
+const cameraRanges={follow:[28,70],garden:[47,83]};
+function clampCameraAngle(mode,angle){
+ const bounds=cameraRanges[mode];
+ return Math.max(bounds[0],Math.min(bounds[1],angle));
+}
+try{
+ const saved=JSON.parse(window.localStorage?.getItem(cameraStorageKey)||'null');
+ if(saved){
+  for(const mode of ['follow','garden']){
+   if(Number.isFinite(saved[mode]))cameraAngles[mode]=clampCameraAngle(mode,saved[mode]);
+  }
+ }
+}catch(err){}
+function cameraAngle(){return cameraAngles[view]}
+function updateCameraLabel(){
+ const degrees=Math.round(cameraAngle());
+ const resetButton=root.querySelector('#camera-reset');
+ resetButton.textContent=degrees+'°';
+ resetButton.setAttribute('aria-label','Angle actuel '+degrees+' degrés. Rétablir l’angle initial');
+ root.querySelector('#camera-lower').disabled=degrees<=cameraRanges[view][0];
+ root.querySelector('#camera-higher').disabled=degrees>=cameraRanges[view][1];
+}
+function changeCameraAngle(delta,reset=false){
+ const next=reset?cameraDefaults[view]:cameraAngles[view]+delta;
+ cameraAngles[view]=clampCameraAngle(view,next);
+ updateCameraLabel();
+ try{window.localStorage?.setItem(cameraStorageKey,JSON.stringify(cameraAngles))}catch(err){}
+}
+function followCameraEye(){
+ const angle=cameraAngles.follow*Math.PI/180;
+ const distance=6;
+ const height=.65+distance*Math.tan(angle);
+ return[vehicle.x-Math.sin(vehicle.a)*distance,height,vehicle.z-Math.cos(vehicle.a)*distance];
+}
 function gardenCameraEye(){
+ // Distance similaire à la version rapprochée, mais inclinaison indépendante.
  const aspect=Math.max(.60,(canvas.clientWidth||960)/(canvas.clientHeight||600));
- return[0,Math.max(12.5,14.4/aspect)*terrainScale,5.2*terrainScale];
+ const distance=Math.max(13.3,14.4/aspect)*terrainScale;
+ const angle=cameraAngles.garden*Math.PI/180;
+ return[0,Math.sin(angle)*distance,Math.cos(angle)*distance];
 }
 function driveable(x,z){let safety=type==='beet'?.64:.57;return insideGarden(x,z,safety)&&!obstacleAt(x,z,safety);}
 
@@ -465,8 +519,9 @@ function chooseSize(id){
   // Garder un véhicule suffisamment grand à l'écran sur les grands terrains.
   view='follow';
   root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'⬆️ Vue de dessus';
+  updateCameraLabel();
   reset();
-  camEye=view==='garden'?gardenCameraEye():[vehicle.x,6.2,vehicle.z-6];
+  camEye=view==='garden'?gardenCameraEye():followCameraEye();
   camAt=view==='garden'?[0,0,0]:[vehicle.x,.65,vehicle.z];
   status.textContent='📏 Champ '+terrainLabels[id]+' : bonne récolte !';
 }
@@ -474,7 +529,16 @@ root.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>c
 root.querySelector('#next-garden').addEventListener('click',()=>{
   const ids=Object.keys(gardens);chooseGarden(ids[(ids.indexOf(gardenId)+1)%ids.length]);
 });
-root.querySelector('#camera').addEventListener('click',()=>{view=view==='garden'?'follow':'garden';root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'⬆️ Vue de dessus';});
+root.querySelector('#camera').addEventListener('click',()=>{
+ view=view==='garden'?'follow':'garden';
+ root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'⬆️ Vue de dessus';
+ updateCameraLabel();
+});
+root.querySelector('#camera-lower').addEventListener('click',()=>changeCameraAngle(-7));
+root.querySelector('#camera-higher').addEventListener('click',()=>changeCameraAngle(7));
+root.querySelector('#camera-reset').addEventListener('click',()=>changeCameraAngle(0,true));
+updateCameraLabel();
+
 root.querySelectorAll('[data-control]').forEach(b=>b.addEventListener('click',()=>{
  controlMode=b.dataset.control;
  root.querySelectorAll('[data-control]').forEach(btn=>{const active=btn.dataset.control===controlMode;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});
@@ -599,12 +663,12 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
    binPercentDisplayed=currentBinPercent;
    binBar.style.width=currentBinPercent+'%';binValue.textContent=currentBinPercent+' %';
  }
- let destEye,destAt;if(view==='garden'){destEye=gardenCameraEye();destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.027*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.027*Math.min(dt,2);}
+ let destEye,destAt;if(view==='garden'){destEye=gardenCameraEye();destAt=[0,0,0]}else{destEye=followCameraEye();destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.027*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.027*Math.min(dt,2);}
  let w=Math.max(1,Math.floor(canvas.clientWidth*Math.min(devicePixelRatio||1,1.5))),h=Math.max(1,Math.floor(canvas.clientHeight*Math.min(devicePixelRatio||1,1.5)));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(VP,false,matrix());gl.uniform1f(TICK,time);if(dirty)updateStatic();if(grassDirty)updateGrass();
  function drawBuffer(buffer,count){gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.enableVertexAttribArray(P);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(C);gl.vertexAttribPointer(C,3,gl.FLOAT,false,24,12);gl.drawArrays(gl.TRIANGLES,0,count);}
  gl.uniform1f(BREEZE,0);drawBuffer(staticBuf,staticCount);gl.uniform1f(BREEZE,1);drawBuffer(grassBuf,grassCount);gl.uniform1f(BREEZE,0);mesh=[];vehicleMesh();gl.bindBuffer(gl.ARRAY_BUFFER,movingBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh),gl.DYNAMIC_DRAW);drawBuffer(movingBuf,mesh.length/6);
  requestAnimationFrame(render);
 }
-reset();camEye=[vehicle.x,6.2,vehicle.z-6];camAt=[vehicle.x,.65,vehicle.z];requestAnimationFrame(render);
+reset();camEye=followCameraEye();camAt=[vehicle.x,.65,vehicle.z];requestAnimationFrame(render);
 })();
 </script></body></html>
