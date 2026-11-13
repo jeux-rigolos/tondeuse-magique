@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#fff2db">
-<meta name="description" content="Trois vraies recettes : lire une balance de cuisine et un verre doseur gradués pour préparer crêpes, pancakes ou gâteau au chocolat.">
+<meta name="description" content="Trois recettes authentiques et cinq niveaux CP-CM2 : lire des masses, volumes et compter les œufs avec des graduations adaptées.">
 <title>Le petit pâtissier — Balance et verre doseur</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0%,#ffe5aa,transparent 38%),radial-gradient(circle at 94% 20%,#dff8ff,transparent 35%),#fff9ed;font:16px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#37445a}
@@ -9,6 +9,7 @@ main{max-width:1030px;margin:auto;padding:18px 16px 58px}
 a{color:#1962a0}a:focus-visible,button:focus-visible,select:focus-visible,svg:focus-visible{outline:4px solid #e59435;outline-offset:3px}
 .back{display:inline-block;text-decoration:none;padding:9px 13px;border-radius:14px;background:white;font-weight:800;box-shadow:0 4px #ecdfc8}
 header{text-align:center;padding:8px 8px 14px}.emblem{font-size:52px}h1{font-size:clamp(30px,5vw,44px);line-height:1.16;margin:7px 0;color:#84511c}header p{max-width:650px;margin:8px auto;color:#6a6e74}
+.grades{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:10px auto 20px}.grades button.active{background:#dd8b2c;color:white;box-shadow:0 4px #bd7126}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.recipe{display:flex;flex-direction:column;gap:7px;border-radius:25px;border:3px solid white;background:white;padding:20px;box-shadow:0 7px #eddab8;text-align:center}
 .recipe .picture{font-size:68px;background:#fff4df;border-radius:18px;padding:10px}.recipe h2{margin:6px 0;font-size:24px}.recipe p{flex:1;color:#606b73;margin:0}
 button{font:inherit;border:0;border-radius:14px;padding:12px 15px;cursor:pointer;font-weight:850;background:#e5f0fc;color:#205585;box-shadow:0 4px #c3d9ed}
@@ -34,7 +35,7 @@ button:hover:not(:disabled){filter:brightness(1.04);transform:translateY(-1px)}b
 <body><main>
 <a href="../" class="back">← La mission des graduations</a>
 <header><div class="emblem">🥞👩‍🍳🎂</div><h1>Le petit pâtissier</h1><p>Choisis une <strong>vraie recette</strong>, mesure les ingrédients sur une balance et dans un verre doseur, puis termine la préparation. Les quantités proviennent de recettes publiées.</p></header>
-<section id="menu"><div class="grid" id="recipe-grid"></div><p class="footer">Les ingrédients qui ne se mesurent pas avec une balance ou un doseur restent indiqués sur la fiche de recette. Pour cuisiner, suis la recette source avec un adulte.</p></section>
+<section id="menu"><div class="grades" id="grade-buttons" role="group" aria-label="Choisir sa classe"></div><div class="grid" id="recipe-grid"></div><p class="footer">Les ingrédients qui ne se mesurent pas avec une balance ou un doseur restent indiqués sur la fiche de recette. Pour cuisiner, suis la recette source avec un adulte.</p></section>
 <section id="play" hidden><div class="board">
 <div class="toolbar"><button id="back-menu" type="button">← Choisir une recette</button><h2 id="recipe-title"></h2></div>
 <div class="progress" id="progress"></div><div class="story"><p id="recipe-note"></p></div>
@@ -64,9 +65,34 @@ var recipes=[
  note:'Pour 6 personnes. Complément à prévoir avec un adulte : une cuillère à café rase de levure chimique.',
  ingredients:[eggs(5),w('sucre','🍬',200,10,250,50,'#f4ede3'),w('chocolat pâtissier','🍫',200,10,250,50,'#8d563c'),w('beurre','🧈',150,5,200,50,'#f6d570'),w('farine','🌾',100,5,150,25,'#f0d49c'),v('lait','🥛',5,1,20,5,'#c4e6fc')]}
 ];
-var selectedRecipe=0,stepIdx=0,ticks=0,solved=false,wrongAttempts=0;
+var selectedRecipe=0,stepIdx=0,ticks=0,solved=false,wrongAttempts=0,activeRecipe=null;
+var classes=['CP','CE1','CE2','CM1','CM2'],gradeChoice='CP';
+function stepFor(ingredient){
+ if(ingredient.kind==='count')return 1;
+ var targetSpaces={CP:5,CE1:9,CE2:13,CM1:19,CM2:26}[gradeChoice];
+ var options=[.25,.5,1,2,2.5,5,10,12.5,20,25,50,100];
+ var best=ingredient.step,score=1e9;
+ options.forEach(function(candidate){
+  var n=ingredient.goal/candidate;
+  if(Math.abs(n-Math.round(n))>1e-6||n<2||n>31)return;
+  var s=Math.abs(n-targetSpaces)+(candidate<ingredient.step&&gradeChoice==='CP'?6:0);
+  if(s<score){score=s;best=candidate}
+ });return best;
+}
+function useGrade(g){
+ gradeChoice=g;var box=document.getElementById('grade-buttons');box.innerHTML='';
+ classes.forEach(function(name){var b=document.createElement('button');b.textContent=name;b.className=name===gradeChoice?'active':'';b.setAttribute('aria-pressed',name===gradeChoice?'true':'false');
+ b.addEventListener('click',function(){useGrade(name);makeMenu()});box.appendChild(b)});
+}
+function adaptRecipe(r){
+ return Object.assign({},r,{ingredients:r.ingredients.map(function(it){
+  var x=Object.assign({},it);x.step=stepFor(x);
+  if(x.kind!=='count'){x.max=(Math.round(x.goal/x.step)+2)*x.step;x.major=x.step*5}
+  return x;
+ })});
+}
 var $=function(id){return document.getElementById(id)};
-function recipe(){return recipes[selectedRecipe]}
+function recipe(){return activeRecipe||recipes[selectedRecipe]}
 function ing(){return recipe().ingredients[stepIdx]}
 function amount(){return ticks*ing().step}
 function feedback(s,cls){$('feedback').textContent=s;$('feedback').className='notice'+(cls?' '+cls:'')}
@@ -74,14 +100,14 @@ function makeMenu(){
  var grid=$('recipe-grid');grid.innerHTML='';
  recipes.forEach(function(r,i){
   var card=document.createElement('article');card.className='recipe';
-  var status='';try{status=localStorage.getItem('mission-recette-'+r.id)==='oui'?'⭐ Déjà réussie':''}catch(e){}
-  card.innerHTML='<div class="picture" aria-hidden="true">'+r.icon+'</div><h2>'+r.title+'</h2><p><strong>'+r.grade+'</strong> · '+r.ingredients.length+' ingrédients à doser</p><p>'+r.from+'</p><p>'+status+'</p>';
+  var status='';try{status=localStorage.getItem('mission-recette-'+r.id+'-'+gradeChoice.toLowerCase())==='oui'?'⭐ Déjà réussie':''}catch(e){}
+  card.innerHTML='<div class="picture" aria-hidden="true">'+r.icon+'</div><h2>'+r.title+'</h2><p><strong>'+gradeChoice+'</strong> · '+r.ingredients.length+' ingrédients à doser</p><p>'+r.from+'</p><p>'+status+'</p>';
   var b=document.createElement('button');b.textContent='Cuisiner cette recette ▶';b.className='primary';b.addEventListener('click',function(){begin(i)});card.appendChild(b);
   var a=document.createElement('a');a.href=r.url;a.target='_blank';a.rel='noopener noreferrer';a.className='source';a.textContent='Consulter la recette originale';card.appendChild(a);grid.appendChild(card);
  });
 }
 function backMenu(){$('play').hidden=true;$('menu').hidden=false;makeMenu();window.scrollTo({top:0,behavior:'smooth'})}
-function begin(i){selectedRecipe=i;stepIdx=0;$('menu').hidden=true;$('play').hidden=false;$('recipe-title').textContent=recipe().icon+' '+recipe().title;$('recipe-note').textContent=recipe().note;$('done').hidden=true;$('stage').hidden=false;newStage();window.scrollTo({top:0,behavior:'smooth'})}
+function begin(i){selectedRecipe=i;activeRecipe=adaptRecipe(recipes[i]);stepIdx=0;$('menu').hidden=true;$('play').hidden=false;$('recipe-title').textContent=recipe().icon+' '+recipe().title;$('recipe-note').textContent=recipe().note;$('done').hidden=true;$('stage').hidden=false;newStage();window.scrollTo({top:0,behavior:'smooth'})}
 function progress(){
  $('progress').innerHTML='';
  recipe().ingredients.forEach(function(it,i){var p=document.createElement('span');p.className='pip'+(i<stepIdx?' done':i===stepIdx?' current':'');p.title='Ingrédient '+(i+1)+' : '+it.name;$('progress').appendChild(p)});
@@ -175,7 +201,7 @@ function verify(){
 function finish(){
  $('stage').hidden=true;$('done').hidden=false;$('finished-icon').textContent=recipe().icon;
  $('done-text').textContent='Bravo, toutes les quantités de '+recipe().title+' sont bonnes !';
- try{localStorage.setItem('mission-recette-'+recipe().id,'oui');localStorage.setItem('mission-recette-done','oui')}catch(e){}
+ try{localStorage.setItem('mission-recette-'+recipe().id+'-'+gradeChoice.toLowerCase(),'oui');localStorage.setItem('mission-recette-done','oui')}catch(e){}
  progress();window.scrollTo({top:0,behavior:'smooth'});
 }
 $('verify').addEventListener('click',verify);
@@ -198,6 +224,7 @@ $('drawing').addEventListener('keydown',function(e){
  else ticks=Math.min(ing().max/ing().step,Math.max(0,ticks+(['ArrowUp','ArrowRight'].indexOf(e.key)>=0?1:-1)));
  draw();feedback('Mesure choisie : '+amount()+' '+ing().unit+'. Entrée pour valider.');
 });
-makeMenu();
+var param=(new URLSearchParams(window.location.search)).get('classe');if(classes.some(function(g){return g.toLowerCase()===param}))gradeChoice=param.toUpperCase();
+useGrade(gradeChoice);makeMenu();
 })();
 </script></body></html>
