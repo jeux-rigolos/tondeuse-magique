@@ -123,30 +123,33 @@ function ground(){
 // keep each blade visible from an angled 3D camera without bulky triangles.
 const random=n=>{let x=Math.sin(n*83.345+27.14)*43758.5453123;return x-Math.floor(x)};
 function gradientTri(a,b,d,ca,cb,cd){vertex(...a,ca);vertex(...b,cb);vertex(...d,cd)}
+// Tiges de blé fines et épis dorés avec grains.
 function grassBlade(x,z,h,angle,lean,width,shade){
- const cx=Math.cos(angle),cz=Math.sin(angle),bx=Math.cos(lean),bz=Math.sin(lean);
- const low=tint(c('#2f8835'),shade),mid=tint(c('#59b948'),shade),tip=tint(c('#9bd65f'),shade);
- for(let k=0;k<2;k++){
-  let dx=Math.cos(angle+k*Math.PI/2),dz=Math.sin(angle+k*Math.PI/2);
-  let baseL=[x-dx*width,.037,z-dz*width],baseR=[x+dx*width,.037,z+dz*width];
-  let midL=[x+bx*.085-dx*width*.55,h*.58,z+bz*.085-dz*width*.55];
-  let midR=[x+bx*.085+dx*width*.55,h*.58,z+bz*.085+dz*width*.55];
-  let end=[x+bx*.22,h,z+bz*.22];
-  gradientTri(baseL,baseR,midR,low,low,mid);
-  gradientTri(baseL,midR,midL,low,mid,mid);
-  gradientTri(midL,midR,end,mid,mid,tip);
+ const bx=Math.cos(lean),bz=Math.sin(lean),dx=Math.cos(angle),dz=Math.sin(angle);
+ const low=tint(c('#8c963e'),shade),stem=tint(c('#bead49'),shade);
+ const grain=tint(c('#f0bf4a'),shade),tip=tint(c('#ffe48a'),shade);
+ const A=[x-dx*width,.035,z-dz*width],B=[x+dx*width,.035,z+dz*width];
+ const M=[x+bx*.085,h*.65,z+bz*.085],T=[x+bx*.17,h,z+bz*.17];
+ gradientTri(A,B,M,low,low,stem);
+ gradientTri(M,[T[0]-dx*width*.5,T[1]-.12,T[2]-dz*width*.5],T,stem,grain,tip);
+ for(let t=0;t<3;t++){
+   const k=t/3,yy=h-.06-k*.13;
+   const xx=T[0]-bx*(.06+k*.05),zz=T[2]-bz*(.06+k*.05);
+   const w=.10*(1-k*.28);
+   gradientTri([xx-dx*w,yy-.12,zz-dz*w],[xx+dx*w,yy-.12,zz+dz*w],[xx,yy+.08,zz],grain,grain,tip);
+   gradientTri([xx-dz*w,yy-.11,zz+dx*w],[xx+dz*w,yy-.11,zz-dx*w],[xx,yy+.08,zz],grain,grain,tip);
  }
 }
 function updateGrass(){
  mesh=[];
  for(let tile=0;tile<grass.length;tile++){
-  let g=grass[tile];if(g.cut)continue;
-  for(let n=0;n<(terrainScale===1?12:terrainScale===1.5?9:7);n++){
-   let i=tile*37+n*19,r1=random(i+1),r2=random(i+2),r3=random(i+3),r4=random(i+4),r5=random(i+5);
-   let x=g.x+(r1-.5)*.80,z=g.z+(r2-.5)*.80;
-   let h=.68+r3*.45,w=.014+r4*.011;
-   grassBlade(x,z,h,r5*6.283,(r2+r4)*3.1416,w,.88+r1*.23);
-  }
+   const g=grass[tile];if(g.cut)continue;
+   const amount=terrainScale===1?10:terrainScale===1.5?7:5;
+   for(let n=0;n<amount;n++){
+     const i=tile*43+n*23,r1=random(i+1),r2=random(i+2),r3=random(i+3),r4=random(i+4),r5=random(i+5);
+     const x=g.x+(r1-.5)*.78,z=g.z+(r2-.5)*.78;
+     grassBlade(x,z,.84+r3*.39,r5*6.283,(r2+r4)*3.1416,.017+r4*.008,.84+r1*.22);
+   }
  }
  gl.bindBuffer(gl.ARRAY_BUFFER,grassBuf);
  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh),gl.DYNAMIC_DRAW);
