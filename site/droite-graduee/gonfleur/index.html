@@ -34,7 +34,7 @@ svg{width:100%;height:auto;display:block;background:#f6fbff;border-radius:18px}
 footer{text-align:center;color:#657f92;font-size:13px;margin:25px 0}
 @media(max-width:480px){.controls button{min-width:135px;padding:12px 8px}.options button{flex:1}.dot{width:17px}}
 </style></head><body><main>
-<a href="../" class="back">← Les jeux des graduations</a>
+<a href="../" class="back" id="return-to-levels">← Les jeux des graduations</a>
 <header><div class="big">🚲🛞💨</div><h1>Le gonfleur de vélo</h1>
 <p>Ajoute ou enlève de l’air en observant les traits du manomètre. <strong>La pression choisie reste secrète jusqu’à validation</strong> — ou jusqu’à ce que tu aies débloqué l’indice !</p></header>
 <section id="menu"><div id="cards" class="grid"></div></section>
@@ -87,7 +87,7 @@ function renderMenu(){
  });
 }
 function home(){$('menu').hidden=false;$('game').hidden=true;$('finish').hidden=true;renderMenu();window.scrollTo({top:0,behavior:'smooth'})}
-function start(i){gradeIndex=i;round=0;$('menu').hidden=true;$('game').hidden=false;$('finish').hidden=true;newRound();window.scrollTo({top:0,behavior:'smooth'})}
+function start(i){gradeIndex=i;document.getElementById('return-to-levels').href='../?classe='+levels[i].id;round=0;$('menu').hidden=true;$('game').hidden=false;$('finish').hidden=true;newRound();window.scrollTo({top:0,behavior:'smooth'})}
 function progress(){$('dots').innerHTML='';for(var i=0;i<5;i++){var d=document.createElement('span');d.className='dot'+(i<round?' done':i===round?' active':'');$('dots').appendChild(d)}}
 function newRound(){
  pos=0;solved=false;validated=false;unlocked=false;tries=0;
