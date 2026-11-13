@@ -2,7 +2,7 @@
 
 Des jeux de conduite, de récolte et de mathématiques pour les enfants, jouables directement dans le navigateur, sans installation ni dépendance externe.
 
-- **Droite graduée (CE1 à CM2)** : huit mini-jeux sur les entiers, les intervalles, les fractions et les décimaux, avec indices, explications, cinq défis par jeu et progression locale. Accessible au tactile, à la souris et au clavier.
+- **Droite graduée (CE1 à CM2)** : onze mini-jeux sur les entiers, les intervalles, les fractions et les décimaux, plus trois défis avancés (départ à 120 km, cassure entre 0 et 750 m, zéro au centre avec températures négatives). Indices, explications, cinq défis par jeu et progression locale. Accessible au tactile, à la souris et au clavier.
 - **2D** : jardin vu du dessus, tondeuse rouge / tracteur-tondeuse vert, sons, fleurs, papillons, progression.
 - **3D** : véritable scène WebGL 3D, herbe haute et fine, tondeuse / tracteur, caméra « Suivre ».
 - **Moissonneuse 2D** : vue du dessus, trois machines agricoles et trois cultures (blé, maïs, betteraves), récolte avec outils de coupe à l'avant.
