@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#e6f7fd">
-<meta name="description" content="Huit mini-jeux gratuits pour apprendre la droite graduée du CE1 au CM2.">
+<meta name="description" content="Onze mini-jeux gratuits de la droite graduée du CE1 au CM2, avec axes cassés, départ non nul et températures négatives.">
 <title>La mission des graduations — Jeux rigolos</title>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#21384b;background:#eff9ff;font-synthesis:none}
@@ -69,8 +69,8 @@ footer{text-align:center;padding:32px 5px 0;color:#608092;font-size:14px}
 <div class="wrap">
 <div class="top"><a href="../">← Tous les jeux rigolos</a><span class="brand">🎯 Mission Graduations <small>CE1 → CM2</small></span></div>
 <section id="home">
-<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">8 aventures · Du CE1 au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
-<div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 8</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
+<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">11 aventures · Du CE1 au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
+<div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 11</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
 <div id="cards" class="grid"></div>
 <p class="tiny" style="text-align:center;margin-top:26px">Tu peux commencer par n'importe quel jeu. Les niveaux CE1 restent ouverts aux plus grands : s'entraîner, c'est progresser !</p>
 </section>
@@ -108,7 +108,10 @@ var levels=[
 {id:'pizza',grade:'CM1',icon:'🍕',title:'La pizza des fractions',desc:'Place 1/2, 3/4, 5/4… entre 0 et 2.',type:'place',min:0,max:2,step:.25,labels:[0,1,2],unit:'',context:'Chaque pizza entière est partagée en quatre parts égales. Certaines commandes dépassent une pizza !',real:'Dans la vraie vie : partager une pizza en quatre permet de comprendre 1/4, 1/2 et 3/4.'},
 {id:'potion',grade:'CM1',icon:'🧪',title:'Le laboratoire des potions',desc:'Lis les centilitres d’un récipient gradué.',type:'read',min:0,max:100,step:5,labels:[0,50,100],unit:'cL',context:'La fiole est graduée de 0 à 100 cL. Chaque petit trait compte !',real:'Dans la vraie vie : le verre doseur indique des quantités régulières pour suivre une recette.'},
 {id:'robot',grade:'CM2',icon:'🤖',title:'Le robot des décimaux',desc:'Place 0,7 ; 1,3 ; 1,8 sur la piste.',type:'place',min:0,max:2,step:.1,labels:[0,1,2],unit:'',context:'Le robot avance par dixièmes. Entre 0 et 1, il y a dix petits espaces égaux.',real:'Dans la vraie vie : les longueurs et les distances s’expriment souvent avec des nombres décimaux.'},
-{id:'randonnee',grade:'CM2',icon:'🥾',title:'Le rallye des kilomètres',desc:'Retrouve une distance au demi-kilomètre près.',type:'place',min:0,max:10,step:.5,labels:[0,5,10],unit:'km',context:'Sur le sentier, les panneaux indiquent les kilomètres. Chaque petit intervalle vaut 0,5 km.',real:'À faire dehors : regarde la distance d’une balade sur une carte ou un panneau de randonnée.'}
+{id:'randonnee',grade:'CM2',icon:'🥾',title:'Le rallye des kilomètres',desc:'Retrouve une distance au demi-kilomètre près.',type:'place',min:0,max:10,step:.5,labels:[0,5,10],unit:'km',context:'Sur le sentier, les panneaux indiquent les kilomètres. Chaque petit intervalle vaut 0,5 km.',real:'À faire dehors : regarde la distance d’une balade sur une carte ou un panneau de randonnée.'},
+{id:'compteur',grade:'CM2',icon:'🚴',title:'Le compteur du vélo',desc:'La droite démarre à 120, et non à zéro.',type:'place',min:120,max:180,step:5,labels:[120,150,180],unit:'km',context:'Ton vélo a déjà parcouru 120 km. Le compteur continue : chaque trait représente 5 km. Le premier trait vaut 120, pas zéro !',real:'Dans la vraie vie : le compteur d’un vélo ou d’une voiture ne revient pas à zéro à chaque trajet.'},
+{id:'coupure',grade:'CM2',icon:'🗺️',title:'La carte à la règle cassée',desc:'Une cassure cache le chemin entre 0 et 750.',type:'place',min:750,max:850,step:10,labels:[750,800,850],unit:'m',broken:true,context:'Sur le plan d’une randonnée, une cassure cache la partie de 0 à 750 m. Après 750 m, la droite reprend avec des traits espacés de 10 m.',real:'Dans la vraie vie : une carte ou un graphique peut présenter une cassure pour raccourcir une longue portion sans détail. La cassure ne se compte pas comme un petit intervalle.'},
+{id:'thermo',grade:'CM2 · Bonus',icon:'🌡️',title:'Le thermomètre polaire',desc:'Zéro au milieu : découvre les nombres négatifs.',type:'place',min:-10,max:10,step:1,labels:[-10,-5,0,5,10],unit:'°C',context:'Sur le thermomètre, 0 °C est au milieu. Les températures négatives sont à gauche et les positives sont à droite.',real:'Dans la vraie vie : un thermomètre d’hiver peut indiquer −3 °C ou −8 °C. Ce jeu est un bonus de découverte des nombres relatifs.'}
 ];
 var home=document.getElementById('home'),play=document.getElementById('play'),cards=document.getElementById('cards');
 var axis=document.getElementById('axis'),choices=document.getElementById('choices'),jumps=document.getElementById('jumps');
@@ -131,16 +134,16 @@ function renderHome(){
  card.innerHTML='<div class="scene" aria-hidden="true">'+l.icon+'</div><div class="cardbody"><span class="grade">'+l.grade+'</span><h2>'+l.title+'</h2><p>'+l.desc+'</p><div class="completed">'+(stars?'⭐'.repeat(stars)+' · Terminé':'5 défis à relever')+'</div><button type="button" class="btn primary">'+(stars?'Rejouer ↻':'Jouer ▶')+'</button></div>';
  card.querySelector('button').addEventListener('click',function(){start(i)});cards.appendChild(card);
  });
- document.getElementById('stat-completed').textContent='🏅 '+Object.keys(saved).filter(function(k){return saved[k]>0&&levels.some(function(l){return l.id===k})}).length+' jeu(x) terminé(s) sur 8';
+ document.getElementById('stat-completed').textContent='🏅 '+Object.keys(saved).filter(function(k){return saved[k]>0&&levels.some(function(l){return l.id===k})}).length+' jeu(x) terminé(s) sur '+levels.length;
 }
 function showHome(){current=-1;home.style.display='block';play.style.display='none';renderHome();window.scrollTo({top:0,behavior:'smooth'})}
-function start(i){current=i;round=0;errors=0;lastTarget=-1;home.style.display='none';play.style.display='block';document.getElementById('regular').hidden=false;document.getElementById('finished').hidden=true;document.getElementById('grade').textContent=levels[i].grade+' · Aventure '+(i+1)+'/8';document.getElementById('game-title').textContent=levels[i].icon+' '+levels[i].title;document.getElementById('story').textContent=levels[i].context;document.getElementById('real').textContent='🌍 '+levels[i].real;newRound();window.scrollTo({top:0,behavior:'smooth'})}
+function start(i){current=i;round=0;errors=0;lastTarget=-1;home.style.display='none';play.style.display='block';document.getElementById('regular').hidden=false;document.getElementById('finished').hidden=true;document.getElementById('grade').textContent=levels[i].grade+' · Aventure '+(i+1)+'/'+levels.length;document.getElementById('game-title').textContent=levels[i].icon+' '+levels[i].title;document.getElementById('story').textContent=levels[i].context;document.getElementById('real').textContent='🌍 '+levels[i].real;newRound();window.scrollTo({top:0,behavior:'smooth'})}
 function setProgress(){var el=document.getElementById('progress');el.innerHTML='';for(var i=0;i<5;i++){var dot=document.createElement('span');dot.className='dot'+(i<round?' done':i===round?' now':'');dot.title='Défi '+(i+1);el.appendChild(dot)}}
 function newRound(){
  var l=levels[current];solved=false;roundFailed=false;selected=null;position=0;next.hidden=true;hint.hidden=false;choices.innerHTML='';jumps.innerHTML='';
  step=l.type==='scale'?[5,10,20][rand(0,2)]:l.step;
  var n=numberOfTicks();target=rand(1,n-1);if(l.id==='pizza')target=rand(1,7);
- if(target===lastTarget&&n>3)target=(target%(n-1))+1;lastTarget=target;
+ if(l.id==='thermo')target=[10,7,14,3,18][round];else if(target===lastTarget&&n>3)target=(target%(n-1))+1;lastTarget=target;
  setProgress();
  var q='',instruction='';
  if(l.type==='place'){
@@ -148,7 +151,10 @@ function newRound(){
   if(l.id==='pizza')q='🍕 Place la commande de '+named(value(target))+' pizza(s) sur la droite.';
   if(l.id==='robot')q='🤖 Le robot doit s’arrêter à '+named(value(target))+'. Montre-lui où aller !';
   if(l.id==='randonnee')q='🥾 Le panneau annonce '+named(value(target))+' depuis le départ. Où se trouve ce point ?';
-  instruction='Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
+  if(l.id==='compteur')q='🚴 Ton compteur indique '+named(value(target))+'. Quel est le bon trait entre 120 et 180 km ?';
+  if(l.id==='coupure')q='🗺️ Sur le sentier, il faut trouver la borne '+named(value(target))+'. Attention à la cassure !';
+  if(l.id==='thermo')q='🌡️ Le thermomètre indique '+named(value(target))+'. Où places-tu ce point ?';
+  instruction=l.broken?'La portion barrée est sautée : ne la compte pas comme un petit espace. Place ton repère après la cassure.':l.id==='thermo'?'Le zéro est au milieu. Les nombres en dessous de zéro sont à gauche. Choisis un trait.':'Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
   check.hidden=false;check.disabled=true;
   [-1,1].forEach(function(direction){
    var b=document.createElement('button');b.className='choice';b.style.fontSize='16px';
