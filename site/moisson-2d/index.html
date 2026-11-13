@@ -103,12 +103,12 @@
     <span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div id="bin-fill" class="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span>
   </div>
   <div class="game-wrap">
-    <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Champ à récolter. Utilise les flèches, la manette ou touche le champ."></canvas>
+    <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Champ à récolter. Garde le doigt sur l’écran et glisse pour conduire, relâche pour arrêter. Flèches et manette compatibles."></canvas>
     <div class="hud"><div class="progress-box"><div class="progress-emoji">🌾</div><div><span class="progress-name">Récolte effectuée</span><div class="track"><div class="bar" id="bar"></div></div></div><span class="pct" id="pct">0 %</span></div><div class="tip" id="status">🌼 Amuse-toi !</div></div>
-    <div class="message" id="message">👆 Touche le champ pour récolter !</div>
+    <div class="message" id="message">👆 Pose ton doigt et glisse : la machine te suit !</div>
     <div class="overlay" id="overlay" role="dialog" aria-label="Bravo, le champ est récolté !"><div class="victory"><div class="trophy">🏆🌼</div><h2>Bravo, champion !</h2><p>Toute la récolte est terminée ! ✨</p><button class="again" id="again">🌾 Champ suivant !</button></div></div>
   </div>
-  <div class="instructions"><div class="pill"><b>👆</b> Touche ou glisse ton doigt</div><div class="pill"><b>🎮</b> Bouge le joystick</div><div class="pill"><b>⌨️</b> Utilise les flèches</div></div>
+  <div class="instructions"><div class="pill"><b>👆</b> Glisse pour conduire, relâche pour arrêter</div><div class="pill"><b>🎮</b> Bouge le joystick</div><div class="pill"><b>⌨️</b> Utilise les flèches</div></div>
   <footer>Aucune limite de temps, aucune défaite : on joue à son rythme ! 💚</footer>
 </div>
 <script>
@@ -159,7 +159,7 @@
     }else ctx.roundRect(field.l,field.t,field.r-field.l,field.b-field.t,22);
   }
 
-  let cells=[], mower, particles=[], animations=[], target=null, dragged=false, pointerId=null, won=false, progress=0, last=0, clock=0, soundOn=true, audio=null, noteAt=0, helpHidden=false, connected=false;
+  let cells=[], mower, particles=[], animations=[], target=null, dragged=false, pointerId=null, touchPos=null, won=false, progress=0, last=0, clock=0, soundOn=true, audio=null, noteAt=0, helpHidden=false, connected=false;
   let randSeed=591;
   const rand=()=>{randSeed=(Math.imul(randSeed,1664525)+1013904223)>>>0;return randSeed/4294967296;};
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
@@ -197,7 +197,7 @@
       cells.push({x,y,cut:false,tilt:rand()*6.283,variant:rand(),wiggle:rand()*2});
     }}
     mower={x:gardenId==='rond'?350:161,y:gardenId==='rond'?435:452,angle:Math.PI/2, bounce:0, speed:0};
-    particles=[];animations=[];target=null;dragged=false;pointerId=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
+    particles=[];animations=[];target=null;dragged=false;pointerId=null;touchPos=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     binTarget=0;binLevel=0;harvestAnimUntil=0;binBar.style.width='0%';binValue.textContent='0 %';
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
     ui.bar.style.width='0%';ui.pct.textContent='0 %';
@@ -420,9 +420,9 @@
     let len=Math.hypot(vx,vy);
     if(len>.06){target=null;vx/=Math.max(1,len);vy/=Math.max(1,len);hideHelp();}
     else if(target){const dx=target.x-mower.x,dy=target.y-mower.y,dist=Math.hypot(dx,dy);
-      if(dist>8){const fraction=Math.min(1,dist/38);vx=(dx/dist)*fraction;vy=(dy/dist)*fraction;}else target=null;
+      if(dist>5){const fraction=Math.min(1,dist/24);vx=(dx/dist)*fraction;vy=(dy/dist)*fraction;}else {vx=vy=0;}
     }
-    const speed=(vehicleType==='beet'?205:230)/terrainScale,moving=Math.hypot(vx,vy);
+    const speed=(vehicleType==='beet'?205:230)*(dragged?1.55:1)/terrainScale,moving=Math.hypot(vx,vy);
     mower.speed=moving*speed;
     if(moving>.01){
       // Glissement sur les bordures et les obstacles, sans les traverser.
@@ -450,6 +450,8 @@
   }
   function frame(time){
     const dt=last?Math.min(.035,(time-last)/1000):.016;last=time;clock+=dt;
+    // Le doigt fixe reste la cible même lorsque la caméra défile.
+    if(dragged&&touchPos)target=coordinates(touchPos);
     move(dt);
     binLevel+=(binTarget-binLevel)*Math.min(1,dt*5);
     if(binTarget===1&&binLevel>.999)binLevel=1;
@@ -470,10 +472,28 @@
     return {x:clamp(camera.x+(sx-W/2)/terrainScale,field.l+25/terrainScale,field.r-25/terrainScale),
             y:clamp(camera.y+(sy-H/2)/terrainScale,field.t+25/terrainScale,field.b-25/terrainScale)};
   }
-  canvas.addEventListener('pointerdown',ev=>{if(won)return;ev.preventDefault();canvas.focus({preventScroll:true});pointerId=ev.pointerId;dragged=true;target=coordinates(ev);hideHelp();try{canvas.setPointerCapture(pointerId);}catch(e){};tone(420,.055,.008);});
-  canvas.addEventListener('pointermove',ev=>{if(!dragged||ev.pointerId!==pointerId||won)return;target=coordinates(ev);});
-  const stopDrag=ev=>{if(ev.pointerId!==pointerId)return;dragged=false;pointerId=null;};
-  canvas.addEventListener('pointerup',stopDrag);canvas.addEventListener('pointercancel',stopDrag);
+  // Pilotage continu au doigt : aucune destination n'est mémorisée après le lever du doigt.
+  canvas.addEventListener('pointerdown',ev=>{
+    if(won||dragged)return;
+    ev.preventDefault();canvas.focus({preventScroll:true});
+    pointerId=ev.pointerId;dragged=true;
+    touchPos={clientX:ev.clientX,clientY:ev.clientY};
+    target=coordinates(touchPos);hideHelp();
+    try{canvas.setPointerCapture(pointerId);}catch(e){}
+    tone(420,.055,.008);
+  });
+  canvas.addEventListener('pointermove',ev=>{
+    if(!dragged||ev.pointerId!==pointerId||won)return;
+    ev.preventDefault();
+    touchPos={clientX:ev.clientX,clientY:ev.clientY};
+    target=coordinates(touchPos);
+  });
+  const stopDrag=ev=>{
+    if(ev.pointerId!==pointerId)return;
+    dragged=false;pointerId=null;touchPos=null;target=null;
+    mower.speed=0;
+  };
+  for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,stopDrag);
   window.addEventListener('keydown',ev=>{const k=ev.key.length===1?ev.key.toLowerCase():ev.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();keys.add(k);if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','q','z'].includes(k))hideHelp();if(won&&(k==='Enter'||k===' '))reset();});
   window.addEventListener('keyup',ev=>keys.delete(ev.key.length===1?ev.key.toLowerCase():ev.key));
   window.addEventListener('blur',()=>keys.clear());
