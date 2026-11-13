@@ -6,10 +6,44 @@
 .bin-value{min-width:36px;text-align:right}
 .track{background:#f2e1ac;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#e0ad3a,#ffdc61);transition:width .25s}.finger-target{display:none;position:absolute;width:32px;height:32px;transform:translate(-50%,-50%);pointer-events:none;z-index:3;border:3px solid #fffbd8;outline:2px solid #b9842d;border-radius:50%;background:#fbe88e48;box-shadow:0 0 0 7px #fff7c435}
 .stage{padding:6px;background:#ead4a1;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
+.wrap{width:100%;max-width:none;margin:0 auto;padding:clamp(8px,1.4vw,20px);min-width:0}
+body,#mow3d,#mow3d *{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+#mow3d{-webkit-user-select:none;user-select:none;overscroll-behavior:contain}
+#mow3d button,#mow3d summary{touch-action:manipulation}
+.vehicles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:9px}
+.gardens{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:8px}
+.sizes,.sensitivity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sensitivity button{min-width:0;padding:12px 5px;border-radius:14px;border:2px solid #a8caa8;background:#f5ffe9;color:#315a2f;font:850 15px system-ui;cursor:pointer;touch-action:manipulation}
+.sensitivity button.active{background:#d6f5c5;border-color:#4ca341}
+.settings{background:#f4faeb;border:2px solid #c2d9b0;border-radius:17px;min-width:0}
+.settings summary{cursor:pointer;padding:14px 16px;font-weight:900;font-size:17px;list-style:none}
+.settings summary::-webkit-details-marker{display:none}
+.settings summary:after{content:' ▾';float:right}
+.settings[open] summary:after{content:' ▴'}
+.settings-content{display:grid;gap:10px;padding:0 12px 13px}
+.stage{min-height:0}.stage canvas{width:100%;height:auto;aspect-ratio:1.65;touch-action:none}
+.fullscreen-toggle{position:absolute;left:12px;top:12px;z-index:5;background:#fffbedf2;color:#345c32;border:2px solid #a4c98c;border-radius:13px;font:900 15px system-ui;padding:11px 14px;cursor:pointer}
+.bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,320px);gap:12px;align-items:stretch}
+.game-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:center}
+.game-actions button{min-width:0;min-height:54px;white-space:normal}
+.dpad{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,54px);gap:6px}
+.dir{min-height:54px;font-size:29px;-webkit-user-select:none;user-select:none}
+@media(max-width:700px){.bottom{grid-template-columns:1fr}.dpad{grid-template-rows:repeat(2,64px)}.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}.stage canvas{aspect-ratio:1.3}}
+#mow3d:fullscreen,#mow3d.pseudo-fullscreen{position:fixed;inset:0;z-index:2147483000;width:100%;max-width:none;height:100vh;height:100dvh;margin:0;padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(7px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:6px;overflow:hidden;background:#fff2cd}
+#mow3d:fullscreen>nav,#mow3d.pseudo-fullscreen>nav,#mow3d:fullscreen>.top,#mow3d.pseudo-fullscreen>.top,#mow3d:fullscreen>.settings,#mow3d.pseudo-fullscreen>.settings,#mow3d:fullscreen>.foot,#mow3d.pseudo-fullscreen>.foot{display:none}
+#mow3d:fullscreen>.track,#mow3d.pseudo-fullscreen>.track{flex:none}
+#mow3d:fullscreen>.stage,#mow3d.pseudo-fullscreen>.stage{flex:1;min-height:0;display:flex}
+#mow3d:fullscreen .stage canvas,#mow3d.pseudo-fullscreen .stage canvas{width:100%;height:100%;aspect-ratio:auto;object-fit:fill}
+#mow3d:fullscreen>.status,#mow3d.pseudo-fullscreen>.status{flex:none;font-size:13px;min-height:16px}
+#mow3d:fullscreen>.bottom,#mow3d.pseudo-fullscreen>.bottom{flex:none;grid-template-columns:minmax(0,1fr) minmax(210px,320px);align-items:center}
+#mow3d:fullscreen .dpad,#mow3d.pseudo-fullscreen .dpad{grid-template-rows:repeat(2,52px)}
+@media(orientation:portrait){#mow3d:fullscreen>.bottom,#mow3d.pseudo-fullscreen>.bottom{grid-template-columns:1fr}#mow3d:fullscreen .dpad,#mow3d.pseudo-fullscreen .dpad{grid-template-rows:repeat(2,49px)}#mow3d:fullscreen .game-actions,#mow3d.pseudo-fullscreen .game-actions{grid-template-columns:repeat(2,1fr)}}
+#mow3d:fullscreen>.bin-hud,#mow3d.pseudo-fullscreen>.bin-hud{flex:none}
+body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌾 La Moissonneuse Magique 3D</div><div class="subtitle">Conduis trois machines et découvre trois récoltes !</div></div><b id="pct">0 %</b></div>
-<div class="vehicles" role="group" aria-label="Choisir une machine agricole">
+<details class="settings"><summary>⚙️ Réglages : machine, champ et conduite</summary><div class="settings-content"><div class="vehicles" role="group" aria-label="Choisir une machine agricole">
   <button data-machine="wheat" class="active" aria-pressed="true"><span class="emoji">🌾</span>Moissonneuse-batteuse</button>
   <button data-machine="corn" aria-pressed="false"><span class="emoji">🌽</span>Récolteuse à maïs</button>
   <button data-machine="beet" aria-pressed="false"><span class="emoji">🥬</span>Arracheuse à betteraves</button>
@@ -18,11 +52,17 @@
 <div class="gardens" role="group" aria-label="Choisir un champ"><button data-garden="prairie" class="active" aria-pressed="true">🌾 Champ de blé</button><button data-garden="verger" aria-pressed="false">🚜 Ferme</button><button data-garden="en-l" aria-pressed="false">🧩 Champ en L</button><button data-garden="rond" aria-pressed="false">🌻 Champ ovale</button></div>
 <div class="garden-label">📏 Taille du terrain :</div>
 <div class="sizes" role="group" aria-label="Choisir la taille du terrain"><button data-size="small" class="active" aria-pressed="true">🌱 Petit</button><button data-size="medium" aria-pressed="false">🌿 Moyen</button><button data-size="large" aria-pressed="false">🌳 Grand</button></div>
+<div class="garden-label">🎮 Vitesse et sensibilité :</div>
+<div class="sensitivity" role="group" aria-label="Sensibilité de la conduite">
+<button type="button" data-control="doux" class="active" aria-pressed="true">🐢 Douce</button>
+<button type="button" data-control="normal" aria-pressed="false">🚜 Normale</button>
+<button type="button" data-control="rapide" aria-pressed="false">⚡ Rapide</button>
+</div></div></details>
 <div class="track"><div class="bar" id="bar"></div></div>
 <div class="bin-hud" role="group" aria-label="Niveau du bac de récolte"><span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div class="bin-fill" id="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span></div>
-<div class="stage"><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><button class="view" id="camera" type="button">🌳 Jardin</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
-<div class="status" id="status">👆 Maintiens ton doigt et glisse pour conduire !</div>
-<div class="bottom"><div style="display:flex;flex-wrap:wrap;gap:6px"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌾 Champ suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
+<div class="stage"><button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><button class="view" id="camera" type="button">🌳 Jardin</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
+<div class="status" id="status">👆 Maintiens ton doigt pour guider doucement la moissonneuse !</div>
+<div class="bottom"><div class="game-actions"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌾 Champ suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="foot">👆 Glisse et relâche pour arrêter · Flèches · Manette 🎮</div>
 </div><script>
 (()=>{
@@ -31,7 +71,9 @@ const canvas=root.querySelector('#scene'),bar=root.querySelector('#bar'),pct=roo
 const binBar=root.querySelector('#bin-fill'),binValue=root.querySelector('#bin-value'),binLabel=root.querySelector('#bin-label');
 let binTarget=0,binLevel=0,harvestEffectUntil=0,binPercentDisplayed=-1;
 const fingerIndicator=root.querySelector('#finger-target');
-let pointerActive=false,pointerId=null,touchPos=null;
+let pointerActive=false,pointerId=null,touchPos=null,controlMode='doux';
+const controlSpeeds={doux:.52,normal:.78,rapide:1};
+function controlFactor(){return controlSpeeds[controlMode]}
 const gl=canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'default'});if(!gl){status.innerHTML='Ce navigateur ne prend pas en charge WebGL 3D. <a href="../2d/">Jouer en 2D</a>';return;}
 const vs='attribute vec3 p;attribute vec3 c;uniform mat4 vp;uniform float breeze;uniform float tick;varying vec3 v;void main(){vec3 q=p;float h=max(p.y,0.0);q.x+=breeze*.11*h*sin(tick*1.5+p.x*2.1+p.z*1.4);q.z+=breeze*.07*h*cos(tick*1.2+p.z*2.6);gl_Position=vp*vec4(q,1.0);v=c;}';
 const fs='precision mediump float;varying vec3 v;void main(){gl_FragColor=vec4(v,1.0);}';
@@ -330,7 +372,7 @@ function reset(){
   let n=i+j*cols,x=(i-(cols-1)/2)*gap,z=(j-(rows-1)/2)*gap;
   if(!insideGarden(x,z,.10)||obstacleAt(x,z,.23))continue;
   grass.push({i,j,x,z,cut:false,v:(Math.sin(n*3.7)+1)/2});
- }vehicle={x:(gardenId==='rond'?-3.8:-5.3)*terrainScale,z:(gardenId==='rond'?3.35:3.9)*terrainScale,a:0};target=null;pointerActive=false;pointerId=null;touchPos=null;fingerIndicator.style.display='none';complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Maintiens ton doigt et glisse pour conduire !';bar.style.width='0%';pct.textContent='0 %';
+ }vehicle={x:(gardenId==='rond'?-3.8:-5.3)*terrainScale,z:(gardenId==='rond'?3.35:3.9)*terrainScale,a:0};target=null;pointerActive=false;pointerId=null;touchPos=null;fingerIndicator.style.display='none';complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Maintiens ton doigt pour guider doucement la moissonneuse !';bar.style.width='0%';pct.textContent='0 %';
   binTarget=0;binLevel=0;harvestEffectUntil=0;binPercentDisplayed=-1;binBar.style.width='0%';binValue.textContent='0 %';
 }
 function score(){let number=grass.filter(v=>v.cut).length,p=number===grass.length?100:Math.min(99,Math.round(number/grass.length*100));
@@ -378,6 +420,27 @@ root.querySelector('#next-garden').addEventListener('click',()=>{
   const ids=Object.keys(gardens);chooseGarden(ids[(ids.indexOf(gardenId)+1)%ids.length]);
 });
 root.querySelector('#camera').addEventListener('click',()=>{view=view==='garden'?'follow':'garden';root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';});
+root.querySelectorAll('[data-control]').forEach(b=>b.addEventListener('click',()=>{
+ controlMode=b.dataset.control;
+ root.querySelectorAll('[data-control]').forEach(btn=>{const active=btn.dataset.control===controlMode;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});
+ status.textContent=controlMode==='doux'?'🐢 Conduite douce activée.':controlMode==='normal'?'🚗 Conduite normale activée.':'⚡ Conduite rapide activée.';
+}));
+const fullButton=root.querySelector('#fullscreen');
+function isFull(){return document.fullscreenElement===root||root.classList.contains('pseudo-fullscreen')}
+function syncFull(){const full=isFull();fullButton.textContent=full?'⤢ Quitter le plein écran':'⛶ Plein écran';fullButton.setAttribute('aria-pressed',String(full));document.body.classList.toggle('game-fullscreen',full)}
+fullButton.addEventListener('click',async()=>{
+ if(isFull()){
+  if(document.fullscreenElement===root&&document.exitFullscreen){try{await document.exitFullscreen()}catch(e){}}
+  root.classList.remove('pseudo-fullscreen');syncFull();return;
+ }
+ if(root.requestFullscreen){try{await root.requestFullscreen()}catch(e){root.classList.add('pseudo-fullscreen')}}
+ else root.classList.add('pseudo-fullscreen');
+ syncFull();
+});
+document.addEventListener('fullscreenchange',syncFull);
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&root.classList.contains('pseudo-fullscreen')){root.classList.remove('pseudo-fullscreen');syncFull()}});
+root.addEventListener('dblclick',e=>e.preventDefault());
+root.addEventListener('selectstart',e=>e.preventDefault());
 // Le véhicule suit le doigt tant qu'il reste posé ; dès qu'il est levé, il s'arrête.
 function updateFinger(e){
   touchPos={clientX:e.clientX,clientY:e.clientY};
@@ -440,17 +503,17 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
       else{
         const wanted=Math.atan2(dx,dz);
         const angleError=Math.atan2(Math.sin(wanted-vehicle.a),Math.cos(wanted-vehicle.a));
-        const maxTurn=(pointerActive?.105:.060)*dt;
+        const maxTurn=(pointerActive?.045:.060)*controlFactor()*dt;
         vehicle.a+=Math.max(-maxTurn,Math.min(maxTurn,angleError));
-        drive=Math.min(1,dist/(pointerActive?.42:.65))*Math.max(0,Math.cos(angleError));
+        drive=Math.min(.82,dist/(pointerActive?1.4:.95))*Math.max(0,Math.cos(angleError));
       }
     }else{
       // Dans la caméra de suivi, tourner vers la droite exige de diminuer l'angle.
       // L'enfant peut aussi tourner sur place, même près d'un arbre.
-      vehicle.a-=turn*.062*dt;
+      vehicle.a-=turn*.062*controlFactor()*dt;
     }
 
-    const step=(type==='beet'?.066:.077)*dt*drive;
+    const step=(type==='beet'?.066:.077)*dt*drive*controlFactor();
     if(Math.abs(step)>.0001){
       const dx=Math.sin(vehicle.a)*step,dz=Math.cos(vehicle.a)*step;
       const n=Math.max(1,Math.ceil(Math.abs(step)/.09));
