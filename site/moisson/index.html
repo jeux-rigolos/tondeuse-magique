@@ -287,9 +287,9 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
         drive=Math.min(1,dist/.65)*Math.max(0,Math.cos(angleError));
       }
     }else{
-      // Un angle positif oriente la machine vers la droite du véhicule.
+      // Dans la caméra de suivi, tourner vers la droite exige de diminuer l'angle.
       // L'enfant peut aussi tourner sur place, même près d'un arbre.
-      vehicle.a+=turn*.062*dt;
+      vehicle.a-=turn*.062*dt;
     }
 
     const step=(type==='big'?.090:.065)*dt*drive;
