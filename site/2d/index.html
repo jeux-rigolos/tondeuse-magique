@@ -53,6 +53,10 @@
     .garden-select{min-height:50px;padding:6px 8px;background:#fffef5;color:#3c6436;border:2px solid #cfe5b5;border-radius:15px;font-size:clamp(12px,2.2vw,15px);font-weight:900;}
     .garden-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d;}
     .garden-heading{font-size:13px;font-weight:900;color:#64816d;margin:0 0 5px;}
+    .size-selector{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 13px}
+    .size-select{min-height:45px;padding:8px 4px;background:#fffef5;color:#3c6436;border:2px solid #cfe5b5;border-radius:15px;font-weight:900;font-size:clamp(12px,2.3vw,15px)}
+    .size-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d}
+    @media(max-width:650px){.size-select{min-height:41px;font-size:12px}}
     @media(max-width:650px){.garden-selector{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.garden-select{min-height:41px;padding:5px 2px;font-size:12px}.garden-heading{margin-left:6px}}
     .instructions {display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-top:22px;}
     .pill { display:flex; align-items:center; gap:8px; background:#ffffffbf; border:2px solid #dfedc8; border-radius:16px; padding:10px 15px; font-size:14px; font-weight:800; }
@@ -82,6 +86,12 @@
     <button class="garden-select" data-garden="en-l" aria-pressed="false">🧩 Jardin en L</button>
     <button class="garden-select" data-garden="rond" aria-pressed="false">🌷 Jardin rond</button>
   </div>
+  <p class="garden-heading">📏 Taille du jardin :</p>
+  <div class="size-selector" role="group" aria-label="Choisir la taille du jardin">
+    <button class="size-select active" data-size="small" type="button" aria-pressed="true">🌱 Petit</button>
+    <button class="size-select" data-size="medium" type="button" aria-pressed="false">🌿 Moyen</button>
+    <button class="size-select" data-size="large" type="button" aria-pressed="false">🌳 Grand</button>
+  </div>
   <div class="game-wrap">
     <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Jardin à tondre. Flèches du clavier, manette ou toucher pour conduire la tondeuse."></canvas>
     <div class="hud"><div class="progress-box"><div class="progress-emoji">🌱</div><div><span class="progress-name">Herbe tondue</span><div class="track"><div class="bar" id="bar"></div></div></div><span class="pct" id="pct">0 %</span></div><div class="tip" id="status">🌼 Amuse-toi !</div></div>
@@ -100,7 +110,9 @@
   const W=1000,H=600, field={l:77,t:65,r:923,b:538};
   const ui={bar:document.getElementById('bar'),pct:document.getElementById('pct'),msg:document.getElementById('message'),overlay:document.getElementById('overlay'),status:document.getElementById('status'),sound:document.getElementById('sound')};
   const keys=new Set();
-  let vehicleType='small', gardenId='prairie';
+  let vehicleType='small', gardenId='prairie', terrainScale=1;
+  const terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
+  const camera={x:W/2,y:H/2};
   const gardens={
     'prairie':{name:'Prairie',shape:'rectangle',obstacles:[]},
     'verger':{name:'Verger',shape:'rectangle',obstacles:[
@@ -120,9 +132,9 @@
     }
     return true;
   }
-  function obstacleAt(x,y,extra=0){return gardens[gardenId].obstacles.some(o=>Math.hypot(o.x-x,o.y-y)<o.r+extra);}
+  function obstacleAt(x,y,extra=0){return gardens[gardenId].obstacles.some(o=>Math.hypot(o.x-x,o.y-y)<o.r/terrainScale+extra);}
   function driveable(x,y){
-    const safety=vehicleType==='tractor'?38:28;
+    const safety=(vehicleType==='tractor'?38:28)/terrainScale;
     return insideGarden(x,y,safety)&&!obstacleAt(x,y,safety);
   }
   function gardenPath(){
@@ -166,16 +178,20 @@
   function reset(){
     randSeed=591;
     cells=[];
-    for(let y=field.t+18;y<field.b-9;y+=24){for(let x=field.l+18;x<field.r-9;x+=24){
-      if(!insideGarden(x,y,9)||obstacleAt(x,y,18))continue;
+    const stride=24/terrainScale;
+    for(let y=field.t+18/terrainScale;y<field.b-9/terrainScale;y+=stride){for(let x=field.l+18/terrainScale;x<field.r-9/terrainScale;x+=stride){
+      if(!insideGarden(x,y,9/terrainScale)||obstacleAt(x,y,18/terrainScale))continue;
       cells.push({x,y,cut:false,tilt:rand()*6.283,variant:rand(),wiggle:rand()*2});
     }}
     mower={x:gardenId==='rond'?350:161,y:gardenId==='rond'?435:452,angle:Math.PI/2, bounce:0, speed:0};
     particles=[];animations=[];target=null;dragged=false;pointerId=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
     ui.bar.style.width='0%';ui.pct.textContent='0 %';
-    for(const c of cells) if(Math.hypot(c.x-mower.x,c.y-mower.y)<49)c.cut=true;
+    for(const c of cells) if(Math.hypot(c.x-mower.x,c.y-mower.y)<49/terrainScale)c.cut=true;
     updateProgress();
+    const halfW=W/(2*terrainScale),halfH=H/(2*terrainScale);
+    camera.x=clamp(mower.x,halfW,W-halfW);
+    camera.y=clamp(mower.y,halfH,H-halfH);
     canvas.focus({preventScroll:true});
   }
   function updateProgress(){
@@ -230,7 +246,7 @@
   function drawObstacles(){
     for(const o of gardens[gardenId].obstacles){
       const {x,y,r,kind}=o;
-      ctx.save();ctx.translate(x,y);
+      ctx.save();ctx.translate(x,y);ctx.scale(1/terrainScale,1/terrainScale);
       ctx.fillStyle='#346e3b32';ctx.beginPath();ctx.ellipse(7,12,r+9,(r+6)*.52,0,0,7);ctx.fill();
       if(kind==='pond'){
         ctx.fillStyle='#ebd69a';ctx.beginPath();ctx.ellipse(0,0,r+8,r*.85+7,0,0,7);ctx.fill();
@@ -263,6 +279,10 @@
   function drawGrass(){
     ctx.save();gardenPath();ctx.clip();
     for(const c of cells){
+      // Ne dessiner que les brins visibles : les grands terrains restent fluides sur mobile.
+      if(Math.abs(c.x-camera.x)>W/(2*terrainScale)+20/terrainScale ||
+         Math.abs(c.y-camera.y)>H/(2*terrainScale)+20/terrainScale)continue;
+      ctx.save();ctx.translate(c.x,c.y);ctx.scale(1/terrainScale,1/terrainScale);ctx.translate(-c.x,-c.y);
       if(c.cut){
         ctx.fillStyle=c.variant>.5?'#7fc45d':'#83c861';ctx.beginPath();ctx.ellipse(c.x,c.y,11,11,0,0,Math.PI*2);ctx.fill();
         ctx.strokeStyle='#4da75f73';ctx.lineWidth=1.7;ctx.lineCap='round';
@@ -275,12 +295,13 @@
         ctx.beginPath();ctx.moveTo(c.x-8,c.y+8);ctx.quadraticCurveTo(c.x-10+sw,c.y-2,c.x-10+sw,c.y-8);ctx.moveTo(c.x+1,c.y+9);ctx.quadraticCurveTo(c.x-3+sw,c.y-6,c.x-1+sw,c.y-12);ctx.moveTo(c.x+9,c.y+8);ctx.quadraticCurveTo(c.x+8+sw,c.y-3,c.x+12+sw,c.y-7);ctx.stroke();
         ctx.strokeStyle='#b5e880';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c.x+3,c.y+4);ctx.lineTo(c.x+4+sw,c.y-9);ctx.stroke();
       }
+      ctx.restore();
     }
     ctx.restore();
     drawObstacles();
   }
   function drawTractor(){
-    ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);
+    ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);ctx.scale(1/terrainScale,1/terrainScale);
     const bounce=Math.sin(clock*12)*Math.min(1,mower.speed/250)*1.2;
     ctx.translate(0,bounce);
     ctx.fillStyle='#366b3f39';ctx.beginPath();ctx.ellipse(5,14,62,69,0,0,Math.PI*2);ctx.fill();
@@ -304,7 +325,7 @@
   }
   function drawMower(){
     if(vehicleType==='tractor'){drawTractor();return;}
-    ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);
+    ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);ctx.scale(1/terrainScale,1/terrainScale);
     const bounce=Math.sin(clock*18)*Math.min(1,mower.speed/200)*1.7;
     ctx.fillStyle='#2a663e4f';ctx.beginPath();ctx.ellipse(8,10,51,59,0,0,7);ctx.fill();
     ctx.translate(0,bounce);
@@ -362,7 +383,7 @@
     else if(target){const dx=target.x-mower.x,dy=target.y-mower.y,dist=Math.hypot(dx,dy);
       if(dist>8){const fraction=Math.min(1,dist/38);vx=(dx/dist)*fraction;vy=(dy/dist)*fraction;}else target=null;
     }
-    const speed=vehicleType==='tractor'?280:210,moving=Math.hypot(vx,vy);
+    const speed=(vehicleType==='tractor'?280:210)/terrainScale,moving=Math.hypot(vx,vy);
     mower.speed=moving*speed;
     if(moving>.01){
       // Glissement sur les bordures et les obstacles, sans les traverser.
@@ -375,18 +396,28 @@
       let desired=Math.atan2(vy,vx)+Math.PI/2,diff=Math.atan2(Math.sin(desired-mower.angle),Math.cos(desired-mower.angle));
       mower.angle+=diff*Math.min(1,dt*12);
       let justCut=0;
-      for(const c of cells){if(!c.cut&&Math.hypot(c.x-mower.x,c.y-mower.y)<(vehicleType==='tractor'?68:48)){c.cut=true;justCut++;}}
+      for(const c of cells){if(!c.cut&&Math.hypot(c.x-mower.x,c.y-mower.y)<(vehicleType==='tractor'?68:48)/terrainScale){c.cut=true;justCut++;}}
       if(justCut){addCutParticles(mower.x,mower.y);updateProgress();}
     }
   }
   function frame(time){
     const dt=last?Math.min(.035,(time-last)/1000):.016;last=time;clock+=dt;
-    move(dt);drawBackground();drawGrass();
+    move(dt);
+    const halfW=W/(2*terrainScale),halfH=H/(2*terrainScale);
+    const desiredX=clamp(mower.x,halfW,W-halfW),desiredY=clamp(mower.y,halfH,H-halfH);
+    camera.x+=(desiredX-camera.x)*Math.min(1,dt*8);
+    camera.y+=(desiredY-camera.y)*Math.min(1,dt*8);
+    ctx.save();ctx.translate(W/2,H/2);ctx.scale(terrainScale,terrainScale);ctx.translate(-camera.x,-camera.y);
+    drawBackground();drawGrass();
     butterfly(385,168,.9,'#ffdc63');butterfly(701,367,2.5,'#f8a9dd');butterfly(555,475,1.7,'#b8b1ff');
-    drawMower();drawParticles(dt);
+    drawMower();drawParticles(dt);ctx.restore();
     requestAnimationFrame(frame);
   }
-  function coordinates(ev){let r=canvas.getBoundingClientRect();return{x:clamp((ev.clientX-r.left)/r.width*W,field.l+25,field.r-25),y:clamp((ev.clientY-r.top)/r.height*H,field.t+25,field.b-25)};}
+  function coordinates(ev){
+    const r=canvas.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*W,sy=(ev.clientY-r.top)/r.height*H;
+    return {x:clamp(camera.x+(sx-W/2)/terrainScale,field.l+25/terrainScale,field.r-25/terrainScale),
+            y:clamp(camera.y+(sy-H/2)/terrainScale,field.t+25/terrainScale,field.b-25/terrainScale)};
+  }
   canvas.addEventListener('pointerdown',ev=>{if(won)return;ev.preventDefault();canvas.focus({preventScroll:true});pointerId=ev.pointerId;dragged=true;target=coordinates(ev);hideHelp();try{canvas.setPointerCapture(pointerId);}catch(e){};tone(420,.055,.008);});
   canvas.addEventListener('pointermove',ev=>{if(!dragged||ev.pointerId!==pointerId||won)return;target=coordinates(ev);});
   const stopDrag=ev=>{if(ev.pointerId!==pointerId)return;dragged=false;pointerId=null;};
@@ -418,6 +449,15 @@
     reset();ui.status.textContent='🌿 '+gardens[gardenId].name+' : à toi de jouer !';
   }
   document.querySelectorAll('[data-garden]').forEach(b=>b.addEventListener('click',()=>chooseGarden(b.dataset.garden)));
+  function chooseSize(id){
+    terrainScale=terrainSizes[id];
+    for(const b of document.querySelectorAll('[data-size]')){
+      const active=b.dataset.size===id;b.classList.toggle('active',active);
+      b.setAttribute('aria-pressed',String(active));
+    }
+    reset();ui.status.textContent='📏 Jardin '+terrainLabels[id]+' : bonne tonte !';
+  }
+  document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>chooseSize(b.dataset.size)));
   document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;ui.sound.textContent=soundOn?'🔊 Son':'🔇 Muet';if(soundOn)tone(650,.13);});
   reset();requestAnimationFrame(frame);
 })();
