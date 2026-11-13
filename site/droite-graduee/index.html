@@ -191,7 +191,13 @@ function value(i){return levels[current].min+i*step}
 function numberOfTicks(){var l=levels[current];return Math.round((l.max-l.min)/step)}
 function rand(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=rand(0,i);var x=arr[i];arr[i]=arr[j];arr[j]=x}return arr}
-function named(n){var l=levels[current];if(l.id!=='pizza')return fmt(n)+(l.unit?' '+l.unit:'');var quarters=Math.round(n*4);var f={1:'1/4',2:'1/2',3:'3/4',4:'1',5:'5/4',6:'3/2',7:'7/4'};return f[quarters]||fmt(n)}
+function named(n){
+ var l=levels[current];if(l.id!=='pizza')return fmt(n)+(l.unit?' '+l.unit:'');
+ if(Math.abs(n-Math.round(n))<1e-7)return fmt(n);
+ var den=Math.round(1/l.step),num=Math.round(n*den);
+ function gcd(a,b){while(b){var t=b;b=a%b;a=t}return a}
+ var d=gcd(num,den);return (num/d)+'/'+(den/d);
+}
 function setFeedback(message,style){fb.textContent=message;fb.className='feedback'+(style?' '+style:'')}
 function renderHome(){
  renderGradePicker();cards.innerHTML='';
@@ -220,9 +226,9 @@ function start(i){current=i;round=0;errors=0;lastTarget=-1;home.style.display='n
 function setProgress(){var el=document.getElementById('progress');el.innerHTML='';for(var i=0;i<5;i++){var dot=document.createElement('span');dot.className='dot'+(i<round?' done':i===round?' now':'');dot.title='Défi '+(i+1);el.appendChild(dot)}}
 function newRound(){
  var l=levels[current];solved=false;roundFailed=false;selected=null;position=0;next.hidden=true;hint.hidden=false;choices.innerHTML='';jumps.innerHTML='';
- step=l.type==='scale'?[5,10,20][rand(0,2)]:l.step;
- var n=numberOfTicks();target=rand(1,n-1);if(l.id==='pizza')target=rand(1,7);
- if(l.id==='thermo')target=[10,7,14,3,18][round];else if(target===lastTarget&&n>3)target=(target%(n-1))+1;lastTarget=target;
+ step=l.type==='scale'?l.stepOptions[rand(0,l.stepOptions.length-1)]:l.step;
+ var n=numberOfTicks();target=rand(1,n-1);
+ if(l.id==='thermo'&&gradeChoice==='CM2')target=[10,7,14,3,18][round];else if(target===lastTarget&&n>3)target=(target%(n-1))+1;lastTarget=target;
  setProgress();
  var q='',instruction='';
  if(l.type==='place'){
@@ -230,10 +236,10 @@ function newRound(){
   if(l.id==='pizza')q='🍕 Place la commande de '+named(value(target))+' pizza(s) sur la droite.';
   if(l.id==='robot')q='🤖 Le robot doit s’arrêter à '+named(value(target))+'. Montre-lui où aller !';
   if(l.id==='randonnee')q='🥾 Le panneau annonce '+named(value(target))+' depuis le départ. Où se trouve ce point ?';
-  if(l.id==='compteur')q='🚴 Ton compteur indique '+named(value(target))+'. Quel est le bon trait entre 120 et 180 km ?';
-  if(l.id==='coupure')q='🗺️ Sur le sentier, il faut trouver la borne '+named(value(target))+'. Attention à la cassure !';
+  if(l.id==='compteur')q='🚴 Ton compteur indique '+named(value(target))+'. À quel trait dois-tu t’arrêter ?';
+  if(l.id==='coupure')q='🗺️ Sur la carte, il faut trouver la borne '+named(value(target))+'. Observe les graduations !';
   if(l.id==='thermo')q='🌡️ Le thermomètre indique '+named(value(target))+'. Où places-tu ce point ?';
-  instruction=l.broken?'La portion barrée est sautée : ne la compte pas comme un petit espace. Place ton repère après la cassure.':l.id==='thermo'?'Le zéro est au milieu. Les nombres en dessous de zéro sont à gauche. Choisis un trait.':'Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
+  instruction=l.broken?'La portion barrée est sautée : ne la compte pas comme un petit espace. Place ton repère après la cassure.':l.id==='thermo'?'Lis les traits du thermomètre vertical. Les températures augmentent vers le haut.':'Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
   check.hidden=false;check.disabled=true;
   [-1,1].forEach(function(direction){
    var b=document.createElement('button');b.className='choice';b.style.fontSize='16px';
@@ -250,9 +256,9 @@ function newRound(){
   instruction='Utilise les boutons pour faire des bonds. Le but est de tomber exactement sur la planète.';
   check.hidden=true;
   [1,2,5,-1,-2,-5].forEach(function(delta){
-   var b=document.createElement('button');b.className='choice';b.textContent=(delta>0?'+':'')+delta;
-   b.setAttribute('aria-label',(delta>0?'Avancer de ':'Reculer de ')+Math.abs(delta));
-   b.addEventListener('click',function(){if(solved)return;var nextPos=position+delta;if(nextPos<0||nextPos>n){setFeedback('Cette manœuvre sortirait de la piste. Choisis un autre bond.','error');return}position=nextPos;drawAxis();if(position===target){success()}else{setFeedback(position<target?'🚀 Tu es à '+position+'. La planète est plus loin !':'🚀 Tu es à '+position+'. Recule un peu !','')}});jumps.appendChild(b);
+   var b=document.createElement('button');b.className='choice';b.textContent=(delta>0?'+':'')+fmt(delta*step);
+   b.setAttribute('aria-label',(delta>0?'Avancer de ':'Reculer de ')+fmt(Math.abs(delta*step)));
+   b.addEventListener('click',function(){if(solved)return;var nextPos=position+delta;if(nextPos<0||nextPos>n){setFeedback('Cette manœuvre sortirait de la piste. Choisis un autre bond.','error');return}position=nextPos;drawAxis();if(position===target){success()}else{setFeedback(position<target?'🚀 Tu es à '+fmt(value(position))+'. La planète est plus loin !':'🚀 Tu es à '+fmt(value(position))+'. Recule un peu !','')}});jumps.appendChild(b);
   });
  }else if(l.type==='read'){
   q=l.id==='regle'?'📏 Quelle longueur indique la flèche sur la règle ?':'🧪 Combien de centilitres montre la flèche ?';
@@ -263,9 +269,9 @@ function newRound(){
   shuffle(options).forEach(function(k){makeChoice(named(value(k)),k===target,choices)});
  }else if(l.type==='scale'){
   q='🚂 Combien vaut UN petit intervalle entre deux traits ?';
-  instruction='Le début vaut 0 et la fin vaut 100. Compte les espaces égaux.';
+  instruction='Le début vaut '+fmt(l.min)+' et la fin vaut '+fmt(l.max)+'. Compte les espaces égaux.';
   check.hidden=true;
-  shuffle([5,10,20]).forEach(function(k){makeChoice(k+' unités',k===step,choices)});
+  shuffle(l.stepOptions.slice()).forEach(function(k){makeChoice(fmt(k)+' unités',k===step,choices)});
  }
  document.getElementById('question').textContent=q;document.getElementById('instruction').textContent=instruction;
  setFeedback('À toi de jouer ! Observe les traits et les nombres écrits sous la droite.','');
@@ -319,7 +325,7 @@ function drawAxis(){
 }
 function drawThermometer(){
  var l=levels[current],n=numberOfTicks(),out='',i,v,y;
- var displayed=selected===null?10:selected,liquidY=310-250*displayed/n;
+ var displayed=selected===null?Math.max(0,Math.round(-l.min/l.step)):selected,liquidY=310-250*displayed/n;
  axis.setAttribute('viewBox','0 0 860 380');
  out+='<defs><linearGradient id="thermoGlass" x1="0" x2="1" y1="0" y2="0"><stop stop-color="#add9ec"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#9ccbe1"/></linearGradient></defs>';
  out+='<rect x="12" y="12" width="836" height="357" rx="23" fill="#e8f7ff"/>';
@@ -339,7 +345,7 @@ function drawThermometer(){
   if(major)out+='<text x="533" y="'+(y+8)+'" font-size="26" font-weight="'+(zero?'900':'750')+'" fill="'+(zero?'#ac3536':'#2e6280')+'">'+(v>0?'+':'')+v+'</text>';
  }
  out+='<text x="590" y="63" font-size="24" font-weight="850" fill="#246083">°C</text>';
- out+='<line x1="478" y1="185" x2="601" y2="185" stroke="#c64a43" stroke-width="2" stroke-dasharray="6 6" opacity=".6"/>';
+ var zeroY=310-250*(0-l.min)/(l.max-l.min);if(zeroY>=60&&zeroY<=310)out+='<line x1="478" y1="'+zeroY+'" x2="601" y2="'+zeroY+'" stroke="#c64a43" stroke-width="2" stroke-dasharray="6 6" opacity=".6"/>';
  if(selected!==null){
   out+='<path d="M 389 '+(liquidY-11)+' L 404 '+liquidY+' L 389 '+(liquidY+11)+' Z" fill="#e65842"/>';
   out+='<rect x="610" y="194" width="192" height="62" rx="18" fill="#fff" stroke="#b7dce9" stroke-width="3"/>';
@@ -347,17 +353,17 @@ function drawThermometer(){
  }
  axis.innerHTML=out;axis.classList.toggle('place',true);
  axis.setAttribute('tabindex','0');
- axis.setAttribute('aria-label','Thermomètre vertical gradué de moins 10 à plus 10 degrés Celsius, zéro au milieu. Touche les graduations à droite de la colonne ou utilise les flèches haut et bas.');
+ axis.setAttribute('aria-label','Thermomètre vertical gradué de '+fmt(l.min)+' à '+fmt(l.max)+' degrés Celsius. Touche les graduations à droite de la colonne ou utilise les flèches haut et bas.');
 }
 function wrong(message){roundFailed=true;errors++;setFeedback('🔎 '+message+' '+explain(false),'error')}
 function explain(good){
  var l=levels[current];
- if(l.type==='scale')return 'De 0 à 100, il y a '+numberOfTicks()+' espaces identiques. 100 ÷ '+numberOfTicks()+' = '+step+'.';
- if(l.id==='pizza')return 'Entre 0 et 1, il y a 4 espaces égaux. Chaque espace vaut 1/4.';
- if(l.id==='robot')return 'Entre 0 et 1, il y a 10 espaces. Chaque espace vaut 0,1.';
- if(l.id==='compteur')return 'La droite commence à 120 km, pas à zéro. Chaque petit trait ajoute 5 km. '+(good?'On trouve ainsi '+named(value(target))+'.':'Commence par le trait 120 et compte de 5 en 5.');
- if(l.broken)return 'La cassure fait passer directement de 0 à 750 m : cette portion est masquée et ne compte pas comme un petit intervalle. Ensuite, les traits avancent de 10 m en 10 m.'+(good?' Tu as repéré '+named(value(target))+'.':'');
- if(l.id==='thermo')return 'Le zéro est au milieu. À gauche, on descend sous 0 : −1, −2, −3… À droite, on trouve les nombres positifs. Chaque trait vaut 1 °C.'+(good?' Le bon repère est '+named(value(target))+'.':'');
+ if(l.type==='scale')return 'Entre '+fmt(l.min)+' et '+fmt(l.max)+', il y a '+numberOfTicks()+' espaces identiques. '+fmt(l.max-l.min)+' ÷ '+numberOfTicks()+' = '+fmt(step)+'.';
+ if(l.id==='pizza')return 'Chaque intervalle vaut '+named(step)+' pizza. Entre deux entiers, il y a '+fmt(1/step)+' intervalle(s).';
+ if(l.id==='robot')return 'Le robot avance de '+fmt(step)+' à chaque petite graduation.';
+ if(l.id==='compteur')return 'La droite commence à '+fmt(l.min)+' km et chaque trait ajoute '+fmt(step)+' km. '+(good?'Tu as trouvé '+named(value(target))+'.':'Pars du premier trait et compte les intervalles.');
+ if(l.broken)return 'La cassure cache les valeurs entre 0 et '+fmt(l.min)+' m, ce n’est pas un petit intervalle. Ensuite, chaque trait vaut '+fmt(step)+' m.'+(good?' Tu as repéré '+named(value(target))+'.':'');
+ if(l.id==='thermo')return (l.min<0?'Le zéro est au milieu du thermomètre : les températures négatives sont en dessous. ':'Le zéro est au bas du thermomètre : les valeurs montent vers le haut. ')+'Chaque trait vaut '+fmt(step)+' °C.'+(good?' Le bon repère est '+named(value(target))+'.':'');
  return 'Chaque petit espace vaut '+fmt(step)+(l.unit?' '+l.unit:'')+'. '+(good?'En comptant les espaces depuis '+fmt(l.min)+', tu retrouves '+named(value(target))+'.':'Repère les nombres déjà écrits et compte les espaces.');
 }
 function success(){if(solved)return;solved=true;check.hidden=true;next.hidden=false;hint.hidden=true;Array.from(choices.querySelectorAll('button')).forEach(function(b){b.disabled=true});Array.from(jumps.querySelectorAll('button')).forEach(function(b){b.disabled=true});setFeedback('🎉 Bravo ! '+(roundFailed?'Tu as persévéré, et tu as trouvé ! ':'C’est la bonne réponse ! ')+explain(true),'success');next.textContent=round===4?'Voir mon diplôme 🏅':'Défi suivant →';next.focus()}
@@ -369,7 +375,7 @@ axis.addEventListener('click',function(e){
  if(levels[current].id==='thermo'){
   var box=axis.getBoundingClientRect(),tx=(e.clientX-box.left)*860/box.width,ty=(e.clientY-box.top)*380/box.height;
   if(tx<370||tx>610||ty<38||ty>322){setFeedback('Touche une graduation du thermomètre, à côté du tube rouge.','');return}
-  selected=Math.max(0,Math.min(20,Math.round((310-ty)/250*20)));check.disabled=false;drawAxis();
+  selected=Math.max(0,Math.min(numberOfTicks(),Math.round((310-ty)/250*numberOfTicks())));check.disabled=false;drawAxis();
   setFeedback('Tu as choisi '+named(value(selected))+'. Observe où se situe zéro, puis vérifie.','');return;
  }
  var r=axis.getBoundingClientRect(),svx=(e.clientX-r.left)*860/r.width,n=numberOfTicks(),l=levels[current];
