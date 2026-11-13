@@ -63,7 +63,7 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 <button data-control="rapide" aria-pressed="false">⚡ Rapide</button></div>
 </div></details>
 <div class="track"><div class="bar" id="bar"></div></div>
-<div class="stage"><button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button><canvas id="scene" width="960" height="780" aria-label="Jardin et véhicules en trois dimensions"></canvas><button class="view" id="camera" type="button">🎥 Suivre</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Le jardin est tout beau ! 🦋🌻</span></div></div>
+<div class="stage"><button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button><canvas id="scene" width="960" height="780" aria-label="Jardin et véhicules en trois dimensions"></canvas><button class="view" id="camera" type="button">⬆️ Vue de dessus</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Le jardin est tout beau ! 🦋🌻</span></div></div>
 <div class="status" id="status">👆 Touche le jardin pour conduire !</div>
 <div class="bottom"><div class="game-actions"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌿 Jardin suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="foot">↑ avancer · ↓ reculer · ← → tourner · Maintiens ton doigt pour guider · Tactile et manette 🎮</div>
@@ -316,7 +316,7 @@ function chooseSize(id){
   }
   // Garder un véhicule suffisamment grand à l'écran sur les grands terrains.
   view='follow';
-  root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';
+  root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'⬆️ Vue de dessus';
   reset();
   camEye=view==='garden'?gardenCameraEye():[vehicle.x,6.2,vehicle.z-6];
   camAt=view==='garden'?[0,0,0]:[vehicle.x,.65,vehicle.z];
@@ -326,7 +326,7 @@ root.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>c
 root.querySelector('#next-garden').addEventListener('click',()=>{
   const ids=Object.keys(gardens);chooseGarden(ids[(ids.indexOf(gardenId)+1)%ids.length]);
 });
-root.querySelector('#camera').addEventListener('click',()=>{view=view==='garden'?'follow':'garden';root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';});
+root.querySelector('#camera').addEventListener('click',()=>{view=view==='garden'?'follow':'garden';root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'⬆️ Vue de dessus';});
 root.querySelectorAll('[data-control]').forEach(b=>b.addEventListener('click',()=>{
  controlMode=b.dataset.control;
  root.querySelectorAll('[data-control]').forEach(btn=>{const active=btn.dataset.control===controlMode;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});
