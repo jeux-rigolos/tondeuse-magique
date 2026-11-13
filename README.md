@@ -2,7 +2,7 @@
 
 Des jeux de conduite, de récolte et de mathématiques pour les enfants, jouables directement dans le navigateur, sans installation ni dépendance externe.
 
-- **Droite graduée (CE1 à CM2)** : treize aventures sur les entiers, les intervalles, fractions et décimaux. Défis avancés (départ à 120 km, cassure entre 0 et 750 m, thermomètre vertical de −10 à +10 °C), un jeu de cuisine avec trois recettes publiées, une balance et un verre doseur dessinés en SVG, et un compteur de vitesse à aiguille avec trois niveaux CE2/CM1/CM2. Indices, explications, cinq défis par jeu et progression locale. Accessible au tactile, à la souris et au clavier.
+- **Droite graduée (CE1 à CM2)** : quatorze univers avec cinq niveaux (CP, CE1, CE2, CM1, CM2) accessibles dans chacun. Les défis alternent repérage, lecture de nombres, bonds et valeur d’un intervalle. Situations réelles : thermomètre vertical, compteur de vitesse à aiguille, trois recettes publiées avec balance et verre doseur gradués, et gonfleur de vélo avec une valeur cachée jusqu’à validation et une question sur les intervalles avant l’indice. Les nombres négatifs restent une découverte bonus en CM2. Indices, explications, cinq défis par jeu et progression locale. Accessible au tactile, à la souris et au clavier.
 - **2D** : jardin vu du dessus, tondeuse rouge / tracteur-tondeuse vert, sons, fleurs, papillons, progression.
 - **3D** : véritable scène WebGL 3D, herbe haute et fine, tondeuse / tracteur, caméra « Suivre ».
 - **Moissonneuse 2D** : vue du dessus, trois machines agricoles et trois cultures (blé, maïs, betteraves), récolte avec outils de coupe à l'avant.
@@ -26,6 +26,7 @@ Si le dépôt est `jeux-rigolos/tondeuse-magique`, les liens seront normalement 
 - La mission des graduations : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/`
 - Le défi du petit pâtissier : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/recette/`
 - Le compteur magique : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/compteur/`
+- Le gonfleur de vélo : `https://jeux-rigolos.github.io/tondeuse-magique/droite-graduee/gonfleur/`
 - 2D : `https://jeux-rigolos.github.io/tondeuse-magique/2d/`
 - 3D : `https://jeux-rigolos.github.io/tondeuse-magique/3d/`
 - Moissonneuse 2D : `https://jeux-rigolos.github.io/tondeuse-magique/moisson-2d/`
@@ -70,6 +71,12 @@ site/moisson/index.html              Jeu de récolte 3D : blé, maïs, betterave
 site/.nojekyll                      Site statique sans Jekyll
 README.md                           Documentation
 ```
+
+## Progression et pédagogie
+
+Choisir CP, CE1, CE2, CM1 ou CM2 sur l'accueil des graduations. Les onze jeux de base adaptent leurs graduations et, selon la classe, le type d'interaction : placer un nombre, lire un repère, avancer par bonds ou découvrir la valeur d'une unité. Le compteur, les recettes et le gonfleur proposent aussi les cinq classes. L'élève peut revenir sur un niveau précédent ; le progrès est mémorisé localement par classe.
+
+**Gonfleur :** la pression du manomètre n'est pas affichée avant validation. Pour activer l'indice, l'enfant répond d'abord à la question « combien vaut une graduation ? », puis obtient l'explication. Les pressions de jeu sont fictives et ne remplacent pas l'étiquette d'un vrai pneu.
 
 ## Recettes authentiques utilisées pour le jeu
 
