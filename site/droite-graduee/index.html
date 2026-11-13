@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#e6f7fd">
-<meta name="description" content="Treize aventures de graduations du CE1 au CM2, avec recettes réelles, thermomètre vertical et compteur de vitesse à aiguille.">
+<meta name="description" content="Quatorze univers de mathématiques du CP au CM2, avec recettes, thermomètre vertical, compteur à aiguille et gonfleur.">
 <title>La mission des graduations — Jeux rigolos</title>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#21384b;background:#eff9ff;font-synthesis:none}
@@ -62,17 +62,20 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 footer{text-align:center;padding:32px 5px 0;color:#608092;font-size:14px}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.scene{min-height:85px;font-size:52px}.cardbody{padding:14px}.board{padding:15px}.dot{width:17px}.choice{min-width:75px;padding:11px 13px;font-size:18px}}
+.grade-picker{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:12px auto 16px}
+.grade-picker button{border:2px solid #c4ddf1;border-radius:14px;background:#fff;color:#1c5982;font-weight:900;padding:11px 17px;box-shadow:0 4px #d8e9f5}
+.grade-picker button.active{background:#236fd1;color:white;border-color:#236fd1;box-shadow:0 4px #15468a}
 @media(prefers-reduced-motion:no-preference){.btn,.choice{transition:transform .12s,filter .12s}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="top"><a href="../">← Tous les jeux rigolos</a><span class="brand">🎯 Mission Graduations <small>CE1 → CM2</small></span></div>
+<div class="top"><a href="../">← Tous les jeux rigolos</a><span class="brand">🎯 Mission Graduations <small>CP → CM2</small></span></div>
 <section id="home">
-<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">13 aventures · Du CE1 au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
-<div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 13</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
+<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">14 univers · Du CP au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
+<div class="grade-picker" id="grade-picker" role="group" aria-label="Choisir une classe"></div><div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 14</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
 <div id="cards" class="grid"></div>
-<p class="tiny" style="text-align:center;margin-top:26px">Tu peux commencer par n'importe quel jeu. Les niveaux CE1 restent ouverts aux plus grands : s'entraîner, c'est progresser !</p>
+<p class="tiny" style="text-align:center;margin-top:26px">Choisis une classe : les onze univers classiques, la cuisine, le compteur et le gonfleur sont accessibles du CP au CM2. Chaque univers garde son propre mode de jeu.</p>
 </section>
 <section id="play" aria-live="off">
 <div class="play-top"><button id="back" class="btn soft" type="button">← Les aventures</button><div class="progress" id="progress" aria-label="Progression du jeu"></div></div>
@@ -113,6 +116,70 @@ var levels=[
 {id:'coupure',grade:'CM2',icon:'🗺️',title:'La carte à la règle cassée',desc:'Une cassure cache le chemin entre 0 et 750.',type:'place',min:750,max:850,step:10,labels:[750,800,850],unit:'m',broken:true,context:'Sur le plan d’une randonnée, une cassure cache la partie de 0 à 750 m. Après 750 m, la droite reprend avec des traits espacés de 10 m.',real:'Dans la vraie vie : une carte ou un graphique peut présenter une cassure pour raccourcir une longue portion sans détail. La cassure ne se compte pas comme un petit intervalle.'},
 {id:'thermo',grade:'CM2 · Bonus',icon:'🌡️',title:'Le thermomètre polaire',desc:'Zéro au milieu : découvre les nombres négatifs.',type:'place',min:-10,max:10,step:1,labels:[-10,-5,0,5,10],unit:'°C',context:'Sur le thermomètre, 0 °C est au milieu. Les températures négatives sont à gauche et les positives sont à droite.',real:'Dans la vraie vie : un thermomètre d’hiver peut indiquer −3 °C ou −8 °C. Ce jeu est un bonus de découverte des nombres relatifs.'}
 ];
+var initialLevels=levels.map(function(l){return Object.assign({},l,{labels:l.labels.slice()})});
+var grades=['CP','CE1','CE2','CM1','CM2'],gradeChoice='CP';
+var funDescriptions={
+ grenouille:'Place la grenouille sur le bon nénuphar.',
+ fusee:'Fais des bonds pour atteindre la bonne planète.',
+ regle:'Lis une longueur sur une règle graduée.',
+ train:'Découvre la valeur des petits intervalles.',
+ pizza:'Partage des pizzas : entiers, moitiés, quarts ou huitièmes.',
+ potion:'Lis le niveau d’un liquide en centilitres.',
+ robot:'Guide un robot vers une graduation.',
+ randonnee:'Repère des distances sur un chemin de randonnée.',
+ compteur:'Déchiffre un compteur qui ne commence pas toujours à zéro.',
+ coupure:'Retrouve des graduations et découvre les cassures.',
+ thermo:'Lis le thermomètre vertical, même sous zéro en bonus CM2.'
+};
+function pickLabels(l){
+ if(l.id==='pizza')return [0,1,2,3,4].filter(function(v){return v<=l.max});
+ var n=Math.round((l.max-l.min)/l.step),spacing=(l.max-l.min)<=5?1:(l.max-l.min)<=10?2:(l.max-l.min)<=20?5:(l.max-l.min)<=50?10:(l.max-l.min)<=100?20:(l.max-l.min)<=200?50:200;
+ var vals=[];for(var i=0;i<=n;i++){var v=Number((l.min+i*l.step).toFixed(4));if(i===0||i===n||Math.abs(v/spacing-Math.round(v/spacing))<1e-6)vals.push(v)}
+ return vals;
+}
+function configureGrades(){
+ var matrices={
+ grenouille:[[0,10,1],[0,20,2],[0,50,5],[0,5,.5],[0,2,.1]],
+ fusee:[[0,10,1],[0,20,2],[0,50,5],[0,100,10],[0,2,.1]],
+ regle:[[0,10,1],[0,20,2],[0,20,1],[0,20,.5],[0,10,.25]],
+ train:[[0,10,1],[0,20,2],[0,100,10],[0,200,20],[0,1000,50]],
+ pizza:[[0,4,1],[0,4,.5],[0,2,.25],[0,2,.25],[0,2,.125]],
+ potion:[[0,10,1],[0,20,2],[0,100,10],[0,100,5],[0,100,2.5]],
+ robot:[[0,10,1],[0,20,2],[0,10,.5],[0,2,.2],[0,2,.1]],
+ randonnee:[[0,10,1],[0,20,2],[0,50,5],[0,10,.5],[0,5,.25]],
+ compteur:[[0,10,1],[10,30,2],[20,100,10],[100,180,5],[120,180,5]],
+ coupure:[[0,10,1],[10,30,2],[100,150,5],[500,600,10],[750,850,10]],
+ thermo:[[0,10,1],[0,20,2],[0,20,1],[0,20,1],[-10,10,1]]
+ };
+ var idx=grades.indexOf(gradeChoice);
+ initialLevels.forEach(function(src,i){
+  var l=Object.assign({},src),v=matrices[l.id][idx];
+  l.grade=gradeChoice;l.min=v[0];l.max=v[1];l.step=v[2];l.labels=pickLabels(l);
+  if(l.id==='train'){
+   l.stepOptions=[[1,2,5],[1,2,4,5],[5,10,20],[10,20,25,50],[25,50,100,125]][idx];
+   l.labels=[l.min,l.max];
+  }
+  if(l.id==='coupure'){
+   l.broken=idx>=2;
+   l.context=l.broken?'Sur cette carte, une cassure saute les valeurs de 0 à '+l.min+'. Les intervalles suivants valent '+l.step+' m.':'Sur la carte, certains nombres sont masqués. Observe les traits et compte les intervalles.';
+  }
+  if(l.id==='compteur')l.context='Le compteur affiche déjà '+l.min+' km au début. Chaque petit espace vaut '+l.step+' km.';
+  if(l.id==='thermo')l.context=idx===4?'Le thermomètre descend sous zéro : les températures négatives sont en bas.':'Lis les graduations d’un thermomètre vertical : les températures montent vers le haut.';
+  if(l.id==='pizza')l.context=idx===0?'Chaque trait représente une pizza entière.':idx===1?'Chaque pizza est partagée en deux moitiés.':'Chaque pizza est partagée en '+Math.round(1/l.step)+' parts égales.';
+  if(l.id==='robot')l.context='Le robot avance de '+l.step+' unité(s) à chaque graduation.';
+  if(l.id==='fusee')l.context='Une graduation vaut '+l.step+' unité(s). Réussis à rejoindre la bonne planète en faisant des bonds.';
+  if(l.id==='grenouille')l.context='Sur la mare, un intervalle vaut '+l.step+' unité(s). Trouve le bon nénuphar.';
+  if(l.id==='train')l.context='Ce train traverse '+l.max+' unités. Il faut découvrir la valeur d’un intervalle.';
+  if(l.id==='potion')l.context='Verse la quantité de liquide voulue : observe les graduations en centilitres.';
+  if(l.id==='randonnee')l.context='Les bornes sont espacées régulièrement sur le sentier. Compte les kilomètres.';
+  levels[i]=l;
+ });
+}
+function renderGradePicker(){
+ var box=document.getElementById('grade-picker');box.innerHTML='';
+ grades.forEach(function(g){var b=document.createElement('button');b.textContent=g;b.type='button';b.className=g===gradeChoice?'active':'';b.setAttribute('aria-pressed',g===gradeChoice?'true':'false');
+ b.addEventListener('click',function(){gradeChoice=g;configureGrades();renderHome()});box.appendChild(b)});
+}
 var home=document.getElementById('home'),play=document.getElementById('play'),cards=document.getElementById('cards');
 var axis=document.getElementById('axis'),choices=document.getElementById('choices'),jumps=document.getElementById('jumps');
 var fb=document.getElementById('feedback'),check=document.getElementById('check'),next=document.getElementById('next'),hint=document.getElementById('hint');
