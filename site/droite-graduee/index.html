@@ -72,7 +72,7 @@ footer{text-align:center;padding:32px 5px 0;color:#608092;font-size:14px}
 <div class="wrap">
 <div class="top"><a href="../">← Tous les jeux rigolos</a><span class="brand">🎯 Mission Graduations <small>CP → CM2</small></span></div>
 <section id="home">
-<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">14 univers · Du CP au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
+<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">14 univers · Du CP au CM2</span><p>Choisis ta classe et découvre les nombres avec 14 jeux différents : animaux, fusées, recettes, thermomètre, compteur et gonfleur de vélo !</p></header>
 <div class="grade-picker" id="grade-picker" role="group" aria-label="Choisir une classe"></div><div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 14</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
 <div id="cards" class="grid"></div>
 <p class="tiny" style="text-align:center;margin-top:26px">Choisis une classe : les onze univers classiques, la cuisine, le compteur et le gonfleur sont accessibles du CP au CM2. Chaque univers garde son propre mode de jeu.</p>
@@ -191,7 +191,7 @@ function configureGrades(){
 function renderGradePicker(){
  var box=document.getElementById('grade-picker');box.innerHTML='';
  grades.forEach(function(g){var b=document.createElement('button');b.textContent=g;b.type='button';b.className=g===gradeChoice?'active':'';b.setAttribute('aria-pressed',g===gradeChoice?'true':'false');
- b.addEventListener('click',function(){gradeChoice=g;configureGrades();renderHome()});box.appendChild(b)});
+ b.addEventListener('click',function(){gradeChoice=g;try{localStorage.setItem('mission-classe',gradeChoice)}catch(e){}configureGrades();renderHome()});box.appendChild(b)});
 }
 var home=document.getElementById('home'),play=document.getElementById('play'),cards=document.getElementById('cards');
 var axis=document.getElementById('axis'),choices=document.getElementById('choices'),jumps=document.getElementById('jumps');
@@ -222,16 +222,21 @@ function renderHome(){
  });
  var recipe=document.createElement('article');
  recipe.className='game-card';
- recipe.innerHTML='<div class="scene" aria-hidden="true">🥞⚖️🥛</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le défi du petit pâtissier</h2><p>Réussis une recette : pèse la farine et le sucre, puis mesure le lait et l’huile dans un verre doseur gradué.</p><div class="completed">5 ingrédients à doser</div><a class="btn primary" href="./recette/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
+ recipe.innerHTML='<div class="scene" aria-hidden="true">🥞⚖️🥛</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le défi du petit pâtissier</h2><p>Prépare des recettes réelles : pèse la farine, mesure le lait et compte les œufs. Les graduations s’adaptent à ta classe.</p><div class="completed">3 recettes au choix</div><a class="btn primary" href="./recette/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
  cards.appendChild(recipe);
  var speed=document.createElement('article');speed.className='game-card';
- speed.innerHTML='<div class="scene" aria-hidden="true">🚗📍</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le compteur magique</h2><p>Lis la vitesse ou règle l’aiguille sur un vrai cadran dessiné, avec des graduations de 20, 10 et 5 km/h.</p><div class="completed">3 difficultés · 5 défis chacune</div><a class="btn primary" href="./compteur/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
+ speed.innerHTML='<div class="scene" aria-hidden="true">🚗📍</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le compteur magique</h2><p>Lis la vitesse ou règle l’aiguille sur un cadran dessiné, avec des graduations adaptées à ta classe.</p><div class="completed">5 défis pour '+gradeChoice+'</div><a class="btn primary" href="./compteur/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
  cards.appendChild(speed);
  var pump=document.createElement('article');pump.className='game-card';
  pump.innerHTML='<div class="scene" aria-hidden="true">🚲💨🛞</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le gonfleur de vélo</h2><p>Ajoute ou retire de l’air, lis l’aiguille et valide. Avant l’indice, trouve la valeur d’une graduation.</p><div class="completed">5 défis par classe</div><a class="btn primary" href="./gonfleur/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
  cards.appendChild(pump);
  var achieved=levels.filter(function(l){return (saved[l.id+':'+gradeChoice]||0)>0}).length;
- try{if(localStorage.getItem('mission-recette-done')==='oui')achieved++;if(localStorage.getItem('compteur-done')==='oui')achieved++;if(localStorage.getItem('mission-gonfleur-'+gradeChoice.toLowerCase())==='oui')achieved++}catch(e){}
+ try{
+ var cl=gradeChoice.toLowerCase();
+ if(['crepes','pancakes','chocolat'].some(function(n){return localStorage.getItem('mission-recette-'+n+'-'+cl)==='oui'}))achieved++;
+ if(localStorage.getItem('compteur-'+cl)==='oui')achieved++;
+ if(localStorage.getItem('mission-gonfleur-'+cl)==='oui')achieved++;
+ }catch(e){}
  document.getElementById('stat-completed').textContent='🏅 '+achieved+' jeu(x) terminé(s) sur 14 pour '+gradeChoice;
 }
 function showHome(){current=-1;home.style.display='block';play.style.display='none';renderHome();window.scrollTo({top:0,behavior:'smooth'})}
@@ -412,6 +417,10 @@ check.addEventListener('click',function(){if(solved||selected===null||current<0)
 hint.addEventListener('click',function(){if(current<0)return;var l=levels[current];setFeedback('💡 Indice : '+(l.type==='scale'?'Compte les espaces, pas les traits.':l.type==='jump'?'Les bonds de +5 peuvent te faire avancer plus vite, puis ajuste avec +1 ou +2.':'Commence au nombre écrit le plus proche. '+explain(false)),'')});
 next.addEventListener('click',function(){if(!solved)return;round++;if(round>=5)finish();else newRound()});
 document.getElementById('back').addEventListener('click',showHome);
+var queryGrade=(new URLSearchParams(window.location.search)).get('classe');
+var rememberedGrade='';try{rememberedGrade=localStorage.getItem('mission-classe')||''}catch(e){}
+var defaultGrade=(queryGrade||rememberedGrade||'CP').toUpperCase();
+if(grades.indexOf(defaultGrade)>=0)gradeChoice=defaultGrade;
 configureGrades();renderHome();
 })();
 </script>
