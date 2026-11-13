@@ -6,6 +6,7 @@ Quatre jeux de conduite et de récolte pour les enfants, jouables directement da
 - **3D** : véritable scène WebGL 3D, herbe haute et fine, tondeuse / tracteur, caméra « Suivre ».
 - **Moissonneuse 2D** : vue du dessus, trois machines agricoles et trois cultures (blé, maïs, betteraves), récolte avec outils de coupe à l'avant.
 - **Moissonneuse 3D** : blé doré, plants de maïs et betteraves, moissonneuse-batteuse, récolteuse à maïs et arracheuse à betteraves, leurs équipements spécialisés, quatre champs et trois tailles.
+- **Trémies animées (2D et 3D)** : le bac visible sur chaque machine se remplit progressivement selon la part de champ récoltée. Grain doré pour blé et maïs, betteraves orangées pour l'arracheuse, avec une jauge dédiée et des particules qui rejoignent la trémie pendant la récolte. Le vidage du bac n'est pas encore une action de jeu.
 - **Jardins** : prairie, verger, jardin en L, jardin rond, avec obstacles à contourner.
 - **Taille de terrain** : Petit (surface ×1), Moyen (environ ×2,25), Grand (environ ×4). La taille est sélectionnable indépendamment du jardin et du véhicule, et son changement recommence la partie.
 - **Caméras** : la vue 2D suit le véhicule sur les grands terrains ; en 3D, le suivi est proposé automatiquement en Moyen/Grand et la vue générale reste accessible.
