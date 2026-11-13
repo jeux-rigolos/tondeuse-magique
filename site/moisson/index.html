@@ -76,8 +76,11 @@ function ground(){
  const tiles=new Map(grass.map(g=>[g.j*cols+g.i,g]));
  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
  let g=tiles.get(j*cols+i);if(!g)continue;
- let cc=g.cut?c('#b99b62'):c('#d0ad59');cc=tint(cc,(i+j)%2?1:.96);
- box(g.x,-.009,g.z,gap-.018,.035,gap-.018,cc);if(g.cut){for(let k=-1;k<=1;k++)box(g.x+k*.25,.046,g.z,.075,.08,.66,c(k===0?'#d5b875':'#c9a869'));}
+ let cc=g.cut?c(type==='beet'?'#98724d':'#b99b62'):
+      c(type==='wheat'?'#d0ad59':type==='corn'?'#779957':'#6e9252');
+  cc=tint(cc,(i+j)%2?1:.96);
+ box(g.x,-.009,g.z,gap-.018,.035,gap-.018,cc);if(g.cut&&type==='wheat'){for(let k=-1;k<=1;k++)box(g.x+k*.25,.046,g.z,.075,.08,.66,c(k===0?'#d5b875':'#c9a869'));}
+  if(g.cut&&type==='corn'){for(let k=-1;k<=1;k++)box(g.x+k*.25,.045,g.z,.06,.06,.36,c('#b2a16e'));}
  
  }
  // Les obstacles ont un socle visible, à l'exclusion de la pelouse.
@@ -145,16 +148,51 @@ function grassBlade(x,z,h,angle,lean,width,shade){
    gradientTri([xx-dz*w,yy-.11,zz+dx*w],[xx+dz*w,yy-.11,zz-dx*w],[xx,yy+.08,zz],grain,grain,tip);
  }
 }
+// Un plant de maïs est plus haut que le blé : tige, feuilles et épis.
+function cornPlant(x,z,h,wind){
+ const stem=c('#509747'),leaf=c('#65b653'),light=c('#89cd68'),ear=c('#edc34b');
+ const lean=.08*Math.sin(wind),top=[x+lean,h,z+lean*.3];
+ tri([x-.05,.05,z],[x+.05,.05,z],top,stem);
+ tri([x,.05,z-.05],[x,.05,z+.05],top,stem);
+ for(let j=0;j<3;j++){
+  const y=h*(.35+j*.16),direction=j%2===0?1:-1;
+  const start=[x,y,z],outer=[x+direction*(.34+j*.07),y+.06,z+.12*j];
+  tri([x,y-.08,z-.08],outer,[x,y+.32,z+.08],j===1?light:leaf);
+  tri([x,y-.09,z+.06],[x-direction*.30,y+.04,z-.26],[x,y+.28,z+.04],stem);
+ }
+ // L'épi jaune est caché parmi les feuilles.
+ const yy=h*.63;
+ quad([x+.06,yy-.19,z-.035],[x+.13,yy-.19,z-.035],[x+.15,yy+.13,z],[x+.06,yy+.13,z],ear);
+ tri([x+.08,yy+.13,z],[x+.14,yy+.13,z],[x+.11,yy+.27,z],light);
+}
+function beetPlant(x,z,h,seed){
+ const green=c('#4c9b45'),lighter=c('#79be51'),beet=c('#ad5542');
+ // La partie supérieure rouge de la betterave, au ras du sol.
+ const n=6;
+ for(let k=0;k<n;k++){
+  const a=k*2*Math.PI/n,b=(k+1)*2*Math.PI/n;
+  tri([x,.07,z],[x+Math.cos(a)*.15,.07,z+Math.sin(a)*.15],[x+Math.cos(b)*.15,.07,z+Math.sin(b)*.15],beet);
+ }
+ for(let k=0;k<4;k++){
+  const a=k*Math.PI/2+seed,rr=.37+(k%2)*.1;
+  const tip=[x+Math.cos(a)*rr,.10+h*.72,z+Math.sin(a)*rr];
+  tri([x,.10,z],[x+Math.cos(a+.28)*rr*.5,.11+h*.38,z+Math.sin(a+.28)*rr*.5],tip,k%2?lighter:green);
+  tri([x,.10,z],tip,[x+Math.cos(a-.30)*rr*.5,.11+h*.30,z+Math.sin(a-.30)*rr*.5],lighter);
+ }
+}
 function updateGrass(){
  mesh=[];
  for(let tile=0;tile<grass.length;tile++){
-   const g=grass[tile];if(g.cut)continue;
-   const amount=terrainScale===1?10:terrainScale===1.5?7:5;
-   for(let n=0;n<amount;n++){
-     const i=tile*43+n*23,r1=random(i+1),r2=random(i+2),r3=random(i+3),r4=random(i+4),r5=random(i+5);
-     const x=g.x+(r1-.5)*.78,z=g.z+(r2-.5)*.78;
-     grassBlade(x,z,.84+r3*.39,r5*6.283,(r2+r4)*3.1416,.017+r4*.008,.84+r1*.22);
-   }
+  const g=grass[tile];if(g.cut)continue;
+  const amount=type==='wheat'?(terrainScale===1?10:terrainScale===1.5?7:5):
+               type==='corn'?(terrainScale===1?5:4):(terrainScale===1?6:5);
+  for(let n=0;n<amount;n++){
+    const i=tile*43+n*23,r1=random(i+1),r2=random(i+2),r3=random(i+3),r4=random(i+4),r5=random(i+5);
+    const x=g.x+(r1-.5)*.76,z=g.z+(r2-.5)*.76;
+    if(type==='wheat')grassBlade(x,z,.84+r3*.39,r5*6.283,(r2+r4)*3.1416,.017+r4*.008,.84+r1*.22);
+    else if(type==='corn')cornPlant(x,z,1.5+r3*.38,r5*6.283);
+    else beetPlant(x,z,.48+r3*.2,r5*6.283);
+  }
  }
  gl.bindBuffer(gl.ARRAY_BUFFER,grassBuf);
  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh),gl.DYNAMIC_DRAW);
