@@ -238,13 +238,12 @@ function vehicleMesh(){
  }
  if(!beet){
   // La batteuse et la machine à maïs collectent les grains dans une trémie.
-  b(0,1.85,-.99,1.23,.25,.72,top);
+  // La trémie compacte est dessinée plus bas, derrière la cabine.
   b(-1.18,1.55,-.42,.18,.20,1.12,'#e9cc75');
   b(-1.51,1.67,-.91,.91,.18,.21,'#e9cc75');
  }else{
   // Long réservoir de betteraves et tapis de transport visible.
-  b(0,1.86,-1.23,1.69,.43,1.14,'#ae5832');
-  b(0,2.12,-1.23,1.59,.12,1.00,'#f3b35a');
+  // La caisse des betteraves ne masque plus le reste de la machine.
   b(0,.67,1.04,1.16,.25,1.68,'#8c6c48');
   for(let j=0;j<5;j++)b(0,.82,.34+j*.25,1.06,.07,.065,'#e5bb6c');
  }
@@ -280,34 +279,35 @@ function vehicleMesh(){
   b(0,.49,.73,1.40,.14,.83,'#a05d38');
   for(let k=0;k<7;k++)b(-.58+k*.19,.61,.76,.11,.09,.76,'#dbc07d');
  }
- // Trémie ouverte : le niveau coloré s'élève pendant la récolte.
- const binZ=beet?-1.28:-.98,binW=beet?1.76:1.42,binD=beet?1.16:.86;
- const binFloor=beet?2.22:2.02,binH=beet?.67:.71;
+ // Petite trémie latérale basse, pour voir le remplissage sans cacher la cabine.
+ const binX=.38,binZ=beet?-1.37:-1.18,binW=beet?1.07:.99,binD=beet?.72:.66;
+ const binFloor=beet?1.91:1.78,binH=beet?.22:.24;
  const binColor=wheat?'#dbaa47':corn?'#f1c63c':'#ae5d45';
  const binHighlight=wheat?'#f9de80':corn?'#ffeb80':'#d9856a';
- b(0,binFloor-.035,binZ,binW,.075,binD,'#6b553e');
+ b(binX,binFloor-.035,binZ,binW,.075,binD,'#6b553e');
  if(binLevel>.002){
-  const fillH=Math.max(.012,binLevel*(binH-.065));
-  b(0,binFloor+fillH/2,binZ,binW-.18,fillH,binD-.18,binColor);
-  if(binLevel>.20){
-   for(let i=0;i<5;i++){
-    const xx=(i-2)*.22;
-    sp(xx,binFloor+fillH+.015,binZ+(i%2?.11:-.11),.075+binLevel*.04,binHighlight);
+  const fillH=Math.max(.009,binLevel*(binH-.037));
+  b(binX,binFloor+fillH/2,binZ,binW-.13,fillH,binD-.13,binColor);
+  if(binLevel>.22){
+   for(let i=0;i<3;i++){
+    const xx=binX+(i-1)*.21;
+    sp(xx,binFloor+fillH+.005,binZ+(i%2?.09:-.09),.043+binLevel*.009,binHighlight);
    }
   }
  }
- // Quatre parois opaques, l'ouverture laisse voir la hauteur de la matière.
- b(-binW/2,binFloor+binH/2,binZ,.085,binH,binD,top);
- b(binW/2,binFloor+binH/2,binZ,.085,binH,binD,top);
- b(0,binFloor+binH/2,binZ-binD/2,binW,binH+.075,.085,top);
- b(0,binFloor+binH/2,binZ+binD/2,binW,binH+.075,.085,top);
- // Petites particules qui voyagent du système de coupe au bac.
+ // Bordure basse : la trémie reste ouverte et discrète.
+ b(binX-binW/2,binFloor+binH/2,binZ,.055,binH,binD,top);
+ b(binX+binW/2,binFloor+binH/2,binZ,.055,binH,binD,top);
+ b(binX,binFloor+binH/2,binZ-binD/2,binW,binH,.055,top);
+ b(binX,binFloor+binH/2,binZ+binD/2,binW,binH,.055,top);
+ // De petits grains volent vers le bac au moment de la coupe.
  if(time<harvestEffectUntil){
-  for(let i=0;i<7;i++){
-   const phase=(time*1.7+i/7)%1;
-   const xx=(i%2?1:-1)*(.14+(i%3)*.06);
-   const zz=1.37-2.35*phase,yy=1.45+.85*Math.sin(Math.PI*phase);
-   sp(xx,yy,zz,beet?.069:.052,i%3===0?binHighlight:binColor);
+  for(let i=0;i<5;i++){
+   const phase=(time*1.65+i/5)%1;
+   const xx=binX*phase+(i%2?1:-1)*(.08+(i%3)*.04);
+   const zz=1.34+(binZ-1.34)*phase;
+   const yy=1.40+(binFloor+.07-1.40)*phase+.51*Math.sin(Math.PI*phase);
+   sp(xx,yy,zz,beet?.048:.036,i%3===0?binHighlight:binColor);
   }
  }
  // Phares et petit visage, pour l'univers enfantin.
