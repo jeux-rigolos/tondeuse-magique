@@ -13,7 +13,7 @@
 <div class="stage"><canvas id="scene" width="960" height="780" aria-label="Jardin et véhicules en trois dimensions"></canvas><button class="view" id="camera" type="button">🎥 Suivre</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Le jardin est tout beau ! 🦋🌻</span></div></div>
 <div class="status" id="status">👆 Touche le jardin pour conduire !</div>
 <div class="bottom"><div style="display:flex;flex-wrap:wrap;gap:6px"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌿 Jardin suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
-<div class="foot">Tactile • Flèches du clavier • Manette compatible 🎮</div>
+<div class="foot">↑ avancer · ↓ reculer · ← → tourner · Tactile et manette 🎮</div>
 </div><script>
 (()=>{
 const root=document.getElementById('mow3d');if(root.dataset.ready)return;root.dataset.ready='1';
@@ -25,7 +25,7 @@ function compile(t,s){let sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compile
 const prog=gl.createProgram();gl.attachShader(prog,compile(gl.VERTEX_SHADER,vs));gl.attachShader(prog,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
 const P=gl.getAttribLocation(prog,'p'),C=gl.getAttribLocation(prog,'c'),VP=gl.getUniformLocation(prog,'vp'),staticBuf=gl.createBuffer(),grassBuf=gl.createBuffer(),movingBuf=gl.createBuffer(),BREEZE=gl.getUniformLocation(prog,'breeze'),TICK=gl.getUniformLocation(prog,'tick');gl.enable(gl.DEPTH_TEST);gl.clearColor(.67,.85,.96,1);
 const palette={ground:[.42,.70,.29],cut:[.70,.87,.44],uncut:[.50,.77,.33],dark:[.24,.53,.20],wood:[.69,.42,.22],red:[.94,.29,.26],green:[.23,.65,.20],yellow:[1,.77,.26]};
-let mesh=[],staticCount=0,grassCount=0,dirty=true,grassDirty=true,grass=[],type='small',vehicle={x:-5.5,z:3.8,a:0},target=null,held={},keys={},complete=false,view='garden',time=0,previous=0,camEye=[0,19,19],camAt=[0,0,0],mouseActive=false,scoreOld=-1;
+let mesh=[],staticCount=0,grassCount=0,dirty=true,grassDirty=true,grass=[],type='small',vehicle={x:-5.5,z:3.8,a:0},target=null,held={},keys={},complete=false,view='follow',time=0,previous=0,camEye=[0,19,19],camAt=[0,0,0],mouseActive=false,scoreOld=-1;
 let cols=16,rows=13,boundX=7.25,boundZ=5.9;
 const gap=.90,terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
 let terrainScale=1;
@@ -219,7 +219,7 @@ function chooseSize(id){
     b.setAttribute('aria-pressed',String(active));
   }
   // Garder un véhicule suffisamment grand à l'écran sur les grands terrains.
-  view=terrainScale===1?'garden':'follow';
+  view='follow';
   root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';
   reset();
   camEye=view==='garden'?[0,19*terrainScale,19*terrainScale]:[vehicle.x,6.2,vehicle.z-6];
@@ -236,18 +236,56 @@ canvas.addEventListener('pointermove',e=>{if(canvas.hasPointerCapture?.(e.pointe
 for(let b of root.querySelectorAll('[data-dir]')){let d=b.dataset.dir;b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);held[d]=true;});for(let ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{held[d]=false});}
 window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});window.addEventListener('blur',()=>{keys={};held={};});
 function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previous=now;time+=dt*.016;
- if(!complete){let dx=0,dz=0;if(keys.ArrowLeft||keys.a||held.left)dx-=1;if(keys.ArrowRight||keys.d||held.right)dx+=1;if(keys.ArrowUp||keys.w||held.up)dz-=1;if(keys.ArrowDown||keys.s||held.down)dz+=1;
- try{for(let gp of navigator.getGamepads?.()||[])if(gp){if(Math.abs(gp.axes?.[0]||0)>.18)dx+=gp.axes[0];if(Math.abs(gp.axes?.[1]||0)>.18)dz+=gp.axes[1];if(gp.buttons?.[12]?.pressed)dz--;if(gp.buttons?.[13]?.pressed)dz++;if(gp.buttons?.[14]?.pressed)dx--;if(gp.buttons?.[15]?.pressed)dx++;}}catch(e){}
- if(dx||dz)target=null;else if(target){dx=target.x-vehicle.x;dz=target.z-vehicle.z;if(Math.hypot(dx,dz)<.13){target=null;dx=dz=0;}}
- let l=Math.hypot(dx,dz);if(l>.001){let step=Math.min(l,(type==='big'?.090:.065)*dt);dx/=l;dz/=l;
-   const n=Math.max(1,Math.ceil(step/.09));
-   for(let k=0;k<n;k++){
-     const xx=vehicle.x+dx*step/n,zz=vehicle.z+dz*step/n;
-     if(driveable(xx,vehicle.z))vehicle.x=xx;
-     if(driveable(vehicle.x,zz))vehicle.z=zz;
-   }
-   let want=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(want-vehicle.a),Math.cos(want-vehicle.a));vehicle.a+=difference*.2*Math.min(dt,2);}
- let changed=false,r=type==='big'?1.26:.79;for(let g of grass)if(!g.cut&&Math.hypot(g.x-vehicle.x,g.z-vehicle.z)<r){g.cut=true;changed=true;}if(changed){dirty=true;grassDirty=true;score();}
+ if(!complete){
+    // Pilotage relatif au véhicule : les flèches ne pilotent plus les axes du jardin.
+    let turn=0,drive=0;
+    if(keys.ArrowLeft||keys.a||held.left)turn-=1;
+    if(keys.ArrowRight||keys.d||held.right)turn+=1;
+    if(keys.ArrowUp||keys.w||held.up)drive+=1;
+    if(keys.ArrowDown||keys.s||held.down)drive-=1;
+    try{
+      for(let gp of navigator.getGamepads?.()||[])if(gp){
+        const sx=gp.axes?.[0]||0,sy=gp.axes?.[1]||0;
+        if(Math.abs(sx)>.18)turn+=sx;
+        if(Math.abs(sy)>.18)drive-=sy;
+        if(gp.buttons?.[12]?.pressed)drive+=1;
+        if(gp.buttons?.[13]?.pressed)drive-=1;
+        if(gp.buttons?.[14]?.pressed)turn-=1;
+        if(gp.buttons?.[15]?.pressed)turn+=1;
+      }
+    }catch(e){}
+    turn=Math.max(-1,Math.min(1,turn));
+    drive=Math.max(-1,Math.min(1,drive));
+    if(Math.abs(turn)>.05||Math.abs(drive)>.05)target=null;
+
+    if(target){
+      // Toucher la pelouse conserve la commande automatique vers la destination.
+      const dx=target.x-vehicle.x,dz=target.z-vehicle.z,dist=Math.hypot(dx,dz);
+      if(dist<.16)target=null;
+      else{
+        const wanted=Math.atan2(dx,dz);
+        const angleError=Math.atan2(Math.sin(wanted-vehicle.a),Math.cos(wanted-vehicle.a));
+        const maxTurn=.060*dt;
+        vehicle.a+=Math.max(-maxTurn,Math.min(maxTurn,angleError));
+        drive=Math.min(1,dist/.65)*Math.max(0,Math.cos(angleError));
+      }
+    }else{
+      // Dans la vue de suivi, la droite de l'écran correspond au sens négatif de l'angle.
+      // L'enfant peut aussi tourner sur place, même près d'un arbre.
+      vehicle.a-=turn*.062*dt;
+    }
+
+    const step=(type==='big'?.090:.065)*dt*drive;
+    if(Math.abs(step)>.0001){
+      const dx=Math.sin(vehicle.a)*step,dz=Math.cos(vehicle.a)*step;
+      const n=Math.max(1,Math.ceil(Math.abs(step)/.09));
+      for(let k=0;k<n;k++){
+        const xx=vehicle.x+dx/n,zz=vehicle.z+dz/n;
+        if(driveable(xx,vehicle.z))vehicle.x=xx;
+        if(driveable(vehicle.x,zz))vehicle.z=zz;
+      }
+    }
+  let changed=false,r=type==='big'?1.26:.79;for(let g of grass)if(!g.cut&&Math.hypot(g.x-vehicle.x,g.z-vehicle.z)<r){g.cut=true;changed=true;}if(changed){dirty=true;grassDirty=true;score();}
  }
  let destEye,destAt;if(view==='garden'){destEye=[0,19*terrainScale,19*terrainScale];destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.07*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.07*Math.min(dt,2);}
  let w=Math.max(1,Math.floor(canvas.clientWidth*Math.min(devicePixelRatio||1,1.5))),h=Math.max(1,Math.floor(canvas.clientHeight*Math.min(devicePixelRatio||1,1.5)));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(VP,false,matrix());gl.uniform1f(TICK,time);if(dirty)updateStatic();if(grassDirty)updateGrass();
@@ -255,6 +293,6 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
  gl.uniform1f(BREEZE,0);drawBuffer(staticBuf,staticCount);gl.uniform1f(BREEZE,1);drawBuffer(grassBuf,grassCount);gl.uniform1f(BREEZE,0);mesh=[];vehicleMesh();gl.bindBuffer(gl.ARRAY_BUFFER,movingBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh),gl.DYNAMIC_DRAW);drawBuffer(movingBuf,mesh.length/6);
  requestAnimationFrame(render);
 }
-reset();requestAnimationFrame(render);
+reset();camEye=[vehicle.x,6.2,vehicle.z-6];camAt=[vehicle.x,.65,vehicle.z];requestAnimationFrame(render);
 })();
 </script></body></html>
