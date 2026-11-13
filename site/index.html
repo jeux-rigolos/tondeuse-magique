@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ecf8e3">
+  <meta name="description" content="Deux petits jeux de tonte de gazon, en 2D ou en 3D, pour les enfants. Sans publicité, sans compte et sans chrono.">
+  <title>La Tondeuse Magique — Choisir un jeu</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{color-scheme:light}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at 15% 0,#fff4c7,transparent 40%),linear-gradient(140deg,#eaf9d7,#d7f2ed);font:16px/1.5 system-ui,Arial,sans-serif;color:#2c5032}
+    main{max-width:920px;margin:0 auto;padding:clamp(18px,5vw,48px) 18px 42px}
+    header{text-align:center;margin-bottom:28px}
+    h1{font-size:clamp(28px,6vw,48px);line-height:1.15;margin:4px 0 10px}
+    p{margin:0 0 12px}
+    .intro{font-size:clamp(16px,2.4vw,20px);color:#627b5a}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .card{border:4px solid white;border-radius:28px;background:#fffcf4;overflow:hidden;box-shadow:0 11px 0 #accf97,0 19px 25px #486f3823;display:flex;flex-direction:column}
+    .illustration{height:165px;display:grid;place-items:center;font-size:85px;background:linear-gradient(135deg,#d6efaf,#97d56c)}
+    .illustration.tractor{background:linear-gradient(135deg,#cceacb,#81cc75)}
+    .card-content{padding:20px;display:flex;flex:1;flex-direction:column;gap:7px}
+    .card h2{font-size:23px;margin:0}
+    .card p{color:#5d7b57;flex:1}
+    a.play{margin-top:8px;display:block;text-align:center;text-decoration:none;font-weight:900;font-size:20px;padding:14px 12px;border-radius:17px;background:#f9ca5a;color:#684411;border:2px solid #e5ad38}
+    a.play:focus-visible{outline:4px solid #355c46;outline-offset:4px}
+    footer{text-align:center;margin-top:35px;color:#61765d;font-size:14px}
+    @media(max-width:600px){.grid{grid-template-columns:1fr;gap:22px}.illustration{height:130px;font-size:73px}}
+  </style>
+</head>
+<body>
+<main>
+  <header><div style="font-size:44px">🌼🚜🌿</div><h1>La Tondeuse Magique</h1><p class="intro">Deux jeux rigolos pour les petits jardiniers !</p></header>
+  <div class="grid">
+    <section class="card">
+      <div class="illustration" aria-hidden="true">🔴🌱</div>
+      <div class="card-content"><h2>Le jardin en 2D</h2><p>Un jardin vu d’en haut, facile à explorer. Choisis ta petite tondeuse ou ton tracteur et fais disparaître l’herbe.</p><a class="play" href="./2d/">▶ Jouer en 2D</a></div>
+    </section>
+    <section class="card">
+      <div class="illustration tractor" aria-hidden="true">🚜🌿</div>
+      <div class="card-content"><h2>Le jardin en 3D</h2><p>Un vrai jardin en volume, avec des brins d’herbe hauts et fins, deux véhicules et une caméra qui suit le tracteur.</p><a class="play" href="./3d/">▶ Jouer en 3D</a></div>
+    </section>
+  </div>
+  <footer>👆 Écran tactile · ⌨️ Clavier · 🎮 Manette compatible<br>Sans compte, sans chrono et sans publicité. 💚</footer>
+</main>
+</body>
+</html>
