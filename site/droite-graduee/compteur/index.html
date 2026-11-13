@@ -24,7 +24,7 @@ h2{margin:12px 0;font-size:clamp(21px,3vw,29px)}.topline{display:flex;justify-co
 #finish{text-align:center;padding:22px}.big{font-size:85px}footer{font-size:14px;color:#688094;text-align:center;margin:24px 0}
 @media(max-width:690px){.mode-list{grid-template-columns:1fr}.mode p{min-height:auto}.mode{padding:12px}.choice{min-width:65px;font-size:18px;padding:10px 11px}.dot{width:18px}}
 </style></head><body><main>
-<a href="../" class="back">← La mission des graduations</a>
+<a href="../" class="back" id="return-to-levels">← La mission des graduations</a>
 <header><div class="icon">🚗🛣️🎯</div><h1>Le compteur magique</h1><p class="intro">Observe l’aiguille rouge d’un compteur de vitesse. Chaque trait indique une valeur. Tu peux lire la vitesse ou régler l’aiguille au bon endroit !</p></header>
 <section id="menu" class="board"><h2>Choisis ton niveau</h2><div id="modes" class="mode-list"></div></section>
 <section id="game" class="board" hidden>
@@ -63,7 +63,7 @@ function menu(){
  });
 }
 function home(){$('menu').hidden=false;$('game').hidden=true;$('finish').hidden=true;menu();window.scrollTo({top:0,behavior:'smooth'})}
-function start(i){index=i;round=0;mistakes=0;$('menu').hidden=true;$('finish').hidden=true;$('game').hidden=false;newRound();window.scrollTo({top:0,behavior:'smooth'})}
+function start(i){index=i;document.getElementById('return-to-levels').href='../?classe='+levels[i].id;round=0;mistakes=0;$('menu').hidden=true;$('finish').hidden=true;$('game').hidden=false;newRound();window.scrollTo({top:0,behavior:'smooth'})}
 function isRead(){return round%2===0}
 function newRound(){
  solved=false;pointer=isRead()?level().targets[round]:0;$('next').hidden=true;$('hint').hidden=false;$('controls').innerHTML='';$('choices').innerHTML='';
