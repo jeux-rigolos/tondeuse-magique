@@ -40,6 +40,12 @@ body,#mow3d,#mow3d *{-webkit-tap-highlight-color:transparent;-webkit-touch-callo
 @media(orientation:portrait){#mow3d:fullscreen>.bottom,#mow3d.pseudo-fullscreen>.bottom{grid-template-columns:1fr}#mow3d:fullscreen .dpad,#mow3d.pseudo-fullscreen .dpad{grid-template-rows:repeat(2,49px)}#mow3d:fullscreen .game-actions,#mow3d.pseudo-fullscreen .game-actions{grid-template-columns:repeat(2,1fr)}}
 #mow3d:fullscreen>.bin-hud,#mow3d.pseudo-fullscreen>.bin-hud{flex:none}
 body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
+.obstacle-options,.touch-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.obstacle-options button,.touch-modes button{min-width:0;min-height:49px;background:#fff;color:#385c45;border:2px solid #c5d7bd;border-radius:14px;padding:10px 8px;font:850 14px system-ui;cursor:pointer;touch-action:manipulation}
+.obstacle-options button.active,.touch-modes button.active{background:#e2f5d4;border-color:#56a446}
+.gardens{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:710px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:375px){.touch-modes{grid-template-columns:1fr}}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌾 La Moissonneuse Magique 3D</div><div class="subtitle">Conduis trois machines et découvre trois récoltes !</div></div><b id="pct">0 %</b></div>
@@ -49,13 +55,21 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
   <button data-machine="beet" aria-pressed="false"><span class="emoji">🥬</span>Arracheuse à betteraves</button>
   </div><div class="garden-label" id="crop-label">🌾 Récolte : blé</div>
 <div class="garden-label">🌾 Choisis ton champ :</div>
-<div class="gardens" role="group" aria-label="Choisir un champ"><button data-garden="prairie" class="active" aria-pressed="true">🌾 Champ de blé</button><button data-garden="verger" aria-pressed="false">🚜 Ferme</button><button data-garden="en-l" aria-pressed="false">🧩 Champ en L</button><button data-garden="rond" aria-pressed="false">🌻 Champ ovale</button></div>
+<div class="gardens" role="group" aria-label="Choisir la forme du terrain"><button type="button" data-garden="carre" aria-pressed="false">🟩 Carré</button><button type="button" data-garden="rectangle" class="active" aria-pressed="true">▭ Rectangle</button><button type="button" data-garden="triangle" aria-pressed="false">🔺 Triangle</button><button type="button" data-garden="rond" aria-pressed="false">🔵 Rond</button><button type="button" data-garden="ovale" aria-pressed="false">🥚 Ovale</button><button type="button" data-garden="hexagone" aria-pressed="false">⬡ Hexagone</button><button type="button" data-garden="octogone" aria-pressed="false">🛑 Octogone</button><button type="button" data-garden="losange" aria-pressed="false">🔶 Losange</button></div>
+<div class="garden-label">🌳 Obstacles :</div>
+<div class="obstacle-options" role="group" aria-label="Présence d'obstacles">
+<button type="button" data-obstacles="no" class="active" aria-pressed="true">✨ Terrain vide</button>
+<button type="button" data-obstacles="yes" aria-pressed="false">🌳 Avec obstacles</button></div>
 <div class="garden-label">📏 Taille du terrain :</div>
 <div class="sizes" role="group" aria-label="Choisir la taille du terrain"><button data-size="small" class="active" aria-pressed="true">🌱 Petit</button><button data-size="medium" aria-pressed="false">🌿 Moyen</button><button data-size="large" aria-pressed="false">🌳 Grand</button></div>
-<div class="garden-label">🎮 Vitesse et sensibilité :</div>
+<div class="garden-label">👆 Comment conduire ?</div>
+<div class="touch-modes" role="group" aria-label="Choisir la conduite">
+<button type="button" data-drive="auto" class="active" aria-pressed="true">📍 Toucher un point : automatique</button>
+<button type="button" data-drive="hold" aria-pressed="false">👆 Maintenir le doigt : libre</button></div>
+<div class="garden-label">🚜 Vitesse du véhicule :</div>
 <div class="sensitivity" role="group" aria-label="Sensibilité de la conduite">
-<button type="button" data-control="doux" class="active" aria-pressed="true">🐢 Douce</button>
-<button type="button" data-control="normal" aria-pressed="false">🚜 Normale</button>
+<button type="button" data-control="doux" aria-pressed="false">🐢 Douce</button>
+<button type="button" data-control="normal" class="active" aria-pressed="true">🚜 Normale</button>
 <button type="button" data-control="rapide" aria-pressed="false">⚡ Rapide</button>
 </div></div></details>
 <div class="track"><div class="bar" id="bar"></div></div>
@@ -71,8 +85,8 @@ const canvas=root.querySelector('#scene'),bar=root.querySelector('#bar'),pct=roo
 const binBar=root.querySelector('#bin-fill'),binValue=root.querySelector('#bin-value'),binLabel=root.querySelector('#bin-label');
 let binTarget=0,binLevel=0,harvestEffectUntil=0,binPercentDisplayed=-1;
 const fingerIndicator=root.querySelector('#finger-target');
-let pointerActive=false,pointerId=null,touchPos=null,controlMode='doux';
-const controlSpeeds={doux:.52,normal:.78,rapide:1};
+let pointerActive=false,pointerId=null,touchPos=null,controlMode='normal';
+const controlSpeeds={doux:.58,normal:1,rapide:1.13};
 function controlFactor(){return controlSpeeds[controlMode]}
 const gl=canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'default'});if(!gl){status.innerHTML='Ce navigateur ne prend pas en charge WebGL 3D. <a href="../2d/">Jouer en 2D</a>';return;}
 const vs='attribute vec3 p;attribute vec3 c;uniform mat4 vp;uniform float breeze;uniform float tick;varying vec3 v;void main(){vec3 q=p;float h=max(p.y,0.0);q.x+=breeze*.11*h*sin(tick*1.5+p.x*2.1+p.z*1.4);q.z+=breeze*.07*h*cos(tick*1.2+p.z*2.6);gl_Position=vp*vec4(q,1.0);v=c;}';
@@ -86,27 +100,61 @@ let cols=16,rows=13,boundX=7.25,boundZ=5.9;
 const gap=.90,terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
 let terrainScale=1;
 const crops={wheat:{name:'blé',emoji:'🌾'},corn:{name:'maïs',emoji:'🌽'},beet:{name:'betteraves',emoji:'🥬'}};
-let gardenId='prairie';
+let gardenId='rectangle',obstaclesEnabled=false,driveMode='auto';
 const gardens={
-  'prairie':{name:'Champ de blé',shape:'rectangle',obstacles:[]},
-  'verger':{name:'Ferme',shape:'rectangle',obstacles:[
-    {x:-2.5,z:-1.4,r:.85,kind:'tree'},{x:2.8,z:2.35,r:.85,kind:'tree'},{x:3.0,z:-2.8,r:.72,kind:'rock'}]},
-  'en-l':{name:'Champ en L',shape:'L',obstacles:[
-    {x:-2.6,z:1.2,r:.80,kind:'bush'},{x:3.85,z:3.15,r:1.00,kind:'pond'}]},
-  'rond':{name:'Champ ovale',shape:'round',obstacles:[
-    {x:0,z:0,r:1.35,kind:'pond'},{x:-3.8,z:-1.8,r:.68,kind:'rock'},{x:3.9,z:1.2,r:.63,kind:'bush'}]}
+ carre:{name:'Carré',shape:'square'},
+ rectangle:{name:'Rectangle',shape:'rectangle'},
+ triangle:{name:'Triangle',shape:'triangle'},
+ rond:{name:'Rond',shape:'circle'},
+ ovale:{name:'Ovale',shape:'ellipse'},
+ hexagone:{name:'Hexagone',shape:'hexagon'},
+ octogone:{name:'Octogone',shape:'octagon'},
+ losange:{name:'Losange',shape:'diamond'}
 };
-function insideGarden(x,z,margin=0){
-  if(Math.abs(x)>boundX-margin||Math.abs(z)>boundZ-margin)return false;
-  let shape=gardens[gardenId].shape;
-  if(shape==='L')return !(x>1.7*terrainScale-margin&&z<-.7*terrainScale+margin);
-  if(shape==='round'){
-    const rx=7.10*terrainScale-margin,rz=5.75*terrainScale-margin;
-    return (x/rx)**2+(z/rz)**2<=1;
-  }
-  return true;
+// Construire le contour réel de la pelouse : les bords sont adaptés à la forme choisie.
+function boundaryPolygon(){
+ const shape=gardens[gardenId].shape,s=terrainScale;
+ if(shape==='square')return [[-5.2,-5.2],[5.2,-5.2],[5.2,5.2],[-5.2,5.2]].map(p=>p.map(v=>v*s));
+ if(shape==='rectangle')return [[-7,-4.8],[7,-4.8],[7,4.8],[-7,4.8]].map(p=>p.map(v=>v*s));
+ if(shape==='diamond')return [[0,-5.4],[6.4,0],[0,5.4],[-6.4,0]].map(p=>p.map(v=>v*s));
+ const n=shape==='triangle'?3:shape==='hexagon'?6:shape==='octagon'?8:48;
+ const rx=(shape==='triangle'?7:shape==='circle'?5.45:6.9)*s;
+ const rz=(shape==='triangle'?5.5:shape==='circle'?5.45:5.45)*s;
+ const poly=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;poly.push([Math.cos(a)*rx,Math.sin(a)*rz])}
+ return poly;
 }
-function obstacleAt(x,z,extra=0){return gardens[gardenId].obstacles.some(o=>Math.hypot(x-o.x*terrainScale,z-o.z*terrainScale)<o.r+extra)}
+function insideGarden(x,z,margin=0){
+ const poly=boundaryPolygon();
+ for(let i=0;i<poly.length;i++){
+  const [ax,az]=poly[i],[bx,bz]=poly[(i+1)%poly.length],dx=bx-ax,dz=bz-az;
+  const inward=(dx*(z-az)-dz*(x-ax))/Math.hypot(dx,dz);
+  if(inward<margin-1e-8)return false;
+ }
+ return true;
+}
+const obstacleTemplates=[
+ {x:-2.2,z:0,r:.65,kind:'tree'},
+ {x:2.4,z:1,r:.58,kind:'rock'},
+ {x:.25,z:-2,r:.55,kind:'bush'}
+];
+function activeObstacles(){
+ return obstaclesEnabled?obstacleTemplates.filter(o=>insideGarden(o.x*terrainScale,o.z*terrainScale,o.r+.55)):[];
+}
+function obstacleAt(x,z,extra=0){
+ return activeObstacles().some(o=>Math.hypot(x-o.x*terrainScale,z-o.z*terrainScale)<o.r+extra);
+}
+function startingVehicle(){
+ const candidates=[[-3,2],[-3,0],[2.5,2],[0,3],[0,0],[1.5,-2],[-1,0]];
+ for(const [xx,zz] of candidates){
+  const x=xx*terrainScale,z=zz*terrainScale;
+  if(driveable(x,z))return{x,z,a:0};
+ }
+ return{x:0,z:0,a:0};
+}
+function gardenCameraEye(){
+ const aspect=Math.max(.60,(canvas.clientWidth||960)/(canvas.clientHeight||600));
+ return[0,Math.max(12.5,14.4/aspect)*terrainScale,5.2*terrainScale];
+}
 function driveable(x,z){let safety=type==='beet'?.64:.57;return insideGarden(x,z,safety)&&!obstacleAt(x,z,safety);}
 
 function c(hex){return [parseInt(hex.slice(1,3),16)/255,parseInt(hex.slice(3,5),16)/255,parseInt(hex.slice(5,7),16)/255]}
@@ -124,7 +172,7 @@ function sphere(x,y,z,r,col){let N=8,M=5;for(let j=0;j<M;j++){let v1=j*Math.PI/M
 function line3(a,b,thick,col){let dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz),nx=dx/length,ny=dy/length,nz=dz/length;let xx=ny,yy=-nx,zz=0;let ll=Math.hypot(xx,yy,zz);if(ll<.05){xx=1;yy=0;ll=1}xx/=ll;yy/=ll;let ux=yy*nz-zz*ny,uy=zz*nx-xx*nz,uz=xx*ny-yy*nx;let q=thick*.5;let A=[a[0]+xx*q+ux*q,a[1]+yy*q+uy*q,a[2]+zz*q+uz*q],B=[a[0]-xx*q+ux*q,a[1]-yy*q+uy*q,a[2]-zz*q+uz*q],D=[b[0]-xx*q+ux*q,b[1]-yy*q+uy*q,b[2]-zz*q+uz*q],E=[b[0]+xx*q+ux*q,b[1]+yy*q+uy*q,b[2]+zz*q+uz*q];quad(A,B,D,E,col);}
 function ground(){
  box(0,-.23,0,34*terrainScale,.42,29*terrainScale,c('#a88c55'));
- box(0,-.045,0,16.1*terrainScale,.08,13.4*terrainScale,c('#ab8c53'));
+ // Seules les cases dans la forme deviennent cultivables.
  const tiles=new Map(grass.map(g=>[g.j*cols+g.i,g]));
  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
  let g=tiles.get(j*cols+i);if(!g)continue;
@@ -136,7 +184,7 @@ function ground(){
  
  }
  // Les obstacles ont un socle visible, à l'exclusion de la pelouse.
- for(const o of gardens[gardenId].obstacles){
+ for(const o of activeObstacles()){
    let {x,z,r,kind}=o;x*=terrainScale;z*=terrainScale;
    if(kind==='pond'){
      cylinder(x,.07,z,r+.13,.13,c('#e4cc94'));
@@ -161,19 +209,14 @@ function ground(){
      for(let k=0;k<5;k++)sphere(x+Math.cos(k*1.26)*r*.45,.7,z+Math.sin(k*1.26)*r*.45,.1,c(k%2?'#ffb6d8':'#ffe27a'));
    }
  }
- // Le dallage de la partie creuse distingue bien la forme en L.
- if(gardenId==='en-l'){
-   for(let x=2.2*terrainScale;x<7.1*terrainScale;x+=.95)for(let z=-5.5*terrainScale;z<-.9*terrainScale;z+=.95){
-     box(x,-.008,z,.89,.026,.89,c((Math.round(x+z)*3)%2?'#ead6b4':'#d9c19b'));
-   }
+ // La barrière suit le périmètre de la figure, pas un rectangle extérieur.
+ const border=boundaryPolygon();
+ for(let i=0;i<border.length;i++){
+  const [ax,az]=border[i],[bx,bz]=border[(i+1)%border.length];
+  line3([ax,.27,az],[bx,.27,bz],.14,c('#e8b87f'));
+  line3([ax,.70,az],[bx,.70,bz],.15,c('#b57f48'));
+  if(border.length<=8||i%Math.max(1,Math.floor(border.length/12))===0)cylinder(ax,.47,az,.11,.94,c('#b27b45'));
  }
- // Wooden fence
- for(let x=-8*terrainScale;x<=8*terrainScale+.01;x+=1.6){box(x,.47,-6.95*terrainScale,.14,.95,.14,c('#bd824a'));box(x,.47,6.95*terrainScale,.14,.95,.14,c('#bd824a'))}
- for(let z=-6.95*terrainScale;z<=6.95*terrainScale+.01;z+=1.4){box(-8*terrainScale,.47,z,.14,.95,.14,c('#bd824a'));box(8*terrainScale,.47,z,.14,.95,.14,c('#bd824a'))}
- for(let z of [-6.95*terrainScale,6.95*terrainScale]){box(0,.31,z,16*terrainScale,.13,.12,c('#efc58a'));box(0,.71,z,16*terrainScale,.13,.12,c('#e1ac68'))}
- for(let x of [-8*terrainScale,8*terrainScale]){box(x,.31,0,.12,.13,14*terrainScale,c('#efc58a'));box(x,.71,0,.12,.13,14*terrainScale,c('#e1ac68'))}
- for(let i=0,n=Math.round(10*terrainScale);i<2*n;i++){let xx=-7.7*terrainScale+(i%n)*15.4*terrainScale/(n-1),zz=(i<n?-7.75:7.75)*terrainScale,k=i%5;flower(xx,zz,['#ffd858','#f7a8d4','#ff8d76','#e9e6ff','#fdf6c9'][k]);}
- for(let j=0,n=Math.round(8*terrainScale);j<2*n;j++){let zz=-6.45*terrainScale+(j%n)*12.9*terrainScale/(n-1),xx=(j<n?-8.65:8.65)*terrainScale;flower(xx,zz,['#ff8d76','#fcda59','#c9a9f6'][j%3]);}
  for(let [x,z,s] of [[-10,-9,1],[10,-9,1.15],[-10,9,1.15],[10,9,1],[0,-10,1.1]]){
  x*=terrainScale;z*=terrainScale;
  box(x,.78*s,z,.52*s,1.55*s,.54*s,c('#9b7045'));sphere(x,2.0*s,z,.95*s,c('#519947'));sphere(x-.55*s,1.87*s,z,.7*s,c('#63ac50'));sphere(x+.45*s,2.15*s,z,.8*s,c('#68b64e'));
@@ -372,7 +415,7 @@ function reset(){
   let n=i+j*cols,x=(i-(cols-1)/2)*gap,z=(j-(rows-1)/2)*gap;
   if(!insideGarden(x,z,.10)||obstacleAt(x,z,.23))continue;
   grass.push({i,j,x,z,cut:false,v:(Math.sin(n*3.7)+1)/2});
- }vehicle={x:(gardenId==='rond'?-3.8:-5.3)*terrainScale,z:(gardenId==='rond'?3.35:3.9)*terrainScale,a:0};target=null;pointerActive=false;pointerId=null;touchPos=null;fingerIndicator.style.display='none';complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Maintiens ton doigt pour guider doucement la moissonneuse !';bar.style.width='0%';pct.textContent='0 %';
+ }vehicle=startingVehicle();target=null;pointerActive=false;pointerId=null;touchPos=null;fingerIndicator.style.display='none';complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='📍 Touche un point : le véhicule y va automatiquement !';bar.style.width='0%';pct.textContent='0 %';
   binTarget=0;binLevel=0;harvestEffectUntil=0;binPercentDisplayed=-1;binBar.style.width='0%';binValue.textContent='0 %';
 }
 function score(){let number=grass.filter(v=>v.cut).length,p=number===grass.length?100:Math.min(99,Math.round(number/grass.length*100));
@@ -398,9 +441,21 @@ function chooseGarden(next){
   for(const b of root.querySelectorAll('[data-garden]')){
     const active=b.dataset.garden===next;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
   }
-  reset();status.textContent='🌾 '+gardens[next].name+' : à toi de jouer !';
+  reset();status.textContent='🌾 '+gardens[next].name+' : choisis une destination !';
 }
 root.querySelectorAll('[data-garden]').forEach(b=>b.addEventListener('click',()=>chooseGarden(b.dataset.garden)));
+root.querySelectorAll('[data-obstacles]').forEach(b=>b.addEventListener('click',()=>{
+ obstaclesEnabled=b.dataset.obstacles==='yes';
+ root.querySelectorAll('[data-obstacles]').forEach(x=>{const a=(x.dataset.obstacles==='yes')===obstaclesEnabled;x.classList.toggle('active',a);x.setAttribute('aria-pressed',String(a))});
+ reset();status.textContent=obstaclesEnabled?'🌳 Attention aux arbres, rochers et buissons !':'✨ Terrain vide : découvre sa forme !';
+}));
+root.querySelectorAll('[data-drive]').forEach(b=>b.addEventListener('click',()=>{
+ driveMode=b.dataset.drive;target=null;pointerActive=false;pointerId=null;touchPos=null;
+ 
+ root.querySelectorAll('[data-drive]').forEach(x=>{const a=x.dataset.drive===driveMode;x.classList.toggle('active',a);x.setAttribute('aria-pressed',String(a))});
+ status.textContent=driveMode==='auto'?'📍 Touche une destination, la machine y va toute seule.':'👆 Maintiens le doigt pour conduire, relâche pour arrêter.';
+}));
+
 function chooseSize(id){
   terrainScale=terrainSizes[id];
   for(const b of root.querySelectorAll('[data-size]')){
@@ -411,7 +466,7 @@ function chooseSize(id){
   view='follow';
   root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';
   reset();
-  camEye=view==='garden'?[0,19*terrainScale,19*terrainScale]:[vehicle.x,6.2,vehicle.z-6];
+  camEye=view==='garden'?gardenCameraEye():[vehicle.x,6.2,vehicle.z-6];
   camAt=view==='garden'?[0,0,0]:[vehicle.x,.65,vehicle.z];
   status.textContent='📏 Champ '+terrainLabels[id]+' : bonne récolte !';
 }
@@ -444,7 +499,7 @@ root.addEventListener('selectstart',e=>e.preventDefault());
 // Le véhicule suit le doigt tant qu'il reste posé ; dès qu'il est levé, il s'arrête.
 function updateFinger(e){
   touchPos={clientX:e.clientX,clientY:e.clientY};
-  target=groundPoint(touchPos);
+  if(driveMode==='hold')target=groundPoint(touchPos);
   const stage=canvas.parentElement.getBoundingClientRect();
   fingerIndicator.style.left=(e.clientX-stage.left)+'px';
   fingerIndicator.style.top=(e.clientY-stage.top)+'px';
@@ -454,7 +509,7 @@ canvas.addEventListener('pointerdown',e=>{
   if(complete||pointerActive)return;
   e.preventDefault();pointerId=e.pointerId;pointerActive=true;
   try{canvas.setPointerCapture?.(pointerId);}catch(err){}
-  updateFinger(e);
+  updateFinger(e);target=groundPoint(touchPos);
 });
 canvas.addEventListener('pointermove',e=>{
   if(!pointerActive||e.pointerId!==pointerId)return;
@@ -462,7 +517,7 @@ canvas.addEventListener('pointermove',e=>{
 });
 function endFinger(e){
   if(e.pointerId!==pointerId)return;
-  pointerActive=false;pointerId=null;touchPos=null;target=null;
+  pointerActive=false;pointerId=null;touchPos=null;if(driveMode==='hold')target=null;
   fingerIndicator.style.display='none';
 }
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endFinger);
@@ -473,7 +528,7 @@ window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','Arr
 });
 function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previous=now;time+=dt*.016;
  // La caméra bouge : recalcule la cible à partir de la position actuelle du doigt.
- if(pointerActive&&touchPos)target=groundPoint(touchPos);
+ if(driveMode==='hold'&&pointerActive&&touchPos)target=groundPoint(touchPos);
  if(!complete){
     // Pilotage relatif au véhicule : les flèches ne pilotent plus les axes du jardin.
     let turn=0,drive=0;
@@ -499,13 +554,13 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
     if(target){
       // Toucher la pelouse conserve la commande automatique vers la destination.
       const dx=target.x-vehicle.x,dz=target.z-vehicle.z,dist=Math.hypot(dx,dz);
-      if(dist<.16){drive=0;}
+      if(dist<.22){drive=0;if(driveMode==='auto')target=null;}
       else{
         const wanted=Math.atan2(dx,dz);
         const angleError=Math.atan2(Math.sin(wanted-vehicle.a),Math.cos(wanted-vehicle.a));
-        const maxTurn=(pointerActive?.045:.060)*controlFactor()*dt;
+        const maxTurn=(driveMode==='hold'?.045:.060)*controlFactor()*dt;
         vehicle.a+=Math.max(-maxTurn,Math.min(maxTurn,angleError));
-        drive=Math.min(.82,dist/(pointerActive?1.4:.95))*Math.max(0,Math.cos(angleError));
+        drive=Math.min(1,dist/(driveMode==='hold'?1.3:.75))*Math.max(0,Math.cos(angleError));
       }
     }else{
       // Dans la caméra de suivi, tourner vers la droite exige de diminuer l'angle.
@@ -544,7 +599,7 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
    binPercentDisplayed=currentBinPercent;
    binBar.style.width=currentBinPercent+'%';binValue.textContent=currentBinPercent+' %';
  }
- let destEye,destAt;if(view==='garden'){destEye=[0,19*terrainScale,19*terrainScale];destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.07*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.07*Math.min(dt,2);}
+ let destEye,destAt;if(view==='garden'){destEye=gardenCameraEye();destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.027*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.027*Math.min(dt,2);}
  let w=Math.max(1,Math.floor(canvas.clientWidth*Math.min(devicePixelRatio||1,1.5))),h=Math.max(1,Math.floor(canvas.clientHeight*Math.min(devicePixelRatio||1,1.5)));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(VP,false,matrix());gl.uniform1f(TICK,time);if(dirty)updateStatic();if(grassDirty)updateGrass();
  function drawBuffer(buffer,count){gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.enableVertexAttribArray(P);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(C);gl.vertexAttribPointer(C,3,gl.FLOAT,false,24,12);gl.drawArrays(gl.TRIANGLES,0,count);}
  gl.uniform1f(BREEZE,0);drawBuffer(staticBuf,staticCount);gl.uniform1f(BREEZE,1);drawBuffer(grassBuf,grassCount);gl.uniform1f(BREEZE,0);mesh=[];vehicleMesh();gl.bindBuffer(gl.ARRAY_BUFFER,movingBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh),gl.DYNAMIC_DRAW);drawBuffer(movingBuf,mesh.length/6);
