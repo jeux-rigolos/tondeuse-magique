@@ -33,7 +33,7 @@ button:hover:not(:disabled){filter:brightness(1.04);transform:translateY(-1px)}b
 @media(max-width:720px){.grid{grid-template-columns:1fr}.recipe .picture{font-size:45px}.recipe{padding:13px}.row{flex-direction:column}.controls button{min-width:65px;font-size:14px}.meter{font-size:20px}}
 </style></head>
 <body><main>
-<a href="../" class="back">← La mission des graduations</a>
+<a href="../" class="back" id="return-to-levels">← La mission des graduations</a>
 <header><div class="emblem">🥞👩‍🍳🎂</div><h1>Le petit pâtissier</h1><p>Choisis une <strong>vraie recette</strong>, mesure les ingrédients sur une balance et dans un verre doseur, puis termine la préparation. Les quantités proviennent de recettes publiées.</p></header>
 <section id="menu"><div class="grades" id="grade-buttons" role="group" aria-label="Choisir sa classe"></div><div class="grid" id="recipe-grid"></div><p class="footer">Les ingrédients qui ne se mesurent pas avec une balance ou un doseur restent indiqués sur la fiche de recette. Pour cuisiner, suis la recette source avec un adulte.</p></section>
 <section id="play" hidden><div class="board">
@@ -80,7 +80,7 @@ function stepFor(ingredient){
  });return best;
 }
 function useGrade(g){
- gradeChoice=g;var box=document.getElementById('grade-buttons');box.innerHTML='';
+ gradeChoice=g;document.getElementById('return-to-levels').href='../?classe='+gradeChoice.toLowerCase();var box=document.getElementById('grade-buttons');box.innerHTML='';
  classes.forEach(function(name){var b=document.createElement('button');b.textContent=name;b.className=name===gradeChoice?'active':'';b.setAttribute('aria-pressed',name===gradeChoice?'true':'false');
  b.addEventListener('click',function(){useGrade(name);makeMenu()});box.appendChild(b)});
 }
