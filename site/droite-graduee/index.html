@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e6f7fd">
+<meta name="description" content="Huit mini-jeux gratuits pour apprendre la droite graduée du CE1 au CM2.">
+<title>La mission des graduations — Jeux rigolos</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#21384b;background:#eff9ff;font-synthesis:none}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 7% 0%,#fff2b7 0,transparent 34%),radial-gradient(circle at 95% 18%,#d8f7d5 0,transparent 35%),#eff9ff}
+button,a{font:inherit}button{cursor:pointer}button:disabled{opacity:.43;cursor:default}
+a{color:#1564ac}a:focus-visible,button:focus-visible,svg:focus-visible{outline:4px solid #ff9d2f;outline-offset:4px}
+.wrap{max-width:1060px;margin:auto;padding:18px 17px 65px}
+.top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.top a{background:white;padding:9px 14px;border-radius:14px;font-weight:800;text-decoration:none;box-shadow:0 4px 0 #d3e7ed}
+.brand{font-weight:950;font-size:clamp(18px,3vw,23px)}.brand small{font-size:12px;font-weight:600;color:#547381}
+.hero{text-align:center;padding:15px 10px 26px}.hero .emoji{font-size:53px}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.1;margin:10px 0;color:#15395e}
+.hero p{font-size:clamp(16px,2.3vw,20px);max-width:650px;margin:12px auto;color:#506879}
+.pill{background:#fff3c8;color:#77520b;border-radius:99px;padding:7px 14px;font-weight:800;display:inline-block}
+.stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 24px}
+.stat{background:white;border-radius:16px;padding:10px 16px;box-shadow:0 4px 0 #dceef4;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.game-card{display:flex;flex-direction:column;min-width:0;border:3px solid #fff;background:#fff;border-radius:23px;overflow:hidden;box-shadow:0 7px 0 #c9e6ef,0 11px 15px #16426118}
+.scene{min-height:106px;background:linear-gradient(135deg,#d8f5ff,#f9eebf);display:grid;place-items:center;font-size:60px}
+.game-card:nth-child(4n+2) .scene{background:linear-gradient(135deg,#fce2de,#ffe9a4)}
+.game-card:nth-child(4n+3) .scene{background:linear-gradient(135deg,#e2ebff,#c3f4ee)}
+.game-card:nth-child(4n+4) .scene{background:linear-gradient(135deg,#eee0ff,#f9ebd0)}
+.cardbody{padding:16px;display:flex;flex-direction:column;flex:1;gap:8px}
+.grade{display:inline-flex;align-self:flex-start;background:#e8f2ff;color:#235a8f;font-size:13px;font-weight:850;padding:4px 10px;border-radius:20px}
+.cardbody h2{font-size:20px;line-height:1.2;margin:2px 0}
+.cardbody p{margin:0;flex:1;color:#536b7a;line-height:1.42;font-size:14px}
+.completed{color:#875d00;font-size:14px;font-weight:900;min-height:20px}
+.btn{border:0;border-radius:15px;padding:12px 16px;font-weight:900;background:#ffcf58;color:#563b09;box-shadow:0 4px 0 #dfaa30}
+.btn:hover:not(:disabled){filter:brightness(1.04);transform:translateY(-1px)}
+.btn.primary{background:#2072d6;color:white;box-shadow:0 4px 0 #164ba0}
+.btn.soft{background:#e9f4fe;color:#174d86;box-shadow:0 4px 0 #c7e1f5}
+.btn.good{background:#66d69a;color:#104b2b;box-shadow:0 4px 0 #37aa6e}
+.game-card .btn{width:100%}
+#play{display:none}.play-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.progress{display:flex;align-items:center;gap:7px}.dot{width:21px;height:13px;background:#dae9ef;border-radius:8px}.dot.done{background:#35be83}.dot.now{background:#ffc64a}
+.board{background:white;border:4px solid white;border-radius:28px;box-shadow:0 8px 0 #cde5ed,0 14px 30px #15375e14;padding:clamp(17px,3vw,30px)}
+.board h2{font-size:clamp(24px,4vw,32px);margin:0 0 8px;color:#15395e}
+.story{background:#e9f8ff;border-radius:15px;padding:12px 15px;color:#365b72;margin:10px 0 16px}
+.question{font-size:clamp(19px,3vw,25px);font-weight:850;margin:20px 0 4px}
+.help{color:#647c88;font-size:14px;margin-bottom:14px}
+.axis-frame{background:linear-gradient(#f4fbff,#fff);border:2px solid #e0edf5;border-radius:20px;padding:8px 2px;margin:15px 0 16px;overflow:hidden}
+svg{display:block;width:100%;height:auto;touch-action:manipulation}
+#axis.place{cursor:crosshair}#axis.place:focus-visible{border-radius:10px}
+.controls,.answers{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:14px 0}
+.choice{border:3px solid #d0e7f7;background:#f6fbff;color:#17446a;font-size:20px;font-weight:900;border-radius:16px;min-width:92px;padding:13px 18px;box-shadow:0 4px 0 #c7e2f1}
+.choice:hover,.choice:focus-visible{background:#fff0c1}
+.feedback{min-height:60px;border-radius:17px;padding:14px 16px;background:#f1f6fa;color:#536c7a;font-weight:750;margin:16px 0;line-height:1.45}
+.feedback.success{background:#e3f9ec;color:#166641}.feedback.error{background:#fff0df;color:#8e4a10}
+.actions{display:flex;gap:11px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.actions .btn{min-width:140px}.tiny{font-size:13px;color:#5d7685}
+.challenge{border-left:5px solid #ffca56;background:#fff9df;padding:13px 16px;border-radius:10px;margin-top:18px;color:#665320}
+.finish{text-align:center;padding:14px 0}.finish .medal{font-size:77px}.finish h2{font-size:32px}
+.finish p{font-size:18px;line-height:1.5}
+footer{text-align:center;padding:32px 5px 0;color:#608092;font-size:14px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.scene{min-height:85px;font-size:52px}.cardbody{padding:14px}.board{padding:15px}.dot{width:17px}.choice{min-width:75px;padding:11px 13px;font-size:18px}}
+@media(prefers-reduced-motion:no-preference){.btn,.choice{transition:transform .12s,filter .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a href="../">← Tous les jeux rigolos</a><span class="brand">🎯 Mission Graduations <small>CE1 → CM2</small></span></div>
+<section id="home">
+<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">8 aventures · Du CE1 au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
+<div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 8</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
+<div id="cards" class="grid"></div>
+<p class="tiny" style="text-align:center;margin-top:26px">Tu peux commencer par n'importe quel jeu. Les niveaux CE1 restent ouverts aux plus grands : s'entraîner, c'est progresser !</p>
+</section>
+<section id="play" aria-live="off">
+<div class="play-top"><button id="back" class="btn soft" type="button">← Les aventures</button><div class="progress" id="progress" aria-label="Progression du jeu"></div></div>
+<div class="board">
+<div id="regular">
+<span id="grade" class="grade"></span><h2 id="game-title"></h2>
+<p class="story" id="story"></p>
+<p class="question" id="question"></p>
+<p class="help" id="instruction"></p>
+<div class="axis-frame"><svg id="axis" viewBox="0 0 860 210" role="img" aria-label="Droite graduée"></svg></div>
+<div id="choices" class="answers"></div><div id="jumps" class="controls"></div>
+<div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+<div class="actions">
+<button id="check" class="btn primary" type="button" hidden>Vérifier mon choix</button>
+<button id="hint" class="btn soft" type="button">💡 Un indice</button>
+<button id="next" class="btn good" type="button" hidden>Défi suivant →</button>
+</div>
+<div id="real" class="challenge"></div>
+</div>
+<div id="finished" class="finish" hidden></div>
+</div>
+</section>
+<footer>💚 Gratuit, sans publicité, sans inscription. La progression reste uniquement dans ce navigateur.<br>Une droite graduée a des intervalles réguliers : observe toujours la valeur entre deux traits !</footer>
+</div>
+<script>
+(function(){
+'use strict';
+var levels=[
+{id:'grenouille',grade:'CE1',icon:'🐸',title:'La grenouille sauteuse',desc:'Trouve une case sur la mare de 0 à 10.',type:'place',min:0,max:10,step:1,labels:[0,5,10],unit:'',context:'Dans la mare, chaque nénuphar avance d’une unité.',real:'Dans la vraie vie : compter les maisons d’une rue numérotées ou les cases d’un jeu.'},
+{id:'fusee',grade:'CE1',icon:'🚀',title:'La fusée bondissante',desc:'Avance de 1, 2 ou 5 pour atteindre une planète.',type:'jump',min:0,max:20,step:1,labels:[0,5,10,15,20],unit:'',context:'Ta fusée commence à 0. Choisis la taille des bonds pour arriver exactement à la planète.',real:'Dans la vraie vie : calculer combien de pas on fait pour rejoindre un endroit.'},
+{id:'regle',grade:'CE2',icon:'📏',title:'L’atelier des mesures',desc:'Lis une longueur sur une règle graduée.',type:'read',min:0,max:20,step:1,labels:[0,5,10,15,20],unit:'cm',context:'Au bricolage, on mesure un ruban avec une règle en centimètres.',real:'À faire pour de vrai : mesure ton crayon avec une règle, puis repère la même valeur ici.'},
+{id:'train',grade:'CE2',icon:'🚂',title:'Le train des grands nombres',desc:'Découvre la valeur d’un intervalle entre 0 et 100.',type:'scale',min:0,max:100,step:10,labels:[0,100],unit:'',context:'Le train traverse 100 kilomètres. Tous les traits sont espacés régulièrement.',real:'Dans la vraie vie : les bornes kilométriques affichent des distances qui augmentent de façon régulière.'},
+{id:'pizza',grade:'CM1',icon:'🍕',title:'La pizza des fractions',desc:'Place 1/2, 3/4, 5/4… entre 0 et 2.',type:'place',min:0,max:2,step:.25,labels:[0,1,2],unit:'',context:'Chaque pizza entière est partagée en quatre parts égales. Certaines commandes dépassent une pizza !',real:'Dans la vraie vie : partager une pizza en quatre permet de comprendre 1/4, 1/2 et 3/4.'},
+{id:'potion',grade:'CM1',icon:'🧪',title:'Le laboratoire des potions',desc:'Lis les centilitres d’un récipient gradué.',type:'read',min:0,max:100,step:5,labels:[0,50,100],unit:'cL',context:'La fiole est graduée de 0 à 100 cL. Chaque petit trait compte !',real:'Dans la vraie vie : le verre doseur indique des quantités régulières pour suivre une recette.'},
+{id:'robot',grade:'CM2',icon:'🤖',title:'Le robot des décimaux',desc:'Place 0,7 ; 1,3 ; 1,8 sur la piste.',type:'place',min:0,max:2,step:.1,labels:[0,1,2],unit:'',context:'Le robot avance par dixièmes. Entre 0 et 1, il y a dix petits espaces égaux.',real:'Dans la vraie vie : les longueurs et les distances s’expriment souvent avec des nombres décimaux.'},
+{id:'randonnee',grade:'CM2',icon:'🥾',title:'Le rallye des kilomètres',desc:'Retrouve une distance au demi-kilomètre près.',type:'place',min:0,max:10,step:.5,labels:[0,5,10],unit:'km',context:'Sur le sentier, les panneaux indiquent les kilomètres. Chaque petit intervalle vaut 0,5 km.',real:'À faire dehors : regarde la distance d’une balade sur une carte ou un panneau de randonnée.'}
+];
+var home=document.getElementById('home'),play=document.getElementById('play'),cards=document.getElementById('cards');
+var axis=document.getElementById('axis'),choices=document.getElementById('choices'),jumps=document.getElementById('jumps');
+var fb=document.getElementById('feedback'),check=document.getElementById('check'),next=document.getElementById('next'),hint=document.getElementById('hint');
+var current=-1,round=0,errors=0,roundFailed=false,solved=false,selected=null,target=0,position=0,step=1,lastTarget=-1;
+var saved={};try{saved=JSON.parse(localStorage.getItem('mission-graduations-v1')||'{}')||{}}catch(e){saved={}}
+function store(){try{localStorage.setItem('mission-graduations-v1',JSON.stringify(saved))}catch(e){}}
+function fmt(n){return Number(n.toFixed(4)).toLocaleString('fr-FR',{maximumFractionDigits:3})}
+function value(i){return levels[current].min+i*step}
+function numberOfTicks(){var l=levels[current];return Math.round((l.max-l.min)/step)}
+function rand(a,b){return Math.floor(a+Math.random()*(b-a+1))}
+function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=rand(0,i);var x=arr[i];arr[i]=arr[j];arr[j]=x}return arr}
+function named(n){var l=levels[current];if(l.id!=='pizza')return fmt(n)+(l.unit?' '+l.unit:'');var quarters=Math.round(n*4);var f={1:'1/4',2:'1/2',3:'3/4',4:'1',5:'5/4',6:'3/2',7:'7/4'};return f[quarters]||fmt(n)}
+function setFeedback(message,style){fb.textContent=message;fb.className='feedback'+(style?' '+style:'')}
+function renderHome(){
+ cards.innerHTML='';
+ levels.forEach(function(l,i){
+ var card=document.createElement('article');card.className='game-card';
+ var stars=saved[l.id]?saved[l.id]:0;
+ card.innerHTML='<div class="scene" aria-hidden="true">'+l.icon+'</div><div class="cardbody"><span class="grade">'+l.grade+'</span><h2>'+l.title+'</h2><p>'+l.desc+'</p><div class="completed">'+(stars?'⭐'.repeat(stars)+' · Terminé':'5 défis à relever')+'</div><button type="button" class="btn primary">'+(stars?'Rejouer ↻':'Jouer ▶')+'</button></div>';
+ card.querySelector('button').addEventListener('click',function(){start(i)});cards.appendChild(card);
+ });
+ document.getElementById('stat-completed').textContent='🏅 '+Object.keys(saved).filter(function(k){return saved[k]>0&&levels.some(function(l){return l.id===k})}).length+' jeu(x) terminé(s) sur 8';
+}
+function showHome(){current=-1;home.style.display='block';play.style.display='none';renderHome();window.scrollTo({top:0,behavior:'smooth'})}
+function start(i){current=i;round=0;errors=0;lastTarget=-1;home.style.display='none';play.style.display='block';document.getElementById('regular').hidden=false;document.getElementById('finished').hidden=true;document.getElementById('grade').textContent=levels[i].grade+' · Aventure '+(i+1)+'/8';document.getElementById('game-title').textContent=levels[i].icon+' '+levels[i].title;document.getElementById('story').textContent=levels[i].context;document.getElementById('real').textContent='🌍 '+levels[i].real;newRound();window.scrollTo({top:0,behavior:'smooth'})}
+function setProgress(){var el=document.getElementById('progress');el.innerHTML='';for(var i=0;i<5;i++){var dot=document.createElement('span');dot.className='dot'+(i<round?' done':i===round?' now':'');dot.title='Défi '+(i+1);el.appendChild(dot)}}
+function newRound(){
+ var l=levels[current];solved=false;roundFailed=false;selected=null;position=0;next.hidden=true;hint.hidden=false;choices.innerHTML='';jumps.innerHTML='';
+ step=l.type==='scale'?[5,10,20][rand(0,2)]:l.step;
+ var n=numberOfTicks();target=rand(1,n-1);if(l.id==='pizza')target=rand(1,7);
+ if(target===lastTarget&&n>3)target=(target%(n-1))+1;lastTarget=target;
+ setProgress();
+ var q='',instruction='';
+ if(l.type==='place'){
+  if(l.id==='grenouille')q='🐸 La grenouille veut atteindre le nénuphar '+named(value(target))+'. Où doit-elle sauter ?';
+  if(l.id==='pizza')q='🍕 Place la commande de '+named(value(target))+' pizza(s) sur la droite.';
+  if(l.id==='robot')q='🤖 Le robot doit s’arrêter à '+named(value(target))+'. Montre-lui où aller !';
+  if(l.id==='randonnee')q='🥾 Le panneau annonce '+named(value(target))+' depuis le départ. Où se trouve ce point ?';
+  instruction='Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
+  check.hidden=false;check.disabled=true;
+ }else if(l.type==='jump'){
+  q='🪐 La planète se trouve sur la case '+fmt(value(target))+'. Fais décoller ta fusée depuis 0 !';
+  instruction='Utilise les boutons pour faire des bonds. Le but est de tomber exactement sur la planète.';
+  check.hidden=true;
+  [1,2,5,-1,-2,-5].forEach(function(delta){
+   var b=document.createElement('button');b.className='choice';b.textContent=(delta>0?'+':'')+delta;
+   b.setAttribute('aria-label',(delta>0?'Avancer de ':'Reculer de ')+Math.abs(delta));
+   b.addEventListener('click',function(){if(solved)return;var nextPos=position+delta;if(nextPos<0||nextPos>n){setFeedback('Cette manœuvre sortirait de la piste. Choisis un autre bond.','error');return}position=nextPos;drawAxis();if(position===target){success()}else{setFeedback(position<target?'🚀 Tu es à '+position+'. La planète est plus loin !':'🚀 Tu es à '+position+'. Recule un peu !','')}});jumps.appendChild(b);
+  });
+ }else if(l.type==='read'){
+  q=l.id==='regle'?'📏 Quelle longueur indique la flèche sur la règle ?':'🧪 Combien de centilitres montre la flèche ?';
+  instruction='Regarde la flèche bleue, compte les espaces et choisis la bonne réponse.';
+  check.hidden=true;
+  var options=[target],offsets=shuffle([-4,-3,-2,-1,1,2,3,4]);
+  offsets.forEach(function(d){var k=target+d;if(k>=0&&k<=n&&options.indexOf(k)<0&&options.length<3)options.push(k)});
+  shuffle(options).forEach(function(k){makeChoice(named(value(k)),k===target,choices)});
+ }else if(l.type==='scale'){
+  q='🚂 Combien vaut UN petit intervalle entre deux traits ?';
+  instruction='Le début vaut 0 et la fin vaut 100. Compte les espaces égaux.';
+  check.hidden=true;
+  shuffle([5,10,20]).forEach(function(k){makeChoice(k+' unités',k===step,choices)});
+ }
+ document.getElementById('question').textContent=q;document.getElementById('instruction').textContent=instruction;
+ setFeedback('À toi de jouer ! Observe les traits et les nombres écrits sous la droite.','');
+ drawAxis();
+}
+function makeChoice(label,correct,parent){var b=document.createElement('button');b.className='choice';b.textContent=label;b.addEventListener('click',function(){if(solved)return;if(correct)success();else wrong('Tu as choisi '+label+'. Regarde les intervalles, puis réessaie !')});parent.appendChild(b)}
+function drawAxis(){
+ var l=levels[current],n=numberOfTicks(),out='',major=l.labels||[],w=740;
+ out+='<rect x="16" y="14" width="828" height="181" rx="18" fill="#f7fcff"/>';
+ out+='<line x1="60" y1="108" x2="800" y2="108" stroke="#2d5d80" stroke-width="7" stroke-linecap="round"/>';
+ out+='<path d="M 800 98 L 822 108 L 800 118 Z" fill="#2d5d80"/>';
+ for(var i=0;i<=n;i++){
+  var x=60+w*i/n,v=value(i),isMajor=major.some(function(a){return Math.abs(a-v)<.0001});
+  out+='<line x1="'+x+'" y1="'+(isMajor?82:91)+'" x2="'+x+'" y2="'+(isMajor?134:125)+'" stroke="'+(isMajor?'#24537b':'#679db5')+'" stroke-width="'+(isMajor?5:3)+'" stroke-linecap="round"/>';
+  if(isMajor)out+='<text x="'+x+'" y="166" font-size="25" font-weight="850" text-anchor="middle" fill="#214c73">'+fmt(v)+'</text>';
+ }
+ if(l.type==='read'){
+  var px=60+w*target/n;
+  out+='<path d="M '+(px-15)+' 32 L '+(px+15)+' 32 L '+px+' 69 Z" fill="#e65c62"/><text x="'+px+'" y="24" font-size="19" font-weight="850" text-anchor="middle" fill="#b83043">?</text>';
+ }
+ if(l.type==='jump'){
+  var jp=60+w*position/n,tp=60+w*target/n;
+  out+='<text x="'+tp+'" y="66" font-size="35" text-anchor="middle">🪐</text><circle cx="'+jp+'" cy="106" r="12" fill="#ffbf43" stroke="#b56e10" stroke-width="3"/>';
+  out+='<text x="'+jp+'" y="66" font-size="31" text-anchor="middle">🚀</text>';
+ }
+ if(l.type==='place'&&selected!==null){
+  var sx=60+w*selected/n;
+  out+='<circle cx="'+sx+'" cy="108" r="12" stroke="white" stroke-width="4" fill="#ef7356"/>';
+  out+='<path d="M '+(sx-13)+' 72 L '+(sx+13)+' 72 L '+sx+' 92 Z" fill="#ef7356"/>';
+  out+='<text x="'+sx+'" y="48" font-size="22" font-weight="900" fill="#b94727" text-anchor="middle">'+named(value(selected))+'</text>';
+ }
+ if(l.type==='place')out+='<rect x="35" y="74" width="780" height="66" fill="transparent"/>';
+ axis.innerHTML=out;
+ axis.classList.toggle('place',l.type==='place');
+ axis.setAttribute('aria-label','Droite de '+fmt(l.min)+' à '+fmt(l.max)+'. '+n+' intervalles. '+(l.type==='place'?'Appuie sur les flèches pour choisir un trait, puis Entrée pour vérifier.':'Observe les graduations.'));
+ axis.setAttribute('tabindex',l.type==='place'?'0':'-1');
+}
+function wrong(message){roundFailed=true;errors++;setFeedback('🔎 '+message+' '+explain(false),'error')}
+function explain(good){var l=levels[current];if(l.type==='scale')return 'De 0 à 100, il y a '+numberOfTicks()+' espaces identiques. 100 ÷ '+numberOfTicks()+' = '+step+'.';
+ if(l.id==='pizza')return 'Entre 0 et 1, il y a 4 espaces égaux. Chaque espace vaut 1/4.';
+ if(l.id==='robot')return 'Entre 0 et 1, il y a 10 espaces. Chaque espace vaut 0,1.';
+ return 'Chaque petit espace vaut '+fmt(step)+(l.unit?' '+l.unit:'')+'. '+(good?'En comptant les espaces depuis '+fmt(l.min)+', tu retrouves '+named(value(target))+'.':'Repère les nombres déjà écrits et compte les espaces.');
+}
+function success(){if(solved)return;solved=true;check.hidden=true;next.hidden=false;hint.hidden=true;Array.from(choices.querySelectorAll('button')).forEach(function(b){b.disabled=true});Array.from(jumps.querySelectorAll('button')).forEach(function(b){b.disabled=true});setFeedback('🎉 Bravo ! '+(roundFailed?'Tu as persévéré, et tu as trouvé ! ':'C’est la bonne réponse ! ')+explain(true),'success');next.textContent=round===4?'Voir mon diplôme 🏅':'Défi suivant →';next.focus()}
+function finish(){var l=levels[current],stars=errors===0?3:errors<=3?2:1;saved[l.id]=Math.max(saved[l.id]||0,stars);store();document.getElementById('regular').hidden=true;var el=document.getElementById('finished');el.hidden=false;el.innerHTML='<div class="medal">🏆</div><h2>Mission accomplie !</h2><p>Tu as réussi les 5 défis de <strong>'+l.title+'</strong> !</p><div style="font-size:39px;margin:15px 0">'+('⭐'.repeat(stars))+'</div><p>'+(stars===3?'Super précision !':'Tu progresses à chaque essai. Bravo pour ta persévérance !')+'</p><div class="actions" style="justify-content:center"><button class="btn primary" id="again" type="button">Rejouer cette aventure</button><button class="btn good" id="another" type="button">Choisir un autre jeu</button></div><p class="tiny">Progression enregistrée uniquement sur cet appareil.</p>';
+ document.getElementById('again').addEventListener('click',function(){start(current)});document.getElementById('another').addEventListener('click',showHome);
+}
+axis.addEventListener('click',function(e){if(current<0||solved||levels[current].type!=='place')return;var r=axis.getBoundingClientRect(),svx=(e.clientX-r.left)*860/r.width,n=numberOfTicks();selected=Math.min(n,Math.max(0,Math.round((svx-60)/740*n)));check.disabled=false;drawAxis();setFeedback('Tu as pointé '+named(value(selected))+'. Vérifie si c’est la position demandée.','')});
+axis.addEventListener('keydown',function(e){if(current<0||solved||levels[current].type!=='place')return;if(['ArrowLeft','ArrowRight','Home','End','Enter',' '].indexOf(e.key)<0)return;e.preventDefault();if(e.key==='Enter'||e.key===' '){if(selected!==null)check.click();return}var n=numberOfTicks();if(selected===null)selected=0;else if(e.key==='ArrowLeft')selected=Math.max(0,selected-1);else if(e.key==='ArrowRight')selected=Math.min(n,selected+1);else if(e.key==='Home')selected=0;else if(e.key==='End')selected=n;check.disabled=false;drawAxis();setFeedback('Trait sélectionné : '+named(value(selected))+'. Appuie sur Entrée pour vérifier.','')});
+check.addEventListener('click',function(){if(solved||selected===null||current<0)return;if(selected===target)success();else wrong('Tu as placé ton repère sur '+named(value(selected))+'. Réessaie !')});
+hint.addEventListener('click',function(){if(current<0)return;var l=levels[current];setFeedback('💡 Indice : '+(l.type==='scale'?'Compte les espaces, pas les traits.':l.type==='jump'?'Les bonds de +5 peuvent te faire avancer plus vite, puis ajuste avec +1 ou +2.':'Commence au nombre écrit le plus proche. '+explain(false)),'')});
+next.addEventListener('click',function(){if(!solved)return;round++;if(round>=5)finish();else newRound()});
+document.getElementById('back').addEventListener('click',showHome);
+renderHome();
+})();
+</script>
+</body>
+</html>
