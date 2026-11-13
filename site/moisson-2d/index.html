@@ -219,7 +219,7 @@
   }
   function drawBackground(){
     const gr=ctx.createLinearGradient(0,0,0,H);
-    gr.addColorStop(0,'#a5d875');gr.addColorStop(1,'#75c462');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+    gr.addColorStop(0,'#e7ca82');gr.addColorStop(1,'#bd965d');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#e5d5af';rounded(37,31,926,530,36);ctx.fill();
     if(gardenId==='en-l'){
       ctx.fillStyle='#ead7b2';ctx.fillRect(570,65,353,235);
@@ -227,11 +227,11 @@
       for(let x=590;x<930;x+=43){ctx.beginPath();ctx.moveTo(x,70);ctx.lineTo(x,296);ctx.stroke()}
       for(let y=75;y<299;y+=39){ctx.beginPath();ctx.moveTo(570,y);ctx.lineTo(924,y);ctx.stroke()}
     }
-    ctx.save();gardenPath();ctx.fillStyle='#5a984a';ctx.lineWidth=17;ctx.stroke();
-    gardenPath();ctx.fillStyle=gardenId==='rond'?'#93d276':'#99d974';ctx.fill();
+    ctx.save();gardenPath();ctx.fillStyle='#a27e40';ctx.lineWidth=17;ctx.stroke();
+    gardenPath();ctx.fillStyle=gardenId==='rond'?'#d6b05e':'#d0a95b';ctx.fill();
     ctx.clip();
     for(let y=field.t;y<field.b;y+=48)for(let x=field.l;x<field.r;x+=48){
-      if((Math.floor(x/48)+Math.floor(y/48))%2===0){ctx.fillStyle='#a8df7e';ctx.fillRect(x,y,48,48);}
+      if((Math.floor(x/48)+Math.floor(y/48))%2===0){ctx.fillStyle='#dbb66a';ctx.fillRect(x,y,48,48);}
     }
     ctx.restore();
     // La clôture se trouve en dehors de la surface à tondre.
@@ -283,73 +283,72 @@
   function drawGrass(){
     ctx.save();gardenPath();ctx.clip();
     for(const c of cells){
-      // Ne dessiner que les brins visibles : les grands terrains restent fluides sur mobile.
-      if(Math.abs(c.x-camera.x)>W/(2*terrainScale)+20/terrainScale ||
-         Math.abs(c.y-camera.y)>H/(2*terrainScale)+20/terrainScale)continue;
-      ctx.save();ctx.translate(c.x,c.y);ctx.scale(1/terrainScale,1/terrainScale);ctx.translate(-c.x,-c.y);
+      if(Math.abs(c.x-camera.x)>W/(2*terrainScale)+32/terrainScale ||
+         Math.abs(c.y-camera.y)>H/(2*terrainScale)+32/terrainScale)continue;
+      ctx.save();ctx.translate(c.x,c.y);ctx.scale(1/terrainScale,1/terrainScale);
       if(c.cut){
-        ctx.fillStyle=c.variant>.5?'#7fc45d':'#83c861';ctx.beginPath();ctx.ellipse(c.x,c.y,11,11,0,0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle='#4da75f73';ctx.lineWidth=1.7;ctx.lineCap='round';
-        ctx.beginPath();ctx.moveTo(c.x-3,c.y+4);ctx.lineTo(c.x-4,c.y-1);ctx.moveTo(c.x+3,c.y+5);ctx.lineTo(c.x+5,c.y-2);ctx.stroke();
-      } else {
-        ctx.fillStyle=c.variant>.25?'#3eac50':'#52b958';
-        ctx.beginPath();ctx.ellipse(c.x,c.y+8,12,5,0,0,7);ctx.fill();
-        let sw=Math.sin(clock*2.2+c.tilt)*2.2;
-        ctx.strokeStyle=c.variant>.5?'#328f48':'#4aaf3e';ctx.lineWidth=3;ctx.lineCap='round';
-        ctx.beginPath();ctx.moveTo(c.x-8,c.y+8);ctx.quadraticCurveTo(c.x-10+sw,c.y-2,c.x-10+sw,c.y-8);ctx.moveTo(c.x+1,c.y+9);ctx.quadraticCurveTo(c.x-3+sw,c.y-6,c.x-1+sw,c.y-12);ctx.moveTo(c.x+9,c.y+8);ctx.quadraticCurveTo(c.x+8+sw,c.y-3,c.x+12+sw,c.y-7);ctx.stroke();
-        ctx.strokeStyle='#b5e880';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c.x+3,c.y+4);ctx.lineTo(c.x+4+sw,c.y-9);ctx.stroke();
+        ctx.fillStyle='#b48d4f';ctx.beginPath();ctx.ellipse(0,0,11,11,0,0,7);ctx.fill();
+        ctx.strokeStyle='#dabb75';ctx.lineWidth=2;
+        for(let k=-1;k<=1;k++){ctx.beginPath();ctx.moveTo(k*6,7);ctx.lineTo(k*6,-3);ctx.stroke();}
+      }else if(vehicleType==='wheat'){
+        const sw=Math.sin(clock*2+c.tilt)*1.8;
+        ctx.strokeStyle='#a19b44';ctx.lineWidth=2.4;ctx.lineCap='round';
+        for(let k=-1;k<=1;k++){
+          const xx=k*7;ctx.beginPath();ctx.moveTo(xx,8);ctx.quadraticCurveTo(xx+sw,-3,xx+sw,-12);ctx.stroke();
+          ctx.fillStyle=k===0?'#f6d15b':'#e7b841';
+          ctx.beginPath();ctx.ellipse(xx+sw,-10,3.2,8,.12,0,7);ctx.fill();
+          ctx.strokeStyle='#ffedaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx+sw,-17);ctx.lineTo(xx+sw,-24);ctx.stroke();
+          ctx.strokeStyle='#a19b44';ctx.lineWidth=2.4;
+        }
+      }else if(vehicleType==='corn'){
+        ctx.strokeStyle='#4c9949';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,10);ctx.lineTo(0,-15);ctx.stroke();
+        ctx.fillStyle='#64b84b';ctx.beginPath();ctx.ellipse(-7,-3,9,3.8,-.6,0,7);ctx.ellipse(7,-7,9,3.8,.6,0,7);ctx.fill();
+        ctx.fillStyle='#f0ca4c';ctx.beginPath();ctx.ellipse(3,-5,3.8,8,-.25,0,7);ctx.fill();
+        ctx.fillStyle='#85c75c';ctx.beginPath();ctx.ellipse(0,-16,4.5,9,0,0,7);ctx.fill();
+      }else{
+        ctx.fillStyle='#ab5f49';ctx.beginPath();ctx.ellipse(0,5,7,5,0,0,7);ctx.fill();
+        ctx.fillStyle='#579b45';for(let k=-1;k<=1;k++){ctx.beginPath();ctx.ellipse(k*4,-4,5.5,10,k*.5,0,7);ctx.fill();}
+        ctx.strokeStyle='#c1d877';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(0,3);ctx.lineTo(0,-12);ctx.stroke();
       }
       ctx.restore();
     }
-    ctx.restore();
-    drawObstacles();
-  }
-  function drawTractor(){
-    ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);ctx.scale(1/terrainScale,1/terrainScale);
-    const bounce=Math.sin(clock*12)*Math.min(1,mower.speed/250)*1.2;
-    ctx.translate(0,bounce);
-    ctx.fillStyle='#366b3f39';ctx.beginPath();ctx.ellipse(5,14,62,69,0,0,Math.PI*2);ctx.fill();
-    // Quatre roues robustes, châssis jaune et capot vert.
-    for(const xx of [-52,36])for(const yy of [-56,31]){
-      ctx.fillStyle='#35443b';rounded(xx,yy,19,34,7);ctx.fill();
-      ctx.fillStyle='#9ba891';rounded(xx+5,yy+6,8,22,4);ctx.fill();
-    }
-    ctx.fillStyle='#efc34a';rounded(-48,-44,96,100,22);ctx.fill();
-    ctx.fillStyle='#5fb64b';rounded(-39,-58,78,110,24);ctx.fill();
-    ctx.fillStyle='#79d262';rounded(-33,-54,66,54,19);ctx.fill();
-    ctx.fillStyle='#449938';for(let i=0;i<3;i++){rounded(-21+i*15,-36,7,27,4);ctx.fill();}
-    ctx.fillStyle='#3c5c45';rounded(-32,4,64,48,14);ctx.fill();
-    ctx.fillStyle='#f2d2a3';ctx.beginPath();ctx.arc(0,25,19,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#393f37';ctx.beginPath();ctx.arc(-7,23,2.6,0,7);ctx.arc(7,23,2.6,0,7);ctx.fill();
-    ctx.strokeStyle='#9e6545';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,27,7,.2,Math.PI-.2);ctx.stroke();
-    ctx.fillStyle='#404d3e';ctx.beginPath();ctx.arc(0,4,16,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#b9d4aa';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,4,12,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle='#fff9df';rounded(-28,-61,19,10,5);ctx.fill();rounded(9,-61,19,10,5);ctx.fill();
-    ctx.restore();
+    ctx.restore();drawObstacles();
   }
   function drawMower(){
-    if(vehicleType==='tractor'){drawTractor();return;}
     ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);ctx.scale(1/terrainScale,1/terrainScale);
-    const bounce=Math.sin(clock*18)*Math.min(1,mower.speed/200)*1.7;
-    ctx.fillStyle='#2a663e4f';ctx.beginPath();ctx.ellipse(8,10,51,59,0,0,7);ctx.fill();
-    ctx.translate(0,bounce);
-    // Roues et plateau de tonte
-    ctx.fillStyle='#2e4a46';for(const x of [-43,33])for(const y of [-35,24]){rounded(x,y,12,24,5);ctx.fill();ctx.fillStyle='#abc2ae';rounded(x+3,y+8,6,7,3);ctx.fill();}
-    ctx.fillStyle='#e4bd4f';rounded(-43,24,86,27,14);ctx.fill();
-    ctx.fillStyle='#f9d867';rounded(-39,23,78,25,13);ctx.fill();
-    ctx.fillStyle='#dc6960';rounded(-36,-53,72,93,24);ctx.fill();
-    const g=ctx.createLinearGradient(-30,-55,30,39);g.addColorStop(0,'#ff8075');g.addColorStop(.56,'#f46c62');g.addColorStop(1,'#d44d54');ctx.fillStyle=g;rounded(-32,-49,64,88,21);ctx.fill();
-    ctx.fillStyle='#ffaaa3';rounded(-22,-41,44,19,11);ctx.fill();
-    ctx.fillStyle='#fff9dc';rounded(-26,-42,52,20,12);ctx.fill();
-    // Visage de la tondeuse
-    ctx.fillStyle='#324c45';ctx.beginPath();ctx.arc(-13,-32,3.6,0,7);ctx.arc(13,-32,3.6,0,7);ctx.fill();
-    ctx.strokeStyle='#324c45';ctx.lineWidth=3.2;ctx.lineCap='round';ctx.beginPath();ctx.arc(0,-30,9,.15,Math.PI-.15);ctx.stroke();
-    ctx.fillStyle='#ffd57c';rounded(-20,-12,40,28,9);ctx.fill();
-    ctx.fillStyle='#f8edb8';rounded(-15,-8,30,18,6);ctx.fill();
-    ctx.fillStyle='#e3a24b';ctx.beginPath();ctx.arc(0,1,6,0,7);ctx.fill();
-    // Phares avant
-    ctx.fillStyle='#fff0a6';rounded(-26,-55,16,9,5);ctx.fill();rounded(10,-55,16,9,5);ctx.fill();
-    ctx.strokeStyle='#9d3746';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-17,32);ctx.lineTo(-17,42);ctx.lineTo(17,42);ctx.lineTo(17,32);ctx.stroke();
+    const wheat=vehicleType==='wheat',corn=vehicleType==='corn';
+    const color=wheat?'#f0bc2c':corn?'#5ba13d':'#e17d38';
+    const roof=wheat?'#ffd65a':corn?'#8bd464':'#ffae54';
+    // Les roues, la cabine et la trémie.
+    ctx.fillStyle='#39443d';for(const x of [-46,31])for(const y of [-27,23]){rounded(x,y,16,34,6);ctx.fill();}
+    ctx.fillStyle='#9e8248';rounded(-44,-28,88,92,16);ctx.fill();
+    ctx.fillStyle=color;rounded(-40,-38,80,94,17);ctx.fill();
+    ctx.fillStyle=roof;rounded(-31,16,62,37,11);ctx.fill();
+    ctx.fillStyle='#7cb3c2';rounded(-30,-23,60,38,11);ctx.fill();
+    ctx.fillStyle='#d6ece3';rounded(-22,-17,44,7,3);ctx.fill();
+    // Trois têtes de récolte très distinctes.
+    if(wheat){
+      ctx.fillStyle='#af3b33';rounded(-68,-61,136,17,4);ctx.fill();
+      ctx.fillStyle='#de6645';rounded(-65,-76,130,11,3);ctx.fill();
+      ctx.fillStyle='#f6d677';
+      for(let i=0;i<14;i++){ctx.beginPath();ctx.moveTo(-65+i*10,-76);ctx.lineTo(-70+i*10,-88);ctx.lineTo(-60+i*10,-76);ctx.fill();}
+      ctx.strokeStyle='#efca65';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-59,-67);ctx.lineTo(59,-67);ctx.stroke();
+    }else if(corn){
+      ctx.fillStyle='#446f36';rounded(-74,-59,148,18,5);ctx.fill();
+      for(let i=0;i<7;i++){const x=-63+i*21;
+        ctx.fillStyle='#e6b731';ctx.beginPath();ctx.moveTo(x-8,-62);ctx.lineTo(x,-95);ctx.lineTo(x+8,-62);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#589a43';rounded(x-7,-64,14,8,2);ctx.fill();
+      }
+    }else{
+      ctx.fillStyle='#964e35';rounded(-73,-62,146,23,6);ctx.fill();
+      ctx.fillStyle='#d9a349';rounded(-69,-74,138,12,4);ctx.fill();
+      ctx.strokeStyle='#494c3d';ctx.lineWidth=4;
+      for(let i=0;i<9;i++){const x=-64+i*16;ctx.beginPath();ctx.moveTo(x,-75);ctx.lineTo(x-6,-91);ctx.stroke();}
+      ctx.fillStyle='#a96337';rounded(-34,-45,68,24,6);ctx.fill();
+      ctx.strokeStyle='#ffe2a1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-28,-42);ctx.lineTo(28,-42);ctx.stroke();
+    }
+    ctx.fillStyle='#fff9df';for(const x of [-15,15]){ctx.beginPath();ctx.arc(x,-31,5,0,7);ctx.fill();}
+    ctx.fillStyle='#425446';for(const x of [-14,16]){ctx.beginPath();ctx.arc(x,-31,1.9,0,7);ctx.fill();}
     ctx.restore();
   }
   function drawParticles(dt){
@@ -387,7 +386,7 @@
     else if(target){const dx=target.x-mower.x,dy=target.y-mower.y,dist=Math.hypot(dx,dy);
       if(dist>8){const fraction=Math.min(1,dist/38);vx=(dx/dist)*fraction;vy=(dy/dist)*fraction;}else target=null;
     }
-    const speed=(vehicleType==='tractor'?280:210)/terrainScale,moving=Math.hypot(vx,vy);
+    const speed=(vehicleType==='beet'?205:230)/terrainScale,moving=Math.hypot(vx,vy);
     mower.speed=moving*speed;
     if(moving>.01){
       // Glissement sur les bordures et les obstacles, sans les traverser.
@@ -399,8 +398,17 @@
       }
       let desired=Math.atan2(vy,vx)+Math.PI/2,diff=Math.atan2(Math.sin(desired-mower.angle),Math.cos(desired-mower.angle));
       mower.angle+=diff*Math.min(1,dt*12);
+      // La machine coupe devant elle, le long de sa barre de récolte.
       let justCut=0;
-      for(const c of cells){if(!c.cut&&Math.hypot(c.x-mower.x,c.y-mower.y)<(vehicleType==='tractor'?68:48)/terrainScale){c.cut=true;justCut++;}}
+      const headerWidth=(vehicleType==='beet'?84:vehicleType==='corn'?85:78)/terrainScale;
+      for(const c of cells)if(!c.cut){
+        const dx=c.x-mower.x,dy=c.y-mower.y;
+        const across=dx*Math.cos(mower.angle)+dy*Math.sin(mower.angle);
+        const ahead=dx*Math.sin(mower.angle)-dy*Math.cos(mower.angle);
+        if(Math.abs(across)<headerWidth && ahead>-18/terrainScale && ahead<102/terrainScale){
+          c.cut=true;justCut++;
+        }
+      }
       if(justCut){addCutParticles(mower.x,mower.y);updateProgress();}
     }
   }
