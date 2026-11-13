@@ -150,6 +150,16 @@ function newRound(){
   if(l.id==='randonnee')q='🥾 Le panneau annonce '+named(value(target))+' depuis le départ. Où se trouve ce point ?';
   instruction='Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
   check.hidden=false;check.disabled=true;
+  [-1,1].forEach(function(direction){
+   var b=document.createElement('button');b.className='choice';b.style.fontSize='16px';
+   b.textContent=direction<0?'◀ Trait précédent':'Trait suivant ▶';
+   b.addEventListener('click',function(){
+    if(solved)return;
+    selected=Math.max(0,Math.min(numberOfTicks(),(selected===null?0:selected)+direction));
+    check.disabled=false;drawAxis();
+    setFeedback('Tu as choisi '+named(value(selected))+'. Appuie sur Vérifier mon choix.','');
+   });jumps.appendChild(b);
+  });
  }else if(l.type==='jump'){
   q='🪐 La planète se trouve sur la case '+fmt(value(target))+'. Fais décoller ta fusée depuis 0 !';
   instruction='Utilise les boutons pour faire des bonds. Le but est de tomber exactement sur la planète.';
