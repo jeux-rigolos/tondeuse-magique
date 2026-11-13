@@ -131,9 +131,10 @@
   }
   function updateProgress(){
     let cut=0;for(const c of cells)if(c.cut)cut++;
-    progress=Math.min(100,Math.round(cut/cells.length/0.84*100));
+    // Ne jamais afficher 100 % tant qu'il reste une case d'herbe à tondre.
+    progress=cut===cells.length?100:Math.min(99,Math.round(cut/cells.length*100));
     ui.bar.style.width=progress+'%';ui.pct.textContent=progress+' %';
-    if(progress>=100&&!won){win();}
+    if(cut===cells.length&&!won){win();}
   }
   function win(){
     won=true;target=null;ui.overlay.classList.add('show');ui.status.textContent='🏆 Jardin terminé !';ui.msg.style.opacity='0';
