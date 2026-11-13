@@ -155,6 +155,19 @@ function configureGrades(){
  initialLevels.forEach(function(src,i){
   var l=Object.assign({},src),v=matrices[l.id][idx];
   l.grade=gradeChoice;l.min=v[0];l.max=v[1];l.step=v[2];l.labels=pickLabels(l);
+  var modes={
+    grenouille:['place','jump','read','place','read'],
+    fusee:['jump','place','jump','read','jump'],
+    regle:['read','place','read','place','read'],
+    train:['scale','read','scale','scale','scale'],
+    pizza:['place','read','place','read','place'],
+    potion:['read','place','read','place','read'],
+    robot:['place','jump','read','place','jump'],
+    randonnee:['place','read','jump','place','read'],
+    compteur:['place','read','place','read','place'],
+    coupure:['place','read','place','read','place'],
+    thermo:['place','read','place','read','place']
+  };l.type=modes[l.id][idx];
   if(l.id==='train'){
    l.stepOptions=[[1,2,5],[1,2,4,5],[5,10,20],[10,20,25,50],[25,50,100,125]][idx];
    l.labels=[l.min,l.max];
@@ -204,7 +217,7 @@ function renderHome(){
  levels.forEach(function(l,i){
  var card=document.createElement('article');card.className='game-card';
  var stars=saved[l.id+':'+gradeChoice]||0;
- card.innerHTML='<div class="scene" aria-hidden="true">'+l.icon+'</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>'+l.title+'</h2><p>'+funDescriptions[l.id]+'</p><div class="completed">'+(stars?'⭐'.repeat(stars)+' · Terminé':'5 défis à relever')+'</div><button type="button" class="btn primary">'+(stars?'Rejouer ↻':'Jouer ▶')+'</button></div>';
+ card.innerHTML='<div class="scene" aria-hidden="true">'+l.icon+'</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>'+l.title+'</h2><p>'+funDescriptions[l.id]+' · '+({place:'📍 Placer',jump:'🐾 Avancer',read:'🔎 Lire',scale:'🧩 Enquêter'}[l.type])+'</p><div class="completed">'+(stars?'⭐'.repeat(stars)+' · Terminé':'5 défis à relever')+'</div><button type="button" class="btn primary">'+(stars?'Rejouer ↻':'Jouer ▶')+'</button></div>';
  card.querySelector('button').addEventListener('click',function(){start(i)});cards.appendChild(card);
  });
  var recipe=document.createElement('article');
@@ -239,6 +252,7 @@ function newRound(){
   if(l.id==='compteur')q='🚴 Ton compteur indique '+named(value(target))+'. À quel trait dois-tu t’arrêter ?';
   if(l.id==='coupure')q='🗺️ Sur la carte, il faut trouver la borne '+named(value(target))+'. Observe les graduations !';
   if(l.id==='thermo')q='🌡️ Le thermomètre indique '+named(value(target))+'. Où places-tu ce point ?';
+  if(!q)q=l.icon+' Place le repère sur '+named(value(target))+' !';
   instruction=l.broken?'La portion barrée est sautée : ne la compte pas comme un petit espace. Place ton repère après la cassure.':l.id==='thermo'?'Lis les traits du thermomètre vertical. Les températures augmentent vers le haut.':'Touche un trait de la droite, ou utilise les flèches du clavier. Puis vérifie.';
   check.hidden=false;check.disabled=true;
   [-1,1].forEach(function(direction){
@@ -252,16 +266,28 @@ function newRound(){
    });jumps.appendChild(b);
   });
  }else if(l.type==='jump'){
-  q='🪐 La planète se trouve sur la case '+fmt(value(target))+'. Fais décoller ta fusée depuis 0 !';
+  q=l.icon+' La cible est sur '+named(value(target))+'. Fais des bonds pour la rejoindre !';
   instruction='Utilise les boutons pour faire des bonds. Le but est de tomber exactement sur la planète.';
   check.hidden=true;
   [1,2,5,-1,-2,-5].forEach(function(delta){
    var b=document.createElement('button');b.className='choice';b.textContent=(delta>0?'+':'')+fmt(delta*step);
    b.setAttribute('aria-label',(delta>0?'Avancer de ':'Reculer de ')+fmt(Math.abs(delta*step)));
-   b.addEventListener('click',function(){if(solved)return;var nextPos=position+delta;if(nextPos<0||nextPos>n){setFeedback('Cette manœuvre sortirait de la piste. Choisis un autre bond.','error');return}position=nextPos;drawAxis();if(position===target){success()}else{setFeedback(position<target?'🚀 Tu es à '+fmt(value(position))+'. La planète est plus loin !':'🚀 Tu es à '+fmt(value(position))+'. Recule un peu !','')}});jumps.appendChild(b);
+   b.addEventListener('click',function(){if(solved)return;var nextPos=position+delta;if(nextPos<0||nextPos>n){setFeedback('Cette manœuvre sortirait de la piste. Choisis un autre bond.','error');return}position=nextPos;drawAxis();if(position===target){success()}else{setFeedback(position<target?l.icon+' Tu es à '+fmt(value(position))+'. La cible est plus loin !':l.icon+' Tu es à '+fmt(value(position))+'. Recule un peu !','')}});jumps.appendChild(b);
   });
  }else if(l.type==='read'){
-  q=l.id==='regle'?'📏 Quelle longueur indique la flèche sur la règle ?':'🧪 Combien de centilitres montre la flèche ?';
+  var prompts={
+    grenouille:'🐸 Sur quel nénuphar la grenouille s’est-elle posée ?',
+    fusee:'🚀 Quel numéro indique la flèche de la fusée ?',
+    regle:'📏 Quelle longueur indique la flèche sur la règle ?',
+    train:'🚂 À quelle valeur le train s’arrête-t-il ?',
+    pizza:'🍕 Quelle quantité de pizza indique la flèche ?',
+    potion:'🧪 Combien de centilitres montre la flèche ?',
+    robot:'🤖 Quel nombre le robot a-t-il repéré ?',
+    randonnee:'🥾 Quelle distance indique la flèche sur le parcours ?',
+    compteur:'🚴 Quelle distance indique la flèche du compteur ?',
+    coupure:'🗺️ Quelle valeur indique la flèche sur cette carte ?',
+    thermo:'🌡️ Quelle température indique le liquide rouge du thermomètre ?'
+   };q=prompts[l.id];
   instruction='Regarde la flèche bleue, compte les espaces et choisis la bonne réponse.';
   check.hidden=true;
   var options=[target],offsets=shuffle([-4,-3,-2,-1,1,2,3,4]);
@@ -308,8 +334,8 @@ function drawAxis(){
  }
  if(l.type==='jump'){
   var jp=x0+w*position/n,tp=x0+w*target/n;
-  out+='<text x="'+tp+'" y="66" font-size="35" text-anchor="middle">🪐</text><circle cx="'+jp+'" cy="106" r="12" fill="#ffbf43" stroke="#b56e10" stroke-width="3"/>';
-  out+='<text x="'+jp+'" y="66" font-size="31" text-anchor="middle">🚀</text>';
+  out+='<text x="'+tp+'" y="66" font-size="35" text-anchor="middle">🎯</text><circle cx="'+jp+'" cy="106" r="12" fill="#ffbf43" stroke="#b56e10" stroke-width="3"/>';
+  out+='<text x="'+jp+'" y="66" font-size="31" text-anchor="middle">' +l.icon+'</text>';
  }
  if(l.type==='place'&&selected!==null){
   var sx=x0+w*selected/n;
@@ -325,7 +351,7 @@ function drawAxis(){
 }
 function drawThermometer(){
  var l=levels[current],n=numberOfTicks(),out='',i,v,y;
- var displayed=selected===null?Math.max(0,Math.round(-l.min/l.step)):selected,liquidY=310-250*displayed/n;
+ var displayed=l.type==='read'?target:(selected===null?Math.max(0,Math.round(-l.min/l.step)):selected),liquidY=310-250*displayed/n;
  axis.setAttribute('viewBox','0 0 860 380');
  out+='<defs><linearGradient id="thermoGlass" x1="0" x2="1" y1="0" y2="0"><stop stop-color="#add9ec"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#9ccbe1"/></linearGradient></defs>';
  out+='<rect x="12" y="12" width="836" height="357" rx="23" fill="#e8f7ff"/>';
