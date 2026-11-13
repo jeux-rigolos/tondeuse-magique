@@ -7,7 +7,9 @@ Deux petits jeux de tonte de gazon pour les enfants, jouables directement dans l
 - **Jardins** : prairie, verger, jardin en L, jardin rond, avec obstacles à contourner.
 - **Taille de terrain** : Petit (surface ×1), Moyen (environ ×2,25), Grand (environ ×4). La taille est sélectionnable indépendamment du jardin et du véhicule, et son changement recommence la partie.
 - **Caméras** : la vue 2D suit le véhicule sur les grands terrains ; en 3D, le suivi est proposé automatiquement en Moyen/Grand et la vue générale reste accessible.
-- **Commandes** : écran tactile (toucher le jardin), clavier (flèches) et manette via Gamepad API, selon le navigateur.
+- **Commandes 2D** : flèches pour se déplacer sur le terrain, écran tactile et manette selon le navigateur.
+- **Commandes 3D** : `↑` avancer, `↓` reculer, `←` et `→` tourner à gauche et à droite (rotation possible sur place). Le stick gauche de la manette pilote aussi la direction et l'avancement. Toucher le jardin fait conduire automatiquement vers le point visé.
+- **Caméra 3D** : vue de suivi derrière le véhicule par défaut ; le bouton « Jardin » donne une vue d'ensemble.
 - Sans chrono, sans échec, sans inscription et sans suivi publicitaire.
 
 ## URLs après publication
