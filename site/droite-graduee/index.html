@@ -194,23 +194,26 @@ function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=rand(0,i);var x=arr[
 function named(n){var l=levels[current];if(l.id!=='pizza')return fmt(n)+(l.unit?' '+l.unit:'');var quarters=Math.round(n*4);var f={1:'1/4',2:'1/2',3:'3/4',4:'1',5:'5/4',6:'3/2',7:'7/4'};return f[quarters]||fmt(n)}
 function setFeedback(message,style){fb.textContent=message;fb.className='feedback'+(style?' '+style:'')}
 function renderHome(){
- cards.innerHTML='';
+ renderGradePicker();cards.innerHTML='';
  levels.forEach(function(l,i){
  var card=document.createElement('article');card.className='game-card';
- var stars=saved[l.id]?saved[l.id]:0;
- card.innerHTML='<div class="scene" aria-hidden="true">'+l.icon+'</div><div class="cardbody"><span class="grade">'+l.grade+'</span><h2>'+l.title+'</h2><p>'+l.desc+'</p><div class="completed">'+(stars?'⭐'.repeat(stars)+' · Terminé':'5 défis à relever')+'</div><button type="button" class="btn primary">'+(stars?'Rejouer ↻':'Jouer ▶')+'</button></div>';
+ var stars=saved[l.id+':'+gradeChoice]||0;
+ card.innerHTML='<div class="scene" aria-hidden="true">'+l.icon+'</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>'+l.title+'</h2><p>'+funDescriptions[l.id]+'</p><div class="completed">'+(stars?'⭐'.repeat(stars)+' · Terminé':'5 défis à relever')+'</div><button type="button" class="btn primary">'+(stars?'Rejouer ↻':'Jouer ▶')+'</button></div>';
  card.querySelector('button').addEventListener('click',function(){start(i)});cards.appendChild(card);
  });
  var recipe=document.createElement('article');
  recipe.className='game-card';
- recipe.innerHTML='<div class="scene" aria-hidden="true">🥞⚖️🥛</div><div class="cardbody"><span class="grade">CE2 → CM2</span><h2>Le défi du petit pâtissier</h2><p>Réussis une recette : pèse la farine et le sucre, puis mesure le lait et l’huile dans un verre doseur gradué.</p><div class="completed">5 ingrédients à doser</div><a class="btn primary" href="./recette/" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
+ recipe.innerHTML='<div class="scene" aria-hidden="true">🥞⚖️🥛</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le défi du petit pâtissier</h2><p>Réussis une recette : pèse la farine et le sucre, puis mesure le lait et l’huile dans un verre doseur gradué.</p><div class="completed">5 ingrédients à doser</div><a class="btn primary" href="./recette/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
  cards.appendChild(recipe);
  var speed=document.createElement('article');speed.className='game-card';
- speed.innerHTML='<div class="scene" aria-hidden="true">🚗📍</div><div class="cardbody"><span class="grade">CE2 → CM2</span><h2>Le compteur magique</h2><p>Lis la vitesse ou règle l’aiguille sur un vrai cadran dessiné, avec des graduations de 20, 10 et 5 km/h.</p><div class="completed">3 difficultés · 5 défis chacune</div><a class="btn primary" href="./compteur/" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
+ speed.innerHTML='<div class="scene" aria-hidden="true">🚗📍</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le compteur magique</h2><p>Lis la vitesse ou règle l’aiguille sur un vrai cadran dessiné, avec des graduations de 20, 10 et 5 km/h.</p><div class="completed">3 difficultés · 5 défis chacune</div><a class="btn primary" href="./compteur/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
  cards.appendChild(speed);
- var achieved=Object.keys(saved).filter(function(k){return saved[k]>0&&levels.some(function(l){return l.id===k})}).length;
- try{if(localStorage.getItem('mission-recette-done')==='oui')achieved++;if(localStorage.getItem('compteur-done')==='oui')achieved++}catch(e){}
- document.getElementById('stat-completed').textContent='🏅 '+achieved+' jeu(x) terminé(s) sur 13';
+ var pump=document.createElement('article');pump.className='game-card';
+ pump.innerHTML='<div class="scene" aria-hidden="true">🚲💨🛞</div><div class="cardbody"><span class="grade">'+gradeChoice+'</span><h2>Le gonfleur de vélo</h2><p>Ajoute ou retire de l’air, lis l’aiguille et valide. Avant l’indice, trouve la valeur d’une graduation.</p><div class="completed">5 défis par classe</div><a class="btn primary" href="./gonfleur/?classe='+gradeChoice.toLowerCase()+'" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
+ cards.appendChild(pump);
+ var achieved=levels.filter(function(l){return (saved[l.id+':'+gradeChoice]||0)>0}).length;
+ try{if(localStorage.getItem('mission-recette-done')==='oui')achieved++;if(localStorage.getItem('compteur-done')==='oui')achieved++;if(localStorage.getItem('mission-gonfleur-'+gradeChoice.toLowerCase())==='oui')achieved++}catch(e){}
+ document.getElementById('stat-completed').textContent='🏅 '+achieved+' jeu(x) terminé(s) sur 14 pour '+gradeChoice;
 }
 function showHome(){current=-1;home.style.display='block';play.style.display='none';renderHome();window.scrollTo({top:0,behavior:'smooth'})}
 function start(i){current=i;round=0;errors=0;lastTarget=-1;home.style.display='none';play.style.display='block';document.getElementById('regular').hidden=false;document.getElementById('finished').hidden=true;document.getElementById('grade').textContent=levels[i].grade+' · Aventure '+(i+1)+'/'+levels.length;document.getElementById('game-title').textContent=levels[i].icon+' '+levels[i].title;document.getElementById('story').textContent=levels[i].context;document.getElementById('real').textContent='🌍 '+levels[i].real;newRound();window.scrollTo({top:0,behavior:'smooth'})}
@@ -358,7 +361,7 @@ function explain(good){
  return 'Chaque petit espace vaut '+fmt(step)+(l.unit?' '+l.unit:'')+'. '+(good?'En comptant les espaces depuis '+fmt(l.min)+', tu retrouves '+named(value(target))+'.':'Repère les nombres déjà écrits et compte les espaces.');
 }
 function success(){if(solved)return;solved=true;check.hidden=true;next.hidden=false;hint.hidden=true;Array.from(choices.querySelectorAll('button')).forEach(function(b){b.disabled=true});Array.from(jumps.querySelectorAll('button')).forEach(function(b){b.disabled=true});setFeedback('🎉 Bravo ! '+(roundFailed?'Tu as persévéré, et tu as trouvé ! ':'C’est la bonne réponse ! ')+explain(true),'success');next.textContent=round===4?'Voir mon diplôme 🏅':'Défi suivant →';next.focus()}
-function finish(){var l=levels[current],stars=errors===0?3:errors<=3?2:1;saved[l.id]=Math.max(saved[l.id]||0,stars);store();document.getElementById('regular').hidden=true;var el=document.getElementById('finished');el.hidden=false;el.innerHTML='<div class="medal">🏆</div><h2>Mission accomplie !</h2><p>Tu as réussi les 5 défis de <strong>'+l.title+'</strong> !</p><div style="font-size:39px;margin:15px 0">'+('⭐'.repeat(stars))+'</div><p>'+(stars===3?'Super précision !':'Tu progresses à chaque essai. Bravo pour ta persévérance !')+'</p><div class="actions" style="justify-content:center"><button class="btn primary" id="again" type="button">Rejouer cette aventure</button><button class="btn good" id="another" type="button">Choisir un autre jeu</button></div><p class="tiny">Progression enregistrée uniquement sur cet appareil.</p>';
+function finish(){var l=levels[current],stars=errors===0?3:errors<=3?2:1;saved[l.id+':'+gradeChoice]=Math.max(saved[l.id+':'+gradeChoice]||0,stars);store();document.getElementById('regular').hidden=true;var el=document.getElementById('finished');el.hidden=false;el.innerHTML='<div class="medal">🏆</div><h2>Mission accomplie !</h2><p>Tu as réussi les 5 défis de <strong>'+l.title+'</strong> !</p><div style="font-size:39px;margin:15px 0">'+('⭐'.repeat(stars))+'</div><p>'+(stars===3?'Super précision !':'Tu progresses à chaque essai. Bravo pour ta persévérance !')+'</p><div class="actions" style="justify-content:center"><button class="btn primary" id="again" type="button">Rejouer cette aventure</button><button class="btn good" id="another" type="button">Choisir un autre jeu</button></div><p class="tiny">Progression enregistrée uniquement sur cet appareil.</p>';
  document.getElementById('again').addEventListener('click',function(){start(current)});document.getElementById('another').addEventListener('click',showHome);
 }
 axis.addEventListener('click',function(e){
@@ -377,7 +380,7 @@ check.addEventListener('click',function(){if(solved||selected===null||current<0)
 hint.addEventListener('click',function(){if(current<0)return;var l=levels[current];setFeedback('💡 Indice : '+(l.type==='scale'?'Compte les espaces, pas les traits.':l.type==='jump'?'Les bonds de +5 peuvent te faire avancer plus vite, puis ajuste avec +1 ou +2.':'Commence au nombre écrit le plus proche. '+explain(false)),'')});
 next.addEventListener('click',function(){if(!solved)return;round++;if(round>=5)finish();else newRound()});
 document.getElementById('back').addEventListener('click',showHome);
-renderHome();
+configureGrades();renderHome();
 })();
 </script>
 </body>
