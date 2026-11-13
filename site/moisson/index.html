@@ -46,13 +46,28 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 .gardens{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:710px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:375px){.touch-modes{grid-template-columns:1fr}}
-.camera-panel{position:absolute;z-index:6;top:12px;right:12px;width:min(210px,calc(100% - 22px));display:grid;gap:6px;pointer-events:auto}
-.camera-panel .view{position:static;display:block;width:100%;min-height:43px;font:850 14px system-ui;text-align:center;touch-action:manipulation}
-.camera-tilt{display:grid;grid-template-columns:50px minmax(0,1fr) 50px;gap:5px;padding:4px;border-radius:14px;background:#fffef2eb;border:1px solid #cbd8bf}
-.camera-tilt button{min-height:47px;min-width:0;border:1px solid #c7d9b8;border-radius:11px;background:#fffefa;color:#375c37;font:900 19px system-ui;cursor:pointer;touch-action:manipulation}
+/* La barre de caméra est hors de la scène : aucun bouton ne masque le jeu. */
+.camera-toolbar{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;width:100%;min-width:0}
+.camera-toolbar>.view,.camera-toolbar>.fullscreen-toggle,.camera-angle-settings summary{position:static;display:flex;align-items:center;justify-content:center;min-height:48px;margin:0;border-radius:13px;padding:10px 12px;font:850 15px system-ui;cursor:pointer;touch-action:manipulation}
+.camera-toolbar>.view{flex:1 1 175px;width:auto;min-width:0;background:#fffae9;border:2px solid #bfdbac;color:#385c32}
+.camera-toolbar>.fullscreen-toggle{flex:0 1 auto;min-width:130px;background:#fffbedf2;border:2px solid #a4c98c;color:#345c32}
+.camera-angle-settings{flex:0 1 180px;min-width:144px;max-width:100%;border-radius:13px;border:2px solid #bfdbac;background:#fffae9;position:static}
+.camera-angle-settings summary{min-height:44px;list-style:none;user-select:none;-webkit-user-select:none;color:#385c32}
+.camera-angle-settings summary::-webkit-details-marker{display:none}
+.camera-angle-settings summary:after{content:' ▾'}
+.camera-angle-settings[open] summary:after{content:' ▴'}
+.camera-tilt{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:5px;padding:5px;border-radius:0 0 12px 12px;background:#fffef2eb}
+.camera-tilt button{min-height:46px;min-width:0;border:1px solid #c7d9b8;border-radius:11px;background:#fffefa;color:#375c37;font:900 19px system-ui;cursor:pointer;touch-action:manipulation}
 .camera-tilt #camera-reset{font-size:14px;font-variant-numeric:tabular-nums}
 .camera-tilt button:active{background:#d5edc7}
-@media(max-width:540px){.camera-panel{top:65px;right:7px;width:175px}.camera-tilt{grid-template-columns:42px minmax(0,1fr) 42px}.camera-tilt button{min-height:44px}.camera-panel .view{font-size:13px}}
+#mow3d:fullscreen>.camera-toolbar,#mow3d.pseudo-fullscreen>.camera-toolbar{flex:none;gap:6px}
+#mow3d:fullscreen .camera-toolbar>.view,#mow3d.pseudo-fullscreen .camera-toolbar>.view,
+#mow3d:fullscreen .camera-toolbar>.fullscreen-toggle,#mow3d.pseudo-fullscreen .camera-toolbar>.fullscreen-toggle,
+#mow3d:fullscreen .camera-angle-settings summary,#mow3d.pseudo-fullscreen .camera-angle-settings summary{min-height:40px;padding:7px 10px}
+@media(max-width:540px){.camera-toolbar{gap:6px}.camera-toolbar>.view{flex:1 1 130px;font-size:13px}
+.camera-angle-settings{flex:1 1 126px;min-width:120px}.camera-angle-settings summary{font-size:13px}
+.camera-toolbar>.fullscreen-toggle{flex:1 1 115px;min-width:115px;font-size:13px}
+.camera-tilt{grid-template-columns:35px minmax(0,1fr) 35px}.camera-tilt button{min-height:42px}}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌾 La Moissonneuse Magique 3D</div><div class="subtitle">Conduis trois machines et découvre trois récoltes !</div></div><b id="pct">0 %</b></div>
@@ -81,14 +96,19 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 </div></div></details>
 <div class="track"><div class="bar" id="bar"></div></div>
 <div class="bin-hud" role="group" aria-label="Niveau du bac de récolte"><span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div class="bin-fill" id="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span></div>
-<div class="stage"><button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><div class="camera-panel" role="group" aria-label="Réglages de la caméra">
+<div class="camera-toolbar" role="group" aria-label="Caméra et affichage">
  <button class="view" id="camera" type="button">⬆️ Vue de dessus</button>
- <div class="camera-tilt" aria-label="Inclinaison de la caméra">
-  <button type="button" id="camera-lower" title="Caméra plus basse" aria-label="Caméra plus basse">↘</button>
-  <button type="button" id="camera-reset" title="Rétablir l'angle initial" aria-label="Remettre l’angle de caméra initial">43°</button>
-  <button type="button" id="camera-higher" title="Caméra plus haute" aria-label="Caméra plus haute">↗</button>
- </div>
- </div><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
+ <details class="camera-angle-settings" id="angle-settings">
+  <summary>📐 Inclinaison</summary>
+  <div class="camera-tilt" role="group" aria-label="Régler l'angle de la caméra">
+   <button type="button" id="camera-lower" title="Caméra plus basse" aria-label="Caméra plus basse">↘</button>
+   <button type="button" id="camera-reset" title="Rétablir l'angle initial" aria-label="Remettre l’angle de caméra initial">43°</button>
+   <button type="button" id="camera-higher" title="Caméra plus haute" aria-label="Caméra plus haute">↗</button>
+  </div>
+ </details>
+ <button class="fullscreen-toggle" type="button" id="fullscreen" aria-pressed="false">⛶ Plein écran</button>
+</div>
+<div class="stage"><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
 <div class="status" id="status">👆 Maintiens ton doigt pour guider doucement la moissonneuse !</div>
 <div class="bottom"><div class="game-actions"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌾 Champ suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="foot">👆 Glisse et relâche pour arrêter · Flèches · Manette 🎮</div>
