@@ -202,6 +202,8 @@ function makeChoice(label,correct,parent){var b=document.createElement('button')
 function axisStart(l){return l.broken?200:60}
 function axisWidth(l){return l.broken?600:740}
 function drawAxis(){
+ if(levels[current].id==='thermo'){drawThermometer();return}
+ axis.setAttribute('viewBox','0 0 860 210');
  var l=levels[current],n=numberOfTicks(),out='',major=l.labels||[],w=axisWidth(l),x0=axisStart(l);
  out+='<rect x="16" y="14" width="828" height="181" rx="18" fill="#f7fcff"/>';
  if(l.broken){
@@ -242,6 +244,38 @@ function drawAxis(){
  axis.setAttribute('aria-label','Droite de '+fmt(l.min)+' à '+fmt(l.max)+'. '+n+' intervalles réguliers. '+(l.broken?'La cassure fait sauter toutes les valeurs de 0 à '+fmt(l.min)+'. ':'')+(l.type==='place'?'Appuie sur les flèches pour choisir un trait, puis Entrée pour vérifier.':'Observe les graduations.'));
  axis.setAttribute('tabindex',l.type==='place'?'0':'-1');
 }
+function drawThermometer(){
+ var l=levels[current],n=numberOfTicks(),out='',i,v,y;
+ var displayed=selected===null?10:selected,liquidY=310-250*displayed/n;
+ axis.setAttribute('viewBox','0 0 860 380');
+ out+='<defs><linearGradient id="thermoGlass" x1="0" x2="1" y1="0" y2="0"><stop stop-color="#add9ec"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#9ccbe1"/></linearGradient></defs>';
+ out+='<rect x="12" y="12" width="836" height="357" rx="23" fill="#e8f7ff"/>';
+ out+='<path d="M 12 310 Q 140 267 274 321 T 525 320 T 848 304 L 848 368 L 12 368 Z" fill="#faffff"/>';
+ out+='<text x="143" y="88" font-size="55" text-anchor="middle">❄️</text>';
+ out+='<text x="680" y="118" font-size="55" text-anchor="middle">🏔️</text>';
+ out+='<text x="155" y="160" font-size="24" font-weight="850" text-anchor="middle" fill="#28607c">Thermomètre</text>';
+ out+='<text x="155" y="192" font-size="24" font-weight="850" text-anchor="middle" fill="#28607c">en °C</text>';
+ out+='<rect x="375" y="24" width="112" height="317" rx="56" fill="#fff" stroke="#86b7d1" stroke-width="7"/>';
+ out+='<rect x="407" y="44" width="48" height="280" rx="24" fill="url(#thermoGlass)" stroke="#73aac7" stroke-width="4"/>';
+ out+='<rect x="418" y="'+liquidY+'" width="26" height="'+(315-liquidY)+'" rx="8" fill="#e85450"/>';
+ out+='<circle cx="431" cy="324" r="32" fill="#e85450" stroke="#b64245" stroke-width="6"/>';
+ out+='<circle cx="420" cy="312" r="9" fill="#fff" opacity=".56"/>';
+ for(i=0;i<=n;i++){
+  v=l.min+i*l.step;y=310-250*i/n;var major=v%5===0,zero=v===0;
+  out+='<line x1="478" y1="'+y+'" x2="'+(major?520:499)+'" y2="'+y+'" stroke="'+(zero?'#c74642':'#2b6785')+'" stroke-width="'+(zero?5:major?4:2.2)+'"/>';
+  if(major)out+='<text x="533" y="'+(y+8)+'" font-size="26" font-weight="'+(zero?'900':'750')+'" fill="'+(zero?'#ac3536':'#2e6280')+'">'+(v>0?'+':'')+v+'</text>';
+ }
+ out+='<text x="590" y="63" font-size="24" font-weight="850" fill="#246083">°C</text>';
+ out+='<line x1="478" y1="185" x2="601" y2="185" stroke="#c64a43" stroke-width="2" stroke-dasharray="6 6" opacity=".6"/>';
+ if(selected!==null){
+  out+='<path d="M 389 '+(liquidY-11)+' L 404 '+liquidY+' L 389 '+(liquidY+11)+' Z" fill="#e65842"/>';
+  out+='<rect x="610" y="194" width="192" height="62" rx="18" fill="#fff" stroke="#b7dce9" stroke-width="3"/>';
+  out+='<text x="706" y="234" font-size="28" text-anchor="middle" font-weight="900" fill="#a9463a">'+fmt(value(selected))+' °C</text>';
+ }
+ axis.innerHTML=out;axis.classList.toggle('place',true);
+ axis.setAttribute('tabindex','0');
+ axis.setAttribute('aria-label','Thermomètre vertical gradué de moins 10 à plus 10 degrés Celsius, zéro au milieu. Touche les graduations à droite de la colonne ou utilise les flèches haut et bas.');
+}
 function wrong(message){roundFailed=true;errors++;setFeedback('🔎 '+message+' '+explain(false),'error')}
 function explain(good){
  var l=levels[current];
@@ -257,10 +291,18 @@ function success(){if(solved)return;solved=true;check.hidden=true;next.hidden=fa
 function finish(){var l=levels[current],stars=errors===0?3:errors<=3?2:1;saved[l.id]=Math.max(saved[l.id]||0,stars);store();document.getElementById('regular').hidden=true;var el=document.getElementById('finished');el.hidden=false;el.innerHTML='<div class="medal">🏆</div><h2>Mission accomplie !</h2><p>Tu as réussi les 5 défis de <strong>'+l.title+'</strong> !</p><div style="font-size:39px;margin:15px 0">'+('⭐'.repeat(stars))+'</div><p>'+(stars===3?'Super précision !':'Tu progresses à chaque essai. Bravo pour ta persévérance !')+'</p><div class="actions" style="justify-content:center"><button class="btn primary" id="again" type="button">Rejouer cette aventure</button><button class="btn good" id="another" type="button">Choisir un autre jeu</button></div><p class="tiny">Progression enregistrée uniquement sur cet appareil.</p>';
  document.getElementById('again').addEventListener('click',function(){start(current)});document.getElementById('another').addEventListener('click',showHome);
 }
-axis.addEventListener('click',function(e){if(current<0||solved||levels[current].type!=='place')return;var r=axis.getBoundingClientRect(),svx=(e.clientX-r.left)*860/r.width,n=numberOfTicks(),l=levels[current];
+axis.addEventListener('click',function(e){
+ if(current<0||solved||levels[current].type!=='place')return;
+ if(levels[current].id==='thermo'){
+  var box=axis.getBoundingClientRect(),tx=(e.clientX-box.left)*860/box.width,ty=(e.clientY-box.top)*380/box.height;
+  if(tx<370||tx>610||ty<38||ty>322){setFeedback('Touche une graduation du thermomètre, à côté du tube rouge.','');return}
+  selected=Math.max(0,Math.min(20,Math.round((310-ty)/250*20)));check.disabled=false;drawAxis();
+  setFeedback('Tu as choisi '+named(value(selected))+'. Observe où se situe zéro, puis vérifie.','');return;
+ }
+ var r=axis.getBoundingClientRect(),svx=(e.clientX-r.left)*860/r.width,n=numberOfTicks(),l=levels[current];
  if(l.broken&&svx<axisStart(l)-25){setFeedback('⛔ La partie cassée ne contient pas de graduations à choisir. Cherche un trait après la cassure.','error');return}
  selected=Math.min(n,Math.max(0,Math.round((svx-axisStart(l))/axisWidth(l)*n)));check.disabled=false;drawAxis();setFeedback('Tu as pointé '+named(value(selected))+'. Vérifie si c’est la position demandée.','')});
-axis.addEventListener('keydown',function(e){if(current<0||solved||levels[current].type!=='place')return;if(['ArrowLeft','ArrowRight','Home','End','Enter',' '].indexOf(e.key)<0)return;e.preventDefault();if(e.key==='Enter'||e.key===' '){if(selected!==null)check.click();return}var n=numberOfTicks();if(selected===null)selected=0;else if(e.key==='ArrowLeft')selected=Math.max(0,selected-1);else if(e.key==='ArrowRight')selected=Math.min(n,selected+1);else if(e.key==='Home')selected=0;else if(e.key==='End')selected=n;check.disabled=false;drawAxis();setFeedback('Trait sélectionné : '+named(value(selected))+'. Appuie sur Entrée pour vérifier.','')});
+axis.addEventListener('keydown',function(e){if(current<0||solved||levels[current].type!=='place')return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Enter',' '].indexOf(e.key)<0)return;e.preventDefault();if(e.key==='Enter'||e.key===' '){if(selected!==null)check.click();return}var n=numberOfTicks();if(selected===null)selected=levels[current].id==='thermo'?10:0;else if(e.key==='ArrowLeft'||e.key==='ArrowDown')selected=Math.max(0,selected-1);else if(e.key==='ArrowRight'||e.key==='ArrowUp')selected=Math.min(n,selected+1);else if(e.key==='Home')selected=0;else if(e.key==='End')selected=n;check.disabled=false;drawAxis();setFeedback('Trait sélectionné : '+named(value(selected))+'. Appuie sur Entrée pour vérifier.','')});
 check.addEventListener('click',function(){if(solved||selected===null||current<0)return;if(selected===target)success();else wrong('Tu as placé ton repère sur '+named(value(selected))+'. Réessaie !')});
 hint.addEventListener('click',function(){if(current<0)return;var l=levels[current];setFeedback('💡 Indice : '+(l.type==='scale'?'Compte les espaces, pas les traits.':l.type==='jump'?'Les bonds de +5 peuvent te faire avancer plus vite, puis ajuste avec +1 ou +2.':'Commence au nombre écrit le plus proche. '+explain(false)),'')});
 next.addEventListener('click',function(){if(!solved)return;round++;if(round>=5)finish();else newRound()});
