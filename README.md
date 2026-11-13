@@ -7,11 +7,13 @@ Quatre jeux de conduite et de récolte pour les enfants, jouables directement da
 - **Moissonneuse 2D** : vue du dessus, trois machines agricoles et trois cultures (blé, maïs, betteraves), récolte avec outils de coupe à l'avant.
 - **Moissonneuse 3D** : blé doré, plants de maïs et betteraves, moissonneuse-batteuse, récolteuse à maïs et arracheuse à betteraves, leurs équipements spécialisés, quatre champs et trois tailles.
 - **Trémies animées (2D et 3D)** : le bac visible sur chaque machine se remplit progressivement selon la part de champ récoltée. Grain doré pour blé et maïs, betteraves orangées pour l'arracheuse, avec une jauge dédiée et des particules qui rejoignent la trémie pendant la récolte. Le vidage du bac n'est pas encore une action de jeu.
+- **Tactile des moissonneuses (2D et 3D)** : maintenir le doigt sur le champ et le faire glisser ; la machine suit le doigt en continu, puis s'arrête dès que le doigt est levé. Clavier et manette restent compatibles.
+- **Trémie 3D plus discrète** : l'ancienne grande caisse est remplacée par une petite trémie latérale basse, afin de garder la cabine et la tête de récolte visibles.
 - **Jardins** : prairie, verger, jardin en L, jardin rond, avec obstacles à contourner.
 - **Taille de terrain** : Petit (surface ×1), Moyen (environ ×2,25), Grand (environ ×4). La taille est sélectionnable indépendamment du jardin et du véhicule, et son changement recommence la partie.
 - **Caméras** : la vue 2D suit le véhicule sur les grands terrains ; en 3D, le suivi est proposé automatiquement en Moyen/Grand et la vue générale reste accessible.
 - **Commandes 2D** : flèches pour se déplacer sur le terrain, écran tactile et manette selon le navigateur.
-- **Commandes des jeux 3D** : `↑` avancer, `↓` reculer, `←` et `→` tourner à gauche et à droite (rotation possible sur place). Le stick gauche de la manette pilote aussi la direction et l'avancement. Toucher le jardin fait conduire automatiquement vers le point visé.
+- **Commandes des jeux 3D** : `↑` avancer, `↓` reculer, `←` et `→` tourner à gauche et à droite (rotation possible sur place). Le stick gauche de la manette pilote la direction et l'avancement. Dans le jeu de tonte 3D, toucher un point du jardin donne une destination ; dans la moissonneuse 3D, le pilotage tactile est continu tant que le doigt est posé.
 - **Caméra 3D** : vue de suivi derrière le véhicule par défaut ; le bouton « Jardin » donne une vue d'ensemble.
 - Sans chrono, sans échec, sans inscription et sans suivi publicitaire.
 
