@@ -1,12 +1,14 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>La Tondeuse Magique 3D – Herbe haute</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f1f9e8;color:#32522d;font:600 15px system-ui,Arial,sans-serif}.wrap{max-width:750px;margin:auto;padding:12px;display:grid;gap:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.title{font-size:20px;font-weight:900}.subtitle{font-size:12px;font-weight:500;color:#668265}.vehicles{display:flex;gap:8px}.vehicles button{flex:1;border:2px solid #c0d9a9;border-radius:16px;background:#fffefa;padding:10px 5px;color:#3a5e2c;font:800 14px system-ui;cursor:pointer}.vehicles button.active{border:3px solid #5ba943;background:#e3f7d3;padding:9px 4px}.vehicles .emoji{font-size:27px;display:block}.gardens{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.gardens button{font:800 13px system-ui;padding:8px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.gardens button.active{border-color:#5aa748;background:#def1d5}.garden-label{font-size:12px;color:#70836a;font-weight:800}@media(max-width:520px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}.track{background:#d9e9c6;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#5aa83f,#c0dd55);transition:width .25s}.stage{padding:6px;background:#c4e2a8;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
+*{box-sizing:border-box}body{margin:0;background:#f1f9e8;color:#32522d;font:600 15px system-ui,Arial,sans-serif}.wrap{max-width:750px;margin:auto;padding:12px;display:grid;gap:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.title{font-size:20px;font-weight:900}.subtitle{font-size:12px;font-weight:500;color:#668265}.vehicles{display:flex;gap:8px}.vehicles button{flex:1;border:2px solid #c0d9a9;border-radius:16px;background:#fffefa;padding:10px 5px;color:#3a5e2c;font:800 14px system-ui;cursor:pointer}.vehicles button.active{border:3px solid #5ba943;background:#e3f7d3;padding:9px 4px}.vehicles .emoji{font-size:27px;display:block}.gardens{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.gardens button{font:800 13px system-ui;padding:8px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.gardens button.active{border-color:#5aa748;background:#def1d5}.garden-label{font-size:12px;color:#70836a;font-weight:800}.sizes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:1px}.sizes button{font:800 13px system-ui;padding:9px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.sizes button.active{border-color:#5aa748;background:#def1d5}@media(max-width:520px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}.track{background:#d9e9c6;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#5aa83f,#c0dd55);transition:width .25s}.stage{padding:6px;background:#c4e2a8;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌼 La Tondeuse Magique 3D</div><div class="subtitle">Des brins d’herbe plus hauts, plus fins et animés !</div></div><b id="pct">0 %</b></div>
 <div class="vehicles"><button id="small" class="active" aria-pressed="true"><span class="emoji">🔴</span>Petite tondeuse</button><button id="big" aria-pressed="false"><span class="emoji">🚜</span>Tracteur-tondeuse</button></div>
 <div class="garden-label">🌱 Choisis ton jardin :</div>
 <div class="gardens" role="group" aria-label="Choisir un jardin"><button data-garden="prairie" class="active" aria-pressed="true">🌼 Prairie</button><button data-garden="verger" aria-pressed="false">🍎 Verger</button><button data-garden="en-l" aria-pressed="false">🧩 Jardin en L</button><button data-garden="rond" aria-pressed="false">🌷 Jardin rond</button></div>
+<div class="garden-label">📏 Taille du terrain :</div>
+<div class="sizes" role="group" aria-label="Choisir la taille du terrain"><button data-size="small" class="active" aria-pressed="true">🌱 Petit</button><button data-size="medium" aria-pressed="false">🌿 Moyen</button><button data-size="large" aria-pressed="false">🌳 Grand</button></div>
 <div class="track"><div class="bar" id="bar"></div></div>
 <div class="stage"><canvas id="scene" width="960" height="780" aria-label="Jardin et véhicules en trois dimensions"></canvas><button class="view" id="camera" type="button">🎥 Suivre</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Le jardin est tout beau ! 🦋🌻</span></div></div>
 <div class="status" id="status">👆 Touche le jardin pour conduire !</div>
@@ -24,7 +26,9 @@ const prog=gl.createProgram();gl.attachShader(prog,compile(gl.VERTEX_SHADER,vs))
 const P=gl.getAttribLocation(prog,'p'),C=gl.getAttribLocation(prog,'c'),VP=gl.getUniformLocation(prog,'vp'),staticBuf=gl.createBuffer(),grassBuf=gl.createBuffer(),movingBuf=gl.createBuffer(),BREEZE=gl.getUniformLocation(prog,'breeze'),TICK=gl.getUniformLocation(prog,'tick');gl.enable(gl.DEPTH_TEST);gl.clearColor(.67,.85,.96,1);
 const palette={ground:[.42,.70,.29],cut:[.70,.87,.44],uncut:[.50,.77,.33],dark:[.24,.53,.20],wood:[.69,.42,.22],red:[.94,.29,.26],green:[.23,.65,.20],yellow:[1,.77,.26]};
 let mesh=[],staticCount=0,grassCount=0,dirty=true,grassDirty=true,grass=[],type='small',vehicle={x:-5.5,z:3.8,a:0},target=null,held={},keys={},complete=false,view='garden',time=0,previous=0,camEye=[0,19,19],camAt=[0,0,0],mouseActive=false,scoreOld=-1;
-const cols=16,rows=13,gap=.90,boundX=7.25,boundZ=5.9;
+let cols=16,rows=13,boundX=7.25,boundZ=5.9;
+const gap=.90,terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
+let terrainScale=1;
 let gardenId='prairie';
 const gardens={
   'prairie':{name:'Prairie',shape:'rectangle',obstacles:[]},
@@ -38,14 +42,14 @@ const gardens={
 function insideGarden(x,z,margin=0){
   if(Math.abs(x)>boundX-margin||Math.abs(z)>boundZ-margin)return false;
   let shape=gardens[gardenId].shape;
-  if(shape==='L')return !(x>1.7-margin&&z<-.7+margin);
+  if(shape==='L')return !(x>1.7*terrainScale-margin&&z<-.7*terrainScale+margin);
   if(shape==='round'){
-    const rx=7.10-margin,rz=5.75-margin;
+    const rx=7.10*terrainScale-margin,rz=5.75*terrainScale-margin;
     return (x/rx)**2+(z/rz)**2<=1;
   }
   return true;
 }
-function obstacleAt(x,z,extra=0){return gardens[gardenId].obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.r+extra)}
+function obstacleAt(x,z,extra=0){return gardens[gardenId].obstacles.some(o=>Math.hypot(x-o.x*terrainScale,z-o.z*terrainScale)<o.r+extra)}
 function driveable(x,z){let safety=type==='big'?.57:.43;return insideGarden(x,z,safety)&&!obstacleAt(x,z,safety);}
 
 function c(hex){return [parseInt(hex.slice(1,3),16)/255,parseInt(hex.slice(3,5),16)/255,parseInt(hex.slice(5,7),16)/255]}
@@ -62,8 +66,8 @@ for(let i=0;i<segments;i++){let shade=.8+.18*Math.sin(i*6.28/segments);quad(lo[i
 function sphere(x,y,z,r,col){let N=8,M=5;for(let j=0;j<M;j++){let v1=j*Math.PI/M,v2=(j+1)*Math.PI/M;for(let i=0;i<N;i++){let u1=i*2*Math.PI/N,u2=(i+1)*2*Math.PI/N;function pt(u,v){return [x+r*Math.sin(v)*Math.cos(u),y+r*Math.cos(v),z+r*Math.sin(v)*Math.sin(u)]}quad(pt(u1,v1),pt(u2,v1),pt(u2,v2),pt(u1,v2),tint(col,.86+.2*Math.cos(v1)));}}}
 function line3(a,b,thick,col){let dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz),nx=dx/length,ny=dy/length,nz=dz/length;let xx=ny,yy=-nx,zz=0;let ll=Math.hypot(xx,yy,zz);if(ll<.05){xx=1;yy=0;ll=1}xx/=ll;yy/=ll;let ux=yy*nz-zz*ny,uy=zz*nx-xx*nz,uz=xx*ny-yy*nx;let q=thick*.5;let A=[a[0]+xx*q+ux*q,a[1]+yy*q+uy*q,a[2]+zz*q+uz*q],B=[a[0]-xx*q+ux*q,a[1]-yy*q+uy*q,a[2]-zz*q+uz*q],D=[b[0]-xx*q+ux*q,b[1]-yy*q+uy*q,b[2]-zz*q+uz*q],E=[b[0]+xx*q+ux*q,b[1]+yy*q+uy*q,b[2]+zz*q+uz*q];quad(A,B,D,E,col);}
 function ground(){
- box(0,-.23,0,34,.42,29,c('#70bb64'));
- box(0,-.045,0,16.1,.08,13.4,c(gardenId==='prairie'?'#86c85a':'#d9c7a4'));
+ box(0,-.23,0,34*terrainScale,.42,29*terrainScale,c('#70bb64'));
+ box(0,-.045,0,16.1*terrainScale,.08,13.4*terrainScale,c(gardenId==='prairie'?'#86c85a':'#d9c7a4'));
  const tiles=new Map(grass.map(g=>[g.j*cols+g.i,g]));
  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
  let g=tiles.get(j*cols+i);if(!g)continue;
@@ -73,7 +77,7 @@ function ground(){
  }
  // Les obstacles ont un socle visible, à l'exclusion de la pelouse.
  for(const o of gardens[gardenId].obstacles){
-   let {x,z,r,kind}=o;
+   let {x,z,r,kind}=o;x*=terrainScale;z*=terrainScale;
    if(kind==='pond'){
      cylinder(x,.07,z,r+.13,.13,c('#e4cc94'));
      cylinder(x,.14,z,r,.05,c('#55bfe4'));
@@ -99,18 +103,19 @@ function ground(){
  }
  // Le dallage de la partie creuse distingue bien la forme en L.
  if(gardenId==='en-l'){
-   for(let x=2.2;x<7.1;x+=.95)for(let z=-5.5;z<-.9;z+=.95){
+   for(let x=2.2*terrainScale;x<7.1*terrainScale;x+=.95)for(let z=-5.5*terrainScale;z<-.9*terrainScale;z+=.95){
      box(x,-.008,z,.89,.026,.89,c((Math.round(x+z)*3)%2?'#ead6b4':'#d9c19b'));
    }
  }
  // Wooden fence
- for(let x=-8;x<=8;x+=1.6){box(x,.47,-6.95,.14,.95,.14,c('#bd824a'));box(x,.47,6.95,.14,.95,.14,c('#bd824a'))}
- for(let z=-6.95;z<=6.96;z+=1.4){box(-8,.47,z,.14,.95,.14,c('#bd824a'));box(8,.47,z,.14,.95,.14,c('#bd824a'))}
- for(let z of [-6.95,6.95]){box(0,.31,z,16,.13,.12,c('#efc58a'));box(0,.71,z,16,.13,.12,c('#e1ac68'))}
- for(let x of [-8,8]){box(x,.31,0,.12,.13,14,c('#efc58a'));box(x,.71,0,.12,.13,14,c('#e1ac68'))}
- for(let i=0;i<20;i++){let xx=-7.7+(i%10)*1.7,zz=(i<10?-7.75:7.75),k=i%5;flower(xx,zz,['#ffd858','#f7a8d4','#ff8d76','#e9e6ff','#fdf6c9'][k]);}
- for(let j=0;j<15;j++){let zz=-6.45+(j%8)*1.7,xx=j<8?-8.65:8.65;flower(xx,zz,['#ff8d76','#fcda59','#c9a9f6'][j%3]);}
+ for(let x=-8*terrainScale;x<=8*terrainScale+.01;x+=1.6){box(x,.47,-6.95*terrainScale,.14,.95,.14,c('#bd824a'));box(x,.47,6.95*terrainScale,.14,.95,.14,c('#bd824a'))}
+ for(let z=-6.95*terrainScale;z<=6.95*terrainScale+.01;z+=1.4){box(-8*terrainScale,.47,z,.14,.95,.14,c('#bd824a'));box(8*terrainScale,.47,z,.14,.95,.14,c('#bd824a'))}
+ for(let z of [-6.95*terrainScale,6.95*terrainScale]){box(0,.31,z,16*terrainScale,.13,.12,c('#efc58a'));box(0,.71,z,16*terrainScale,.13,.12,c('#e1ac68'))}
+ for(let x of [-8*terrainScale,8*terrainScale]){box(x,.31,0,.12,.13,14*terrainScale,c('#efc58a'));box(x,.71,0,.12,.13,14*terrainScale,c('#e1ac68'))}
+ for(let i=0,n=Math.round(10*terrainScale);i<2*n;i++){let xx=-7.7*terrainScale+(i%n)*15.4*terrainScale/(n-1),zz=(i<n?-7.75:7.75)*terrainScale,k=i%5;flower(xx,zz,['#ffd858','#f7a8d4','#ff8d76','#e9e6ff','#fdf6c9'][k]);}
+ for(let j=0,n=Math.round(8*terrainScale);j<2*n;j++){let zz=-6.45*terrainScale+(j%n)*12.9*terrainScale/(n-1),xx=(j<n?-8.65:8.65)*terrainScale;flower(xx,zz,['#ff8d76','#fcda59','#c9a9f6'][j%3]);}
  for(let [x,z,s] of [[-10,-9,1],[10,-9,1.15],[-10,9,1.15],[10,9,1],[0,-10,1.1]]){
+ x*=terrainScale;z*=terrainScale;
  box(x,.78*s,z,.52*s,1.55*s,.54*s,c('#9b7045'));sphere(x,2.0*s,z,.95*s,c('#519947'));sphere(x-.55*s,1.87*s,z,.7*s,c('#63ac50'));sphere(x+.45*s,2.15*s,z,.8*s,c('#68b64e'));
  }
 }
@@ -136,7 +141,7 @@ function updateGrass(){
  mesh=[];
  for(let tile=0;tile<grass.length;tile++){
   let g=grass[tile];if(g.cut)continue;
-  for(let n=0;n<12;n++){
+  for(let n=0;n<(terrainScale===1?12:terrainScale===1.5?9:7);n++){
    let i=tile*37+n*19,r1=random(i+1),r2=random(i+2),r3=random(i+3),r4=random(i+4),r5=random(i+5);
    let x=g.x+(r1-.5)*.80,z=g.z+(r2-.5)*.80;
    let h=.68+r3*.45,w=.014+r4*.011;
@@ -187,11 +192,14 @@ function matrix(){let aspect=canvas.clientWidth/canvas.clientHeight||1.23,near=.
 function groundPoint(ev){let b=canvas.getBoundingClientRect(),nx=((ev.clientX-b.left)/b.width*2-1),ny=1-(ev.clientY-b.top)/b.height*2;let aspect=b.width/b.height,tan=Math.tan(54*Math.PI/360);
  let f=norm(camAt.map((v,i)=>v-camEye[i])),right=norm(cross(f,[0,1,0])),up=cross(right,f);
  let d=norm(f.map((v,i)=>v+right[i]*nx*tan*aspect+up[i]*ny*tan));if(d[1]>=-.01)return null;let t=-camEye[1]/d[1];return {x:Math.max(-boundX,Math.min(boundX,camEye[0]+t*d[0])),z:Math.max(-boundZ,Math.min(boundZ,camEye[2]+t*d[2]))};}
-function reset(){grass=[];for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+function reset(){
+  cols=Math.round(16*terrainScale);rows=Math.round(13*terrainScale);
+  boundX=7.25*terrainScale;boundZ=5.9*terrainScale;
+  grass=[];for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
   let n=i+j*cols,x=(i-(cols-1)/2)*gap,z=(j-(rows-1)/2)*gap;
   if(!insideGarden(x,z,.10)||obstacleAt(x,z,.23))continue;
   grass.push({i,j,x,z,cut:false,v:(Math.sin(n*3.7)+1)/2});
- }vehicle={x:gardenId==='rond'?-3.8:-5.3,z:gardenId==='rond'?3.35:3.9,a:0};target=null;complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Touche le jardin pour conduire !';bar.style.width='0%';pct.textContent='0 %';}
+ }vehicle={x:(gardenId==='rond'?-3.8:-5.3)*terrainScale,z:(gardenId==='rond'?3.35:3.9)*terrainScale,a:0};target=null;complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Touche le jardin pour conduire !';bar.style.width='0%';pct.textContent='0 %';}
 function score(){let number=grass.filter(v=>v.cut).length,p=number===grass.length?100:Math.min(99,Math.round(number/grass.length*100));if(p!==scoreOld){scoreOld=p;bar.style.width=p+'%';pct.textContent=p+' %';}
  if(number===grass.length&&!complete){complete=true;target=null;win.classList.add('show');status.textContent='🎉 Bravo ! Tu as tondu tout le jardin !';}}
 function choose(t){type=t;root.querySelector('#small').classList.toggle('active',t==='small');root.querySelector('#big').classList.toggle('active',t==='big');root.querySelector('#small').setAttribute('aria-pressed',String(t==='small'));root.querySelector('#big').setAttribute('aria-pressed',String(t==='big'));reset();}
@@ -204,6 +212,21 @@ function chooseGarden(next){
   reset();status.textContent='🌿 '+gardens[next].name+' : à toi de jouer !';
 }
 root.querySelectorAll('[data-garden]').forEach(b=>b.addEventListener('click',()=>chooseGarden(b.dataset.garden)));
+function chooseSize(id){
+  terrainScale=terrainSizes[id];
+  for(const b of root.querySelectorAll('[data-size]')){
+    const active=b.dataset.size===id;b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
+  }
+  // Garder un véhicule suffisamment grand à l'écran sur les grands terrains.
+  view=terrainScale===1?'garden':'follow';
+  root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';
+  reset();
+  camEye=view==='garden'?[0,19*terrainScale,19*terrainScale]:[vehicle.x,6.2,vehicle.z-6];
+  camAt=view==='garden'?[0,0,0]:[vehicle.x,.65,vehicle.z];
+  status.textContent='📏 Terrain '+terrainLabels[id]+' : bonne tonte !';
+}
+root.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>chooseSize(b.dataset.size)));
 root.querySelector('#next-garden').addEventListener('click',()=>{
   const ids=Object.keys(gardens);chooseGarden(ids[(ids.indexOf(gardenId)+1)%ids.length]);
 });
@@ -226,7 +249,7 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
    let want=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(want-vehicle.a),Math.cos(want-vehicle.a));vehicle.a+=difference*.2*Math.min(dt,2);}
  let changed=false,r=type==='big'?1.26:.79;for(let g of grass)if(!g.cut&&Math.hypot(g.x-vehicle.x,g.z-vehicle.z)<r){g.cut=true;changed=true;}if(changed){dirty=true;grassDirty=true;score();}
  }
- let destEye,destAt;if(view==='garden'){destEye=[0,19,19];destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.07*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.07*Math.min(dt,2);}
+ let destEye,destAt;if(view==='garden'){destEye=[0,19*terrainScale,19*terrainScale];destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.07*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.07*Math.min(dt,2);}
  let w=Math.max(1,Math.floor(canvas.clientWidth*Math.min(devicePixelRatio||1,1.5))),h=Math.max(1,Math.floor(canvas.clientHeight*Math.min(devicePixelRatio||1,1.5)));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(VP,false,matrix());gl.uniform1f(TICK,time);if(dirty)updateStatic();if(grassDirty)updateGrass();
  function drawBuffer(buffer,count){gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.enableVertexAttribArray(P);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(C);gl.vertexAttribPointer(C,3,gl.FLOAT,false,24,12);gl.drawArrays(gl.TRIANGLES,0,count);}
  gl.uniform1f(BREEZE,0);drawBuffer(staticBuf,staticCount);gl.uniform1f(BREEZE,1);drawBuffer(grassBuf,grassCount);gl.uniform1f(BREEZE,0);mesh=[];vehicleMesh();gl.bindBuffer(gl.ARRAY_BUFFER,movingBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh),gl.DYNAMIC_DRAW);drawBuffer(movingBuf,mesh.length/6);
