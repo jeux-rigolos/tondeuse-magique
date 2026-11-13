@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#dceeff"><meta name="description" content="Mini-jeu de mathématiques : lire et régler un compteur de vitesse à aiguille, avec graduations progressives du CE2 au CM2.">
+<meta name="theme-color" content="#dceeff"><meta name="description" content="Mini-jeu CP, CE1, CE2, CM1 et CM2 : apprendre à lire un compteur de vitesse gradué et régler son aiguille.">
 <title>Le compteur magique — Jeux rigolos</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#e9f5ff,transparent 40%),linear-gradient(125deg,#e9f4ff,#e7fbec);font:16px/1.5 system-ui,-apple-system,Arial,sans-serif;color:#243f55}
@@ -41,6 +41,8 @@ h2{margin:12px 0;font-size:clamp(21px,3vw,29px)}.topline{display:flex;justify-co
 (function(){
 'use strict';
 var levels=[
+ {id:'cp',name:'CP',emoji:'🚙',step:10,max:40,major:10,targets:[1,2,3,4,2],description:'Compteur de 0 à 40 km/h : les nombres de 10 en 10.'},
+ {id:'ce1',name:'CE1',emoji:'🚐',step:5,max:60,major:10,targets:[2,4,7,10,11],description:'Entre deux dizaines, trouve les graduations de 5 km/h.'},
  {id:'ce2',name:'CE2',emoji:'🚙',step:20,max:120,major:20,targets:[2,4,3,5,1],description:'Graduations de 20 en 20. 0, 20, 40, 60…'},
  {id:'cm1',name:'CM1',emoji:'🚕',step:10,max:120,major:20,targets:[3,7,5,9,11],description:'Entre deux grands traits, trouve les dizaines.'},
  {id:'cm2',name:'CM2',emoji:'🏎️',step:5,max:120,major:20,targets:[7,11,17,13,19],description:'Petits traits de 5 en 5 : 35, 55, 85…'}
@@ -146,6 +148,6 @@ $('dial').addEventListener('keydown',function(e){
  else pointer=Math.max(0,Math.min(level().max/level().step,pointer+(['ArrowRight','ArrowUp'].indexOf(e.key)>=0?1:-1)));
  draw();status('Vitesse choisie : '+display()+' km/h.');
 });
-menu();
+menu();var classe=(new URLSearchParams(window.location.search)).get('classe');var gradeIndex=levels.findIndex(function(l){return l.id===classe});if(gradeIndex>=0)start(gradeIndex);
 })();
 </script></body></html>
