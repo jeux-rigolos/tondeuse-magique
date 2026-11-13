@@ -1,164 +1,203 @@
 <!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Jeu éducatif : réussir une recette en pesant des ingrédients sur une balance graduée et en mesurant des liquides avec un verre doseur.">
-<title>Le défi du petit pâtissier — La mission des graduations</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff2db">
+<meta name="description" content="Trois vraies recettes : lire une balance de cuisine et un verre doseur gradués pour préparer crêpes, pancakes ou gâteau au chocolat.">
+<title>Le petit pâtissier — Balance et verre doseur</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at 12% 10%,#ffe7b8,transparent 35%),linear-gradient(140deg,#f5faff,#ecfff4);font:16px/1.5 system-ui,-apple-system,Arial,sans-serif;color:#253e50}
-main{max-width:920px;margin:auto;padding:18px 16px 55px}
-a{color:#1762a4}.back{display:inline-block;padding:10px 14px;border-radius:14px;background:#fff;box-shadow:0 4px #d2e9ec;font-weight:800;text-decoration:none}
-header{text-align:center;margin:20px auto}header .icon{font-size:53px}h1{font-size:clamp(29px,5vw,44px);color:#184d72;line-height:1.1;margin:10px 0}.sub{color:#547588;margin:8px auto;max-width:570px}
-.bar{display:flex;gap:7px;margin:15px auto;max-width:630px}.step{flex:1;text-align:center;background:#d8e8ed;border-radius:10px;padding:8px 3px;font-weight:900;font-size:clamp(12px,2vw,16px)}.step.done{background:#8ce1ad;color:#22593b}.step.active{background:#ffd26d;color:#69470e}
-.panel{background:#fff;border-radius:25px;border:4px solid #fff;box-shadow:0 8px #cbdfe7,0 15px 25px #17334d18;padding:clamp(15px,4vw,31px)}
-.kitchen{background:#f3faff;padding:13px 18px;border-radius:16px;margin:14px 0;color:#3f6479}
-h2{font-size:clamp(20px,3.7vw,29px);margin:8px 0}
-.question{font-size:19px;font-weight:850;color:#284f69}
-.machine{border:2px solid #dcecf2;background:linear-gradient(180deg,#f5fcff,#fff);border-radius:18px;overflow:hidden;padding:8px;margin:18px 0}
-svg{display:block;width:100%;height:auto;touch-action:manipulation;cursor:crosshair}
-#reading{text-align:center;font-size:23px;font-weight:950;color:#1f5c85;margin:6px}
-.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:19px 0}
-button{font:inherit;border:0;border-radius:14px;cursor:pointer;font-weight:900;padding:12px 14px;background:#e8f3fe;color:#154f81;box-shadow:0 4px #c5ddec}
-button:hover:not(:disabled){filter:brightness(1.04)}
-button:focus-visible,a:focus-visible,svg:focus-visible{outline:4px solid #ffac3e;outline-offset:3px}
-button:disabled{opacity:.5;cursor:default}
-.btn-main{background:#2375d1;color:#fff;box-shadow:0 4px #1553a0}
-.btn-green{background:#73d99c;color:#174c30;box-shadow:0 4px #38ae6d}
-.message{border-radius:15px;background:#edf4f9;color:#3e637a;padding:13px 16px;min-height:58px;font-weight:750;margin:16px 0}
-.message.good{background:#e6f9eb;color:#216a3b}
-.message.bad{background:#fff0df;color:#8c4a1c}
-.footer-actions{display:flex;gap:10px;flex-wrap:wrap}
-.tip{font-size:14px;color:#647e8f}.ingredient-list{font-size:15px;color:#567385;line-height:1.8}
-#end{text-align:center;padding:22px 8px}#end .emoji{font-size:80px}#end h2{font-size:35px}
-@media(max-width:450px){.controls button{padding:11px;font-size:14px}.footer-actions button{flex:1}.bar{gap:3px}.step{padding:7px 1px}}
-</style>
-</head>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0%,#ffe5aa,transparent 38%),radial-gradient(circle at 94% 20%,#dff8ff,transparent 35%),#fff9ed;font:16px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#37445a}
+main{max-width:1030px;margin:auto;padding:18px 16px 58px}
+a{color:#1962a0}a:focus-visible,button:focus-visible,select:focus-visible,svg:focus-visible{outline:4px solid #e59435;outline-offset:3px}
+.back{display:inline-block;text-decoration:none;padding:9px 13px;border-radius:14px;background:white;font-weight:800;box-shadow:0 4px #ecdfc8}
+header{text-align:center;padding:8px 8px 14px}.emblem{font-size:52px}h1{font-size:clamp(30px,5vw,44px);line-height:1.16;margin:7px 0;color:#84511c}header p{max-width:650px;margin:8px auto;color:#6a6e74}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.recipe{display:flex;flex-direction:column;gap:7px;border-radius:25px;border:3px solid white;background:white;padding:20px;box-shadow:0 7px #eddab8;text-align:center}
+.recipe .picture{font-size:68px;background:#fff4df;border-radius:18px;padding:10px}.recipe h2{margin:6px 0;font-size:24px}.recipe p{flex:1;color:#606b73;margin:0}
+button{font:inherit;border:0;border-radius:14px;padding:12px 15px;cursor:pointer;font-weight:850;background:#e5f0fc;color:#205585;box-shadow:0 4px #c3d9ed}
+button:hover:not(:disabled){filter:brightness(1.04);transform:translateY(-1px)}button:disabled{opacity:.45;cursor:default}
+.primary{background:#e9a448;color:#4d2d08;box-shadow:0 4px #cc8134}.next{background:#66d7a3;color:#1c5735;box-shadow:0 4px #35a978}
+.source{font-size:13px}.hidden{display:none!important}
+.board{border:4px solid white;background:#fff;border-radius:25px;box-shadow:0 8px #e6d7b9;padding:clamp(16px,3vw,27px);margin:14px auto}
+.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.toolbar h2{font-size:clamp(22px,3.5vw,30px);margin:8px 0}
+.progress{display:flex;gap:6px;margin:16px 0}.pip{flex:1;height:15px;border-radius:18px;background:#e9edf0}.pip.current{background:#f4bb64}.pip.done{background:#5acb94}
+.story{padding:13px 15px;background:#fff5df;border-radius:14px;color:#69533b}.story p{margin:0}
+.row{display:flex;gap:14px;align-items:flex-start}.list{flex:1;background:#f5faff;padding:12px 15px;border-radius:14px}.list p{margin:4px 0}.list small{color:#6d7884}
+.prompt{font-size:clamp(18px,2.6vw,24px);font-weight:850;color:#354967;margin:17px 0 4px}
+#drawing{width:100%;height:auto;display:block;touch-action:manipulation;cursor:crosshair;max-height:370px}
+.illustration{background:linear-gradient(170deg,#f7fcff,#fffdf7);border:2px solid #e1edf1;border-radius:20px;margin:13px auto;padding:5px}
+.meter{text-align:center;font-size:25px;font-weight:950;color:#1d6087;margin:8px 0}
+.controls{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:13px 0}.controls button{min-width:80px}
+.notice{background:#edf4fb;border-radius:15px;padding:13px 16px;margin:13px 0;min-height:56px;font-weight:730;color:#42627c}
+.notice.good{background:#dff8eb;color:#156041}.notice.bad{background:#fff0dc;color:#8e4b18}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.footer{color:#738092;font-size:14px;text-align:center;margin:22px 0}
+#done{text-align:center;padding:24px 12px}#done .big{font-size:90px}#done h2{font-size:36px;color:#915b16}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.recipe .picture{font-size:45px}.recipe{padding:13px}.row{flex-direction:column}.controls button{min-width:65px;font-size:14px}.meter{font-size:20px}}
+</style></head>
 <body><main>
-<a class="back" href="../">← Les aventures graduées</a>
-<header><div class="icon">👩‍🍳🥞🧑‍🍳</div><h1>Le défi du petit pâtissier</h1><p class="sub">Une recette de crêpes au chocolat ! Pèse les ingrédients secs sur une <strong>balance graduée</strong> et mesure les liquides dans un <strong>verre doseur</strong>.</p></header>
-<div id="progress" class="bar" aria-label="Progression des ingrédients"></div>
-<div class="panel" id="game">
-<div id="stage"><div class="kitchen" id="recipe-list"></div>
-<h2 id="title"></h2><p id="question" class="question"></p>
-<p class="tip" id="direction"></p>
-<div class="machine"><svg id="tool" viewBox="0 0 860 290" tabindex="0" role="img"></svg></div>
-<div id="reading" aria-live="polite"></div>
-<div class="controls" id="controls"></div>
-<div class="message" id="message" role="status" aria-live="polite">Regarde les traits numérotés. Les petits traits représentent des quantités égales.</div>
-<div class="footer-actions">
-<button id="hint" type="button">💡 Indice</button>
-<button id="verify" class="btn-main" type="button">Vérifier le dosage</button>
-<button id="next" class="btn-green" type="button" hidden>Ingrédient suivant →</button>
-</div>
-</div>
-<div id="end" hidden><div class="emoji">🥞🎉</div><h2>Recette réussie !</h2><p>Bravo ! Tu as pesé et mesuré les cinq ingrédients en lisant les graduations.</p><p>🌟 Tu peux maintenant préparer des crêpes au chocolat avec un adulte.</p><button id="again" class="btn-main" type="button">🔄 Refaire la recette</button><a class="back" href="../" style="margin-left:10px">Autres jeux</a></div>
-</div><p class="tip">Jeu sans inscription ni publicité. Pour cuisiner vraiment, fais-toi accompagner d’un adulte, surtout pour utiliser la poêle.</p></main>
-<script>
+<a href="../" class="back">← La mission des graduations</a>
+<header><div class="emblem">🥞👩‍🍳🎂</div><h1>Le petit pâtissier</h1><p>Choisis une <strong>vraie recette</strong>, mesure les ingrédients sur une balance et dans un verre doseur, puis termine la préparation. Les quantités proviennent de recettes publiées.</p></header>
+<section id="menu"><div class="grid" id="recipe-grid"></div><p class="footer">Les ingrédients qui ne se mesurent pas avec une balance ou un doseur restent indiqués sur la fiche de recette. Pour cuisiner, suis la recette source avec un adulte.</p></section>
+<section id="play" hidden><div class="board">
+<div class="toolbar"><button id="back-menu" type="button">← Choisir une recette</button><h2 id="recipe-title"></h2></div>
+<div class="progress" id="progress"></div><div class="story"><p id="recipe-note"></p></div>
+<div class="row"><div class="list" id="ingredients"></div></div>
+<div id="stage"><h2 id="stage-title"></h2><p class="prompt" id="prompt"></p><p id="instruction"></p>
+<div class="illustration"><svg id="drawing" viewBox="0 0 860 340" tabindex="0" role="img" aria-label="Instrument gradué interactif"></svg></div>
+<p class="meter" id="reading" aria-live="polite"></p><div id="controls" class="controls"></div>
+<div id="feedback" class="notice" role="status" aria-live="polite"></div>
+<div class="actions"><button id="hint" type="button">💡 Un indice</button><button id="verify" class="primary" type="button">Vérifier la mesure</button><button id="next" class="next" type="button" hidden>Ingrédient suivant →</button></div></div>
+<div id="done" hidden><div class="big" id="finished-icon">🥞</div><h2>Recette réussie !</h2><p id="done-text"></p><p>🎉 Tu as réussi toutes les mesures ! Pour réaliser cette recette dans une vraie cuisine, fais-toi aider d’un adulte.</p><div class="actions" style="justify-content:center"><button id="replay" class="primary" type="button">Refaire la recette</button><button id="other" type="button">Autre recette</button></div></div>
+</div></section>
+<p class="footer">Sans compte, sans publicité. Ce jeu apprend à lire des graduations ; il ne remplace pas les consignes de cuisine et de sécurité.</p>
+</main><script>
 (function(){
 'use strict';
-var items=[
- {name:'farine',icon:'🌾',kind:'mass',goal:200,max:300,step:25,major:100,unit:'g',color:'#f2d49e'},
- {name:'sucre',icon:'🍬',kind:'mass',goal:40,max:100,step:10,major:20,unit:'g',color:'#f4e6d7'},
- {name:'lait',icon:'🥛',kind:'volume',goal:30,max:50,step:5,major:10,unit:'cL',color:'#b7e1fc'},
- {name:'huile',icon:'🫒',kind:'volume',goal:5,max:20,step:1,major:5,unit:'cL',color:'#c9e18c'},
- {name:'cacao en poudre',icon:'🍫',kind:'mass',goal:30,max:100,step:5,major:20,unit:'g',color:'#b47858'}
+function w(name,icon,goal,step,max,major,color){return {name:name,icon:icon,kind:'mass',goal:goal,step:step,max:max,major:major,unit:'g',color:color}}
+function v(name,icon,goal,step,max,major,color){return {name:name,icon:icon,kind:'volume',goal:goal,step:step,max:max,major:major,unit:'cL',color:color}}
+function eggs(n){return {name:'œufs',icon:'🥚',kind:'count',goal:n,step:1,max:6,major:1,unit:n===1?'œuf':'œufs',color:'#ffe2ae'}}
+var recipes=[
+ {id:'crepes',title:'Crêpes de Chef',icon:'🥞',grade:'CE2',from:'Recette de Chef Damien · 750g',url:'https://www.750g.com/pate-a-crepes-r5436.htm',
+ note:'Pour 6 personnes. Compléments à prévoir avec un adulte : une pincée de sel et, selon la recette source, des zestes de citron ou d’orange. Huile pour la poêle.',
+ ingredients:[w('farine','🌾',250,25,300,50,'#f0d49c'),eggs(3),v('lait','🥛',50,5,60,10,'#c4e6fc'),w('beurre fondu','🧈',50,5,100,20,'#f6d570')]},
+ {id:'pancakes',title:'Pancakes maison',icon:'🥞',grade:'CM1',from:'Recette de Mathilde · 750g',url:'https://www.750g.com/pancakes-r39365.htm',
+ note:'Pour 6 personnes. Compléments à prévoir avec un adulte : un sachet de levure chimique et une pincée de sel.',
+ ingredients:[w('farine','🌾',250,10,300,50,'#f0d49c'),w('sucre roux','🍯',40,5,100,20,'#dcae82'),v('lait','🥛',25,5,50,10,'#c4e6fc'),eggs(2),w('beurre fondu','🧈',20,5,100,20,'#f6d570')]},
+ {id:'chocolat',title:'Gâteau au chocolat',icon:'🎂',grade:'CM2',from:'Recette d’Anne Hervier · 750g',url:'https://www.750g.com/gateau-au-chocolat-r10420.htm',
+ note:'Pour 6 personnes. Complément à prévoir avec un adulte : une cuillère à café rase de levure chimique.',
+ ingredients:[eggs(5),w('sucre','🍬',200,10,250,50,'#f4ede3'),w('chocolat pâtissier','🍫',200,10,250,50,'#8d563c'),w('beurre','🧈',150,5,200,50,'#f6d570'),w('farine','🌾',100,5,150,25,'#f0d49c'),v('lait','🥛',5,1,20,5,'#c4e6fc')]}
 ];
-var idx=0,ticks=0,solved=false,failed=false;
+var selectedRecipe=0,stepIdx=0,ticks=0,solved=false,wrongAttempts=0;
 var $=function(id){return document.getElementById(id)};
-function item(){return items[idx]}
-function amount(){return ticks*item().step}
-function msg(s,type){$('message').textContent=s;$('message').className='message'+(type?' '+type:'')}
+function recipe(){return recipes[selectedRecipe]}
+function ing(){return recipe().ingredients[stepIdx]}
+function amount(){return ticks*ing().step}
+function feedback(s,cls){$('feedback').textContent=s;$('feedback').className='notice'+(cls?' '+cls:'')}
+function makeMenu(){
+ var grid=$('recipe-grid');grid.innerHTML='';
+ recipes.forEach(function(r,i){
+  var card=document.createElement('article');card.className='recipe';
+  var status='';try{status=localStorage.getItem('mission-recette-'+r.id)==='oui'?'⭐ Déjà réussie':''}catch(e){}
+  card.innerHTML='<div class="picture" aria-hidden="true">'+r.icon+'</div><h2>'+r.title+'</h2><p><strong>'+r.grade+'</strong> · '+r.ingredients.length+' ingrédients à doser</p><p>'+r.from+'</p><p>'+status+'</p>';
+  var b=document.createElement('button');b.textContent='Cuisiner cette recette ▶';b.className='primary';b.addEventListener('click',function(){begin(i)});card.appendChild(b);
+  var a=document.createElement('a');a.href=r.url;a.target='_blank';a.rel='noopener noreferrer';a.className='source';a.textContent='Consulter la recette originale';card.appendChild(a);grid.appendChild(card);
+ });
+}
+function backMenu(){$('play').hidden=true;$('menu').hidden=false;makeMenu();window.scrollTo({top:0,behavior:'smooth'})}
+function begin(i){selectedRecipe=i;stepIdx=0;$('menu').hidden=true;$('play').hidden=false;$('recipe-title').textContent=recipe().icon+' '+recipe().title;$('recipe-note').textContent=recipe().note;$('done').hidden=true;$('stage').hidden=false;newStage();window.scrollTo({top:0,behavior:'smooth'})}
 function progress(){
  $('progress').innerHTML='';
- items.forEach(function(it,i){var d=document.createElement('div');d.className='step'+(i<idx?' done':i===idx?' active':'');d.textContent=(i<idx?'✓ ':i===idx?'● ':'')+(i+1);d.title=it.name;$('progress').appendChild(d)});
-}
-function makeButton(label,fn,kind){
- var b=document.createElement('button');b.type='button';b.textContent=label;if(kind)b.className=kind;b.addEventListener('click',fn);$('controls').appendChild(b);return b;
-}
-function controls(){
- $('controls').innerHTML='';
- [-5,-1,1,5].forEach(function(delta){makeButton((delta>0?'+':'')+delta+' trait'+(Math.abs(delta)>1?'s':''),function(){move(delta)})});
- makeButton('↺ Vider',function(){if(!solved){ticks=0;draw();msg('Le récipient est vide. Recommence en comptant les graduations.')}})
-}
-function start(){
- idx=0;$('stage').hidden=false;$('end').hidden=true;newStage();
+ recipe().ingredients.forEach(function(it,i){var p=document.createElement('span');p.className='pip'+(i<stepIdx?' done':i===stepIdx?' current':'');p.title='Ingrédient '+(i+1)+' : '+it.name;$('progress').appendChild(p)});
 }
 function newStage(){
- ticks=0;solved=false;failed=false;
- var it=item();
- progress();
- $('recipe-list').textContent='📖 Ma recette : '+items.map(function(x,i){return (i<idx?'✅ ':'')+x.name+' '+x.goal+' '+x.unit}).join(' · ');
- $('title').textContent=it.icon+' Étape '+(idx+1)+'/5 : '+it.name;
- $('question').textContent='Mesure exactement '+it.goal+' '+it.unit+' de '+it.name+' '+(it.kind==='mass'?'sur la balance graduée.':'dans le verre doseur gradué.');
- $('direction').textContent=it.kind==='mass'?'Observe le cadran : chaque petit trait vaut '+it.step+' g.':'Lis le niveau du liquide : chaque petit trait vaut '+it.step+' cL.';
- $('verify').hidden=false;$('next').hidden=true;$('hint').hidden=false;
- controls();draw();msg('Ajoute ou retire des ingrédients. Tu peux aussi toucher une graduation sur le dessin.');
+ ticks=0;solved=false;wrongAttempts=0;var it=ing();progress();
+ $('ingredients').innerHTML='';
+ var head=document.createElement('strong');head.textContent='📖 Les ingrédients de la recette :';$('ingredients').appendChild(head);
+ var p=document.createElement('p');p.textContent=recipe().ingredients.map(function(x,i){return (i<stepIdx?'✅ ':'')+x.name+' '+x.goal+' '+x.unit}).join(' · ');$('ingredients').appendChild(p);
+ var small=document.createElement('small');small.textContent='Autres ingrédients éventuels : '+recipe().note;$('ingredients').appendChild(small);
+ var link=document.createElement('a');link.href=recipe().url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=' Voir la recette complète ↗';link.className='source';$('ingredients').appendChild(link);
+ $('stage-title').textContent=it.icon+' Étape '+(stepIdx+1)+' / '+recipe().ingredients.length+' : '+it.name;
+ $('prompt').textContent=it.kind==='count'?'Mets exactement '+it.goal+' œufs dans la boîte.':'Mesure exactement '+it.goal+' '+it.unit+' de '+it.name+(it.kind==='mass'?' sur la balance.':' dans le verre doseur.');
+ $('instruction').textContent=it.kind==='count'?'Chaque œuf compte pour un.':it.kind==='mass'?'Lis les traits du cadran de la balance. Chaque petit intervalle vaut '+it.step+' g.':'Verse jusqu’au bon trait du verre doseur. Chaque petit intervalle vaut '+it.step+' cL.';
+ $('verify').hidden=false;$('next').hidden=true;$('hint').hidden=false;makeControls();draw();feedback('À toi de jouer ! Touche l’instrument ou utilise les boutons pour ajuster la quantité.');
 }
-function move(delta){
- if(solved)return;var it=item(),max=it.max/it.step;
- ticks=Math.max(0,Math.min(max,ticks+delta));
- draw();msg('Tu as mesuré '+amount()+' '+it.unit+'. Compare cette quantité avec celle de la recette.');
+function button(label,delta){
+ var b=document.createElement('button');b.type='button';b.textContent=label;
+ b.addEventListener('click',function(){adjust(delta)});$('controls').appendChild(b);
+}
+function makeControls(){
+ var box=$('controls');box.innerHTML='';
+ if(ing().kind==='count'){button('− 1 œuf',-1);button('+ 1 œuf',1)}
+ else{button('− 5 traits',-5);button('− 1 trait',-1);button('+ 1 trait',1);button('+ 5 traits',5)}
+ var reset=document.createElement('button');reset.textContent='↺ Recommencer';reset.addEventListener('click',function(){if(solved)return;ticks=0;draw();feedback('La mesure repart de zéro.')});box.appendChild(reset);
+}
+function adjust(d){
+ if(solved)return;var it=ing();ticks=Math.min(it.max/it.step,Math.max(0,ticks+d));draw();feedback('Tu as mesuré '+amount()+' '+it.unit+'. Regarde la graduation atteinte.');
 }
 function draw(){
- var it=item(),n=it.max/it.step,i,v,x,y,svg='';
- svg+='<rect x="12" y="10" width="836" height="270" rx="17" fill="#f6fbff"/>';
+ var it=ing(),n=it.max/it.step,pct=ticks/n,s='';
+ s+='<defs><linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef6fa"/><stop offset=".55" stop-color="#c4d8e5"/><stop offset="1" stop-color="#9dbccc"/></linearGradient><linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ddf5ff" stop-opacity=".75"/><stop offset=".55" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#b8dcee" stop-opacity=".7"/></linearGradient></defs>';
+ s+='<rect x="15" y="14" width="830" height="309" rx="24" fill="#f7fcff"/>';
  if(it.kind==='mass'){
-  svg+='<path d="M 339 63 Q 430 -5 521 63 Z" fill="'+it.color+'" stroke="#ab8a66" stroke-width="4"/>';
-  svg+='<rect x="320" y="58" width="220" height="23" rx="10" fill="#c9dbe7"/>';
-  svg+='<rect x="148" y="86" width="564" height="177" rx="25" fill="#e4f0f8" stroke="#6b9eba" stroke-width="5"/>';
-  svg+='<text x="430" y="119" font-size="24" text-anchor="middle" font-weight="850" fill="#2f5b79">⚖ Balance graduée</text>';
-  svg+='<line x1="185" y1="178" x2="675" y2="178" stroke="#245675" stroke-width="7" stroke-linecap="round"/>';
-  for(i=0;i<=n;i++){v=i*it.step;x=185+490*i/n;var big=v%it.major===0;
-   svg+='<line x1="'+x+'" y1="'+(big?154:163)+'" x2="'+x+'" y2="192" stroke="#285979" stroke-width="'+(big?4:2)+'"/>';
-   if(big)svg+='<text x="'+x+'" y="224" text-anchor="middle" font-size="21" font-weight="800" fill="#2e5d79">'+v+'</text>';
+  s+='<ellipse cx="430" cy="92" rx="176" ry="42" fill="#d7e2e8" stroke="#739aaf" stroke-width="7"/>';
+  s+='<path d="M 268 75 Q 290 141 365 143 H 495 Q 565 140 593 75" fill="#c2d9e4" stroke="#8fb1c6" stroke-width="6"/>';
+  s+='<ellipse cx="430" cy="80" rx="149" ry="26" fill="'+it.color+'" stroke="#ba9a70" stroke-width="3"/>';
+  if(ticks>0)s+='<path d="M 335 76 Q 430 '+(70-28*pct)+' 525 76 Q 430 '+(95+12*pct)+' 335 76 Z" fill="'+it.color+'" stroke="#bd9f77" stroke-width="2"/>';
+  s+='<path d="M 198 138 Q 191 138 183 164 L 164 283 Q 164 304 185 304 H 675 Q 696 304 696 283 L 677 164 Q 673 140 651 138 Z" fill="url(#body)" stroke="#759ab0" stroke-width="7"/>';
+  s+='<rect x="223" y="184" width="414" height="95" rx="16" fill="#f8fcff" stroke="#739fb4" stroke-width="5"/>';
+  s+='<text x="430" y="164" font-size="19" font-weight="800" fill="#2f5e78" text-anchor="middle">BALANCE DE CUISINE</text>';
+  s+='<line x1="253" y1="223" x2="607" y2="223" stroke="#2e637f" stroke-width="5" stroke-linecap="round"/>';
+  for(var i=0;i<=n;i++){
+   var v=i*it.step,x=253+354*i/n,big=v%it.major===0;
+   s+='<line x1="'+x+'" y1="'+(big?207:215)+'" x2="'+x+'" y2="238" stroke="#2b6181" stroke-width="'+(big?3.5:2)+'"/>';
+   if(big)s+='<text x="'+x+'" y="257" text-anchor="middle" font-weight="800" fill="#245b7a" font-size="17">'+v+'</text>';
   }
-  x=185+490*ticks/n;
-  svg+='<path d="M '+(x-15)+' 140 L '+(x+15)+' 140 L '+x+' 158 Z" fill="#e75f42"/>';
-  svg+='<text x="430" y="252" text-anchor="middle" font-size="18" font-weight="900" fill="#2e5d79">grammes (g)</text>';
+  var pointer=253+354*pct;
+  s+='<path d="M '+(pointer-12)+' 188 L '+(pointer+12)+' 188 L '+pointer+' 211 Z" fill="#e45133"/>';
+  s+='<text x="670" y="252" font-size="23" font-weight="900" fill="#2d6483">g</text>';
+ }else if(it.kind==='volume'){
+  s+='<ellipse cx="429" cy="275" rx="146" ry="22" fill="#cfe3ed" opacity=".65"/>';
+  s+='<path d="M 333 48 L 332 267 Q 426 300 521 267 L 520 48" fill="url(#glass)" stroke="#7eb4cf" stroke-width="8" stroke-linecap="round"/>';
+  s+='<path d="M 524 85 L 574 85 Q 599 90 592 121 L 523 185" fill="none" stroke="#78acca" stroke-width="11" stroke-linecap="round"/>';
+  s+='<path d="M 330 49 L 307 58 L 333 72" fill="#bfe1f0" stroke="#7eb4cf" stroke-width="5"/>';
+  var fillH=204*pct;
+  if(ticks>0)s+='<path d="M 341 '+(267-fillH)+' H 510 L 510 264 Q 426 287 341 264 Z" fill="'+it.color+'" opacity=".90"/>';
+  for(var j=0;j<=n;j++){
+   var val=j*it.step,y=266-205*j/n,major=val%it.major===0;
+   s+='<line x1="'+(major?367:386)+'" y1="'+y+'" x2="451" y2="'+y+'" stroke="#255c7a" stroke-width="'+(major?3.8:2)+'"/>';
+   if(major)s+='<text x="354" y="'+(y+5)+'" text-anchor="end" font-size="18" font-weight="800" fill="#205a7a">'+val+'</text>';
+  }
+  s+='<text x="459" y="84" fill="#225f81" font-size="23" font-weight="900">cL</text>';
+  s+='<text x="175" y="152" text-anchor="middle" fill="#335b77" font-size="27" font-weight="900">VERRE</text>';
+  s+='<text x="175" y="186" text-anchor="middle" fill="#335b77" font-size="27" font-weight="900">DOSEUR</text>';
  }else{
-  svg+='<text x="222" y="70" font-size="26" text-anchor="middle" font-weight="900" fill="#315a73">🧪 Verre doseur</text>';
-  svg+='<text x="222" y="101" font-size="21" text-anchor="middle" fill="#567b8d">centilitres (cL)</text>';
-  svg+='<path d="M 391 33 L 391 243 Q 450 263 521 243 L 521 33" fill="#f0faff" stroke="#6aa4c8" stroke-width="7" stroke-linecap="round"/>';
-  var h=196*ticks/n;
-  svg+='<rect x="398" y="'+(242-h)+'" width="116" height="'+h+'" rx="4" fill="'+it.color+'" opacity=".95"/>';
-  svg+='<path d="M 521 83 L 570 83 Q 590 85 582 113 L 521 173" fill="none" stroke="#6aa4c8" stroke-width="8" stroke-linecap="round"/>';
-  for(i=0;i<=n;i++){v=i*it.step;y=242-196*i/n;var isMajor=v%it.major===0;
-   svg+='<line x1="'+(isMajor?442:458)+'" y1="'+y+'" x2="493" y2="'+y+'" stroke="#2d6686" stroke-width="'+(isMajor?3.5:2)+'"/>';
-   if(isMajor)svg+='<text x="429" y="'+(y+6)+'" text-anchor="end" font-size="20" font-weight="750" fill="#2b6482">'+v+'</text>';
+  s+='<rect x="188" y="93" width="480" height="200" rx="23" fill="#e9d7bd" stroke="#bb9b73" stroke-width="8"/>';
+  for(var k=0;k<6;k++){
+   var cx=260+(k%3)*170,cy=142+Math.floor(k/3)*104;
+   s+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="55" ry="40" fill="#c7b094" stroke="#ac926d" stroke-width="4"/>';
+   if(k<ticks){
+    s+='<ellipse cx="'+cx+'" cy="'+(cy-6)+'" rx="27" ry="34" fill="#fff1d8" stroke="#ccae80" stroke-width="4"/>';
+    s+='<ellipse cx="'+(cx-9)+'" cy="'+(cy-14)+'" rx="7" ry="11" fill="#fff" opacity=".75"/>';
+   }
   }
-  svg+='<text x="619" y="243" font-size="21" font-weight="900" fill="#315a73">cL</text>';
+  s+='<text x="430" y="58" text-anchor="middle" font-size="27" font-weight="900" fill="#85571b">BOÎTE À ŒUFS</text>';
  }
- $('tool').innerHTML=svg;
- $('tool').setAttribute('aria-label',it.name+' : '+amount()+' '+it.unit+' mesurés. Objectif '+it.goal+' '+it.unit+'. Utilise les flèches pour ajuster.');
+ $('drawing').innerHTML=s;
+ $('drawing').setAttribute('aria-label',it.name+' : '+amount()+' '+it.unit+' mesurés. Objectif : '+it.goal+' '+it.unit+'. Avec les flèches du clavier tu peux ajuster.');
  $('reading').textContent='📍 '+amount()+' '+it.unit+' mesurés';
 }
-function check(){
- if(solved)return;var it=item();
+function verify(){
+ if(solved)return;var it=ing();
  if(amount()===it.goal){
-  solved=true;msg('🎉 Parfait ! Tu as ajouté '+it.goal+' '+it.unit+' de '+it.name+'. Tu as compté '+ticks+' intervalles de '+it.step+' '+it.unit+'.','good');
+  solved=true;feedback('🎉 Bravo ! '+it.goal+' '+it.unit+' de '+it.name+'. '+(it.kind==='count'?'Tu as bien compté les œufs.':'Tu as compté '+ticks+' intervalles de '+it.step+' '+it.unit+'.'),'good');
   $('verify').hidden=true;$('next').hidden=false;$('hint').hidden=true;
   Array.from($('controls').children).forEach(function(b){b.disabled=true});
-  $('next').textContent=idx===items.length-1?'🥞 Terminer la recette':'Ingrédient suivant →';$('next').focus();
- }else{
-  failed=true;msg('🔎 La recette demande '+it.goal+' '+it.unit+', mais tu as '+amount()+' '+it.unit+'. Chaque petit trait vaut '+it.step+' '+it.unit+'. Corrige la mesure !','bad');
- }
+  $('next').textContent=stepIdx===recipe().ingredients.length-1?'🥞 Finir la recette':'Ingrédient suivant →';$('next').focus();
+ }else{wrongAttempts++;feedback('🔎 Tu as '+amount()+' '+it.unit+' mais il faut '+it.goal+' '+it.unit+'. '+(it.kind==='count'?'Compte les œufs.':'Chaque petit intervalle vaut '+it.step+' '+it.unit+'. Ajuste ta mesure.'),'bad')}
 }
-function end(){
- $('stage').hidden=true;$('end').hidden=false;$('progress').innerHTML='';items.forEach(function(it){var d=document.createElement('div');d.className='step done';d.textContent='✓';$('progress').appendChild(d)});
- try{localStorage.setItem('mission-recette-done','oui')}catch(e){}
+function finish(){
+ $('stage').hidden=true;$('done').hidden=false;$('finished-icon').textContent=recipe().icon;
+ $('done-text').textContent='Bravo, toutes les quantités de '+recipe().title+' sont bonnes !';
+ try{localStorage.setItem('mission-recette-'+recipe().id,'oui');localStorage.setItem('mission-recette-done','oui')}catch(e){}
+ progress();window.scrollTo({top:0,behavior:'smooth'});
 }
-$('verify').addEventListener('click',check);
-$('hint').addEventListener('click',function(){var it=item();msg('💡 La bonne quantité est '+it.goal+' '+it.unit+'. Chaque petit trait vaut '+it.step+' '+it.unit+'. Il faut donc compter '+(it.goal/it.step)+' espaces depuis zéro.')});
-$('next').addEventListener('click',function(){if(!solved)return;idx++;if(idx>=items.length)end();else newStage()});
-$('again').addEventListener('click',start);
-$('tool').addEventListener('click',function(e){if(solved)return;var rect=$('tool').getBoundingClientRect(),x=(e.clientX-rect.left)*860/rect.width,y=(e.clientY-rect.top)*290/rect.height,it=item(),n=it.max/it.step;
- if(it.kind==='mass'){if(x<170||x>690||y<135||y>235)return;ticks=Math.max(0,Math.min(n,Math.round((x-185)/490*n)))}
- else{if(x<385||x>532||y<25||y>260)return;ticks=Math.max(0,Math.min(n,Math.round((242-y)/196*n)))}
- draw();msg('Tu as choisi '+amount()+' '+it.unit+'. Vérifie la graduation.');
+$('verify').addEventListener('click',verify);
+$('hint').addEventListener('click',function(){var it=ing();feedback('💡 '+(it.kind==='count'?'Ajoute '+it.goal+' œufs, un par un.':'Chaque trait vaut '+it.step+' '+it.unit+'. Pour mesurer '+it.goal+' '+it.unit+', compte '+(it.goal/it.step)+' intervalles à partir de zéro.'))});
+$('next').addEventListener('click',function(){if(!solved)return;stepIdx++;if(stepIdx===recipe().ingredients.length)finish();else newStage()});
+$('replay').addEventListener('click',function(){begin(selectedRecipe)});
+$('other').addEventListener('click',backMenu);
+$('back-menu').addEventListener('click',backMenu);
+$('drawing').addEventListener('click',function(e){
+ if(solved)return;var it=ing(),r=$('drawing').getBoundingClientRect(),x=(e.clientX-r.left)*860/r.width,y=(e.clientY-r.top)*340/r.height,n=it.max/it.step;
+ if(it.kind==='mass'){if(x<231||x>632||y<181||y>268)return;ticks=Math.max(0,Math.min(n,Math.round((x-253)/354*n)))}
+ else if(it.kind==='volume'){if(x<325||x>537||y<43||y>281)return;ticks=Math.max(0,Math.min(n,Math.round((266-y)/205*n)))}
+ else{if(x<195||x>665||y<98||y>285)return;var col=Math.min(2,Math.max(0,Math.round((x-260)/170))),row=Math.min(1,Math.max(0,Math.round((y-142)/104)));ticks=row*3+col+1}
+ draw();feedback('Tu as sélectionné '+amount()+' '+it.unit+'. Vérifie la mesure.')
 });
-$('tool').addEventListener('keydown',function(e){if(['ArrowRight','ArrowLeft','ArrowUp','ArrowDown','Home','End','Enter',' '].indexOf(e.key)<0)return;e.preventDefault();if(e.key==='Enter'||e.key===' '){check();return}if(solved)return;if(e.key==='Home')ticks=0;else if(e.key==='End')ticks=item().max/item().step;else ticks=Math.max(0,Math.min(item().max/item().step,ticks+(['ArrowRight','ArrowUp'].indexOf(e.key)>=0?1:-1)));draw();msg('Tu as choisi '+amount()+' '+item().unit+'. Appuie sur Entrée pour vérifier.')});
-start();
+$('drawing').addEventListener('keydown',function(e){
+ if(['ArrowUp','ArrowRight','ArrowDown','ArrowLeft','Home','End','Enter',' '].indexOf(e.key)<0)return;
+ e.preventDefault();if(e.key==='Enter'||e.key===' '){verify();return}if(solved)return;
+ if(e.key==='Home')ticks=0;else if(e.key==='End')ticks=ing().max/ing().step;
+ else ticks=Math.min(ing().max/ing().step,Math.max(0,ticks+(['ArrowUp','ArrowRight'].indexOf(e.key)>=0?1:-1)));
+ draw();feedback('Mesure choisie : '+amount()+' '+ing().unit+'. Entrée pour valider.');
+});
+makeMenu();
 })();
-</script>
-</body></html>
+</script></body></html>
