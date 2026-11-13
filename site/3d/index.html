@@ -1,14 +1,16 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>La Tondeuse Magique 3D – Herbe haute</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f1f9e8;color:#32522d;font:600 15px system-ui,Arial,sans-serif}.wrap{max-width:750px;margin:auto;padding:12px;display:grid;gap:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.title{font-size:20px;font-weight:900}.subtitle{font-size:12px;font-weight:500;color:#668265}.vehicles{display:flex;gap:8px}.vehicles button{flex:1;border:2px solid #c0d9a9;border-radius:16px;background:#fffefa;padding:10px 5px;color:#3a5e2c;font:800 14px system-ui;cursor:pointer}.vehicles button.active{border:3px solid #5ba943;background:#e3f7d3;padding:9px 4px}.vehicles .emoji{font-size:27px;display:block}.track{background:#d9e9c6;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#5aa83f,#c0dd55);transition:width .25s}.stage{padding:6px;background:#c4e2a8;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
+*{box-sizing:border-box}body{margin:0;background:#f1f9e8;color:#32522d;font:600 15px system-ui,Arial,sans-serif}.wrap{max-width:750px;margin:auto;padding:12px;display:grid;gap:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.title{font-size:20px;font-weight:900}.subtitle{font-size:12px;font-weight:500;color:#668265}.vehicles{display:flex;gap:8px}.vehicles button{flex:1;border:2px solid #c0d9a9;border-radius:16px;background:#fffefa;padding:10px 5px;color:#3a5e2c;font:800 14px system-ui;cursor:pointer}.vehicles button.active{border:3px solid #5ba943;background:#e3f7d3;padding:9px 4px}.vehicles .emoji{font-size:27px;display:block}.gardens{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.gardens button{font:800 13px system-ui;padding:8px 4px;border:2px solid #c3d7ae;border-radius:13px;background:#fffef3;color:#406637;cursor:pointer}.gardens button.active{border-color:#5aa748;background:#def1d5}.garden-label{font-size:12px;color:#70836a;font-weight:800}@media(max-width:520px){.gardens{grid-template-columns:repeat(2,minmax(0,1fr))}}.track{background:#d9e9c6;height:14px;overflow:hidden;border-radius:20px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#5aa83f,#c0dd55);transition:width .25s}.stage{padding:6px;background:#c4e2a8;border-radius:18px;border:2px solid #abd18b;position:relative;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:none;border-radius:13px;background:#a9dbf2}.view{position:absolute;right:12px;top:12px;border:1px solid #dbecce;border-radius:12px;background:#fffae9e8;font-weight:800;padding:9px;cursor:pointer;color:#49683a}.status{text-align:center;min-height:22px;font-size:14px;font-weight:800}.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.restart{background:#ffcd6a;border:2px solid #e7ad3f;color:#63461d;border-radius:14px;padding:11px 15px;font:800 15px system-ui;cursor:pointer}.dpad{display:grid;grid-template-columns:repeat(3,55px);grid-template-rows:repeat(2,50px);gap:4px;touch-action:none}.dir{background:#e0f0d4;border:2px solid #a7d18b;border-radius:14px;font-size:23px;color:#3d702e;font-weight:900;touch-action:none;cursor:pointer}.dir:active{background:#b5df97}.foot{text-align:center;font-size:12px;font-weight:500;color:#71816a} .win{display:none;position:absolute;left:10%;right:10%;top:38%;text-align:center;background:#fff9dff2;padding:18px 5px;border-radius:20px;border:3px solid #ffdd86;color:#4d8b3d;font-size:25px;font-weight:900;pointer-events:none}.win span{display:block;font-size:14px;margin-top:5px}.win.show{display:block}body.dark{background:#1b281a;color:#d8ecd2}@media(min-width:650px){.wrap{padding:19px}.title{font-size:24px}}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌼 La Tondeuse Magique 3D</div><div class="subtitle">Des brins d’herbe plus hauts, plus fins et animés !</div></div><b id="pct">0 %</b></div>
 <div class="vehicles"><button id="small" class="active" aria-pressed="true"><span class="emoji">🔴</span>Petite tondeuse</button><button id="big" aria-pressed="false"><span class="emoji">🚜</span>Tracteur-tondeuse</button></div>
+<div class="garden-label">🌱 Choisis ton jardin :</div>
+<div class="gardens" role="group" aria-label="Choisir un jardin"><button data-garden="prairie" class="active" aria-pressed="true">🌼 Prairie</button><button data-garden="verger" aria-pressed="false">🍎 Verger</button><button data-garden="en-l" aria-pressed="false">🧩 Jardin en L</button><button data-garden="rond" aria-pressed="false">🌷 Jardin rond</button></div>
 <div class="track"><div class="bar" id="bar"></div></div>
 <div class="stage"><canvas id="scene" width="960" height="780" aria-label="Jardin et véhicules en trois dimensions"></canvas><button class="view" id="camera" type="button">🎥 Suivre</button><div class="win" id="win">🌟 BRAVO ! 🌟<span>Le jardin est tout beau ! 🦋🌻</span></div></div>
 <div class="status" id="status">👆 Touche le jardin pour conduire !</div>
-<div class="bottom"><button id="restart" class="restart">↻ Rejouer</button><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
+<div class="bottom"><div style="display:flex;flex-wrap:wrap;gap:6px"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌿 Jardin suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="foot">Tactile • Flèches du clavier • Manette compatible 🎮</div>
 </div><script>
 (()=>{
@@ -23,6 +25,29 @@ const P=gl.getAttribLocation(prog,'p'),C=gl.getAttribLocation(prog,'c'),VP=gl.ge
 const palette={ground:[.42,.70,.29],cut:[.70,.87,.44],uncut:[.50,.77,.33],dark:[.24,.53,.20],wood:[.69,.42,.22],red:[.94,.29,.26],green:[.23,.65,.20],yellow:[1,.77,.26]};
 let mesh=[],staticCount=0,grassCount=0,dirty=true,grassDirty=true,grass=[],type='small',vehicle={x:-5.5,z:3.8,a:0},target=null,held={},keys={},complete=false,view='garden',time=0,previous=0,camEye=[0,19,19],camAt=[0,0,0],mouseActive=false,scoreOld=-1;
 const cols=16,rows=13,gap=.90,boundX=7.25,boundZ=5.9;
+let gardenId='prairie';
+const gardens={
+  'prairie':{name:'Prairie',shape:'rectangle',obstacles:[]},
+  'verger':{name:'Verger',shape:'rectangle',obstacles:[
+    {x:-2.5,z:-1.4,r:.85,kind:'tree'},{x:2.8,z:2.35,r:.85,kind:'tree'},{x:3.0,z:-2.8,r:.72,kind:'rock'}]},
+  'en-l':{name:'Jardin en L',shape:'L',obstacles:[
+    {x:-2.6,z:1.2,r:.80,kind:'bush'},{x:3.85,z:3.15,r:1.00,kind:'pond'}]},
+  'rond':{name:'Jardin rond',shape:'round',obstacles:[
+    {x:0,z:0,r:1.35,kind:'pond'},{x:-3.8,z:-1.8,r:.68,kind:'rock'},{x:3.9,z:1.2,r:.63,kind:'bush'}]}
+};
+function insideGarden(x,z,margin=0){
+  if(Math.abs(x)>boundX-margin||Math.abs(z)>boundZ-margin)return false;
+  let shape=gardens[gardenId].shape;
+  if(shape==='L')return !(x>1.7-margin&&z<-.7+margin);
+  if(shape==='round'){
+    const rx=7.10-margin,rz=5.75-margin;
+    return (x/rx)**2+(z/rz)**2<=1;
+  }
+  return true;
+}
+function obstacleAt(x,z,extra=0){return gardens[gardenId].obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.r+extra)}
+function driveable(x,z){let safety=type==='big'?.57:.43;return insideGarden(x,z,safety)&&!obstacleAt(x,z,safety);}
+
 function c(hex){return [parseInt(hex.slice(1,3),16)/255,parseInt(hex.slice(3,5),16)/255,parseInt(hex.slice(5,7),16)/255]}
 const tint=(color,m)=>color.map(v=>Math.min(1,v*m));
 function vertex(x,y,z,col){mesh.push(x,y,z,...col)}
@@ -38,11 +63,45 @@ function sphere(x,y,z,r,col){let N=8,M=5;for(let j=0;j<M;j++){let v1=j*Math.PI/M
 function line3(a,b,thick,col){let dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz),nx=dx/length,ny=dy/length,nz=dz/length;let xx=ny,yy=-nx,zz=0;let ll=Math.hypot(xx,yy,zz);if(ll<.05){xx=1;yy=0;ll=1}xx/=ll;yy/=ll;let ux=yy*nz-zz*ny,uy=zz*nx-xx*nz,uz=xx*ny-yy*nx;let q=thick*.5;let A=[a[0]+xx*q+ux*q,a[1]+yy*q+uy*q,a[2]+zz*q+uz*q],B=[a[0]-xx*q+ux*q,a[1]-yy*q+uy*q,a[2]-zz*q+uz*q],D=[b[0]-xx*q+ux*q,b[1]-yy*q+uy*q,b[2]-zz*q+uz*q],E=[b[0]+xx*q+ux*q,b[1]+yy*q+uy*q,b[2]+zz*q+uz*q];quad(A,B,D,E,col);}
 function ground(){
  box(0,-.23,0,34,.42,29,c('#70bb64'));
- box(0,-.045,0,16.1,.08,13.4,c('#86c85a'));
+ box(0,-.045,0,16.1,.08,13.4,c(gardenId==='prairie'?'#86c85a':'#d9c7a4'));
+ const tiles=new Map(grass.map(g=>[g.j*cols+g.i,g]));
  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
- let g=grass[j*cols+i],cc=g.cut?c('#b9df77'):c('#89c957');cc=tint(cc,(i+j)%2?1:.96);
+ let g=tiles.get(j*cols+i);if(!g)continue;
+ let cc=g.cut?c('#b9df77'):c('#89c957');cc=tint(cc,(i+j)%2?1:.96);
  box(g.x,-.009,g.z,gap-.02,.035,gap-.02,cc);
  
+ }
+ // Les obstacles ont un socle visible, à l'exclusion de la pelouse.
+ for(const o of gardens[gardenId].obstacles){
+   let {x,z,r,kind}=o;
+   if(kind==='pond'){
+     cylinder(x,.07,z,r+.13,.13,c('#e4cc94'));
+     cylinder(x,.14,z,r,.05,c('#55bfe4'));
+     sphere(x-r*.43,.17,z+.2,.15,c('#6ba54e'));
+     sphere(x-r*.43,.25,z+.2,.08,c('#f7b9d7'));
+   }else if(kind==='rock'){
+     sphere(x,.32,z,r*.88,c('#8d9d9b'));
+     sphere(x-.21,.48,z-.18,r*.47,c('#bacac4'));
+   }else if(kind==='tree'){
+     cylinder(x,.75,z,.25,1.5,c('#9a6941'));
+     sphere(x,1.85,z,.91,c('#5cad50'));
+     sphere(x-.42,1.68,z,.66,c('#73c261'));
+     sphere(x+.45,1.95,z,.65,c('#80ca61'));
+     sphere(x-.32,2.25,z-.35,.12,c('#f15c53'));
+     sphere(x+.4,1.9,z+.3,.12,c('#e74e4c'));
+   }else{
+     cylinder(x,.08,z,r+.05,.19,c('#9c7753'));
+     sphere(x-.26,.35,z,.54,c('#50a649'));
+     sphere(x+.26,.34,z-.12,.52,c('#69b857'));
+     sphere(x,.55,z+.25,.47,c('#74c261'));
+     for(let k=0;k<5;k++)sphere(x+Math.cos(k*1.26)*r*.45,.7,z+Math.sin(k*1.26)*r*.45,.1,c(k%2?'#ffb6d8':'#ffe27a'));
+   }
+ }
+ // Le dallage de la partie creuse distingue bien la forme en L.
+ if(gardenId==='en-l'){
+   for(let x=2.2;x<7.1;x+=.95)for(let z=-5.5;z<-.9;z+=.95){
+     box(x,-.008,z,.89,.026,.89,c((Math.round(x+z)*3)%2?'#ead6b4':'#d9c19b'));
+   }
  }
  // Wooden fence
  for(let x=-8;x<=8;x+=1.6){box(x,.47,-6.95,.14,.95,.14,c('#bd824a'));box(x,.47,6.95,.14,.95,.14,c('#bd824a'))}
@@ -128,11 +187,26 @@ function matrix(){let aspect=canvas.clientWidth/canvas.clientHeight||1.23,near=.
 function groundPoint(ev){let b=canvas.getBoundingClientRect(),nx=((ev.clientX-b.left)/b.width*2-1),ny=1-(ev.clientY-b.top)/b.height*2;let aspect=b.width/b.height,tan=Math.tan(54*Math.PI/360);
  let f=norm(camAt.map((v,i)=>v-camEye[i])),right=norm(cross(f,[0,1,0])),up=cross(right,f);
  let d=norm(f.map((v,i)=>v+right[i]*nx*tan*aspect+up[i]*ny*tan));if(d[1]>=-.01)return null;let t=-camEye[1]/d[1];return {x:Math.max(-boundX,Math.min(boundX,camEye[0]+t*d[0])),z:Math.max(-boundZ,Math.min(boundZ,camEye[2]+t*d[2]))};}
-function reset(){grass=[];for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){let n=i+j*cols;grass.push({x:(i-(cols-1)/2)*gap,z:(j-(rows-1)/2)*gap,cut:false,v:(Math.sin(n*3.7)+1)/2})}vehicle={x:-5.3,z:3.9,a:0};target=null;complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Touche le jardin pour conduire !';bar.style.width='0%';pct.textContent='0 %';}
+function reset(){grass=[];for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+  let n=i+j*cols,x=(i-(cols-1)/2)*gap,z=(j-(rows-1)/2)*gap;
+  if(!insideGarden(x,z,.10)||obstacleAt(x,z,.23))continue;
+  grass.push({i,j,x,z,cut:false,v:(Math.sin(n*3.7)+1)/2});
+ }vehicle={x:gardenId==='rond'?-3.8:-5.3,z:gardenId==='rond'?3.35:3.9,a:0};target=null;complete=false;scoreOld=-1;dirty=true;grassDirty=true;win.classList.remove('show');status.textContent='👆 Touche le jardin pour conduire !';bar.style.width='0%';pct.textContent='0 %';}
 function score(){let number=grass.filter(v=>v.cut).length,p=number===grass.length?100:Math.min(99,Math.round(number/grass.length*100));if(p!==scoreOld){scoreOld=p;bar.style.width=p+'%';pct.textContent=p+' %';}
  if(number===grass.length&&!complete){complete=true;target=null;win.classList.add('show');status.textContent='🎉 Bravo ! Tu as tondu tout le jardin !';}}
 function choose(t){type=t;root.querySelector('#small').classList.toggle('active',t==='small');root.querySelector('#big').classList.toggle('active',t==='big');root.querySelector('#small').setAttribute('aria-pressed',String(t==='small'));root.querySelector('#big').setAttribute('aria-pressed',String(t==='big'));reset();}
 root.querySelector('#small').addEventListener('click',()=>choose('small'));root.querySelector('#big').addEventListener('click',()=>choose('big'));root.querySelector('#restart').addEventListener('click',reset);
+function chooseGarden(next){
+  gardenId=next;
+  for(const b of root.querySelectorAll('[data-garden]')){
+    const active=b.dataset.garden===next;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
+  }
+  reset();status.textContent='🌿 '+gardens[next].name+' : à toi de jouer !';
+}
+root.querySelectorAll('[data-garden]').forEach(b=>b.addEventListener('click',()=>chooseGarden(b.dataset.garden)));
+root.querySelector('#next-garden').addEventListener('click',()=>{
+  const ids=Object.keys(gardens);chooseGarden(ids[(ids.indexOf(gardenId)+1)%ids.length]);
+});
 root.querySelector('#camera').addEventListener('click',()=>{view=view==='garden'?'follow':'garden';root.querySelector('#camera').textContent=view==='garden'?'🎥 Suivre':'🌳 Jardin';});
 canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.setPointerCapture?.(e.pointerId);let p=groundPoint(e);if(p)target=p;});
 canvas.addEventListener('pointermove',e=>{if(canvas.hasPointerCapture?.(e.pointerId)){let p=groundPoint(e);if(p)target=p;}});
@@ -142,7 +216,14 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
  if(!complete){let dx=0,dz=0;if(keys.ArrowLeft||keys.a||held.left)dx-=1;if(keys.ArrowRight||keys.d||held.right)dx+=1;if(keys.ArrowUp||keys.w||held.up)dz-=1;if(keys.ArrowDown||keys.s||held.down)dz+=1;
  try{for(let gp of navigator.getGamepads?.()||[])if(gp){if(Math.abs(gp.axes?.[0]||0)>.18)dx+=gp.axes[0];if(Math.abs(gp.axes?.[1]||0)>.18)dz+=gp.axes[1];if(gp.buttons?.[12]?.pressed)dz--;if(gp.buttons?.[13]?.pressed)dz++;if(gp.buttons?.[14]?.pressed)dx--;if(gp.buttons?.[15]?.pressed)dx++;}}catch(e){}
  if(dx||dz)target=null;else if(target){dx=target.x-vehicle.x;dz=target.z-vehicle.z;if(Math.hypot(dx,dz)<.13){target=null;dx=dz=0;}}
- let l=Math.hypot(dx,dz);if(l>.001){let step=Math.min(l,(type==='big'?.090:.065)*dt);dx/=l;dz/=l;vehicle.x=Math.max(-boundX,Math.min(boundX,vehicle.x+dx*step));vehicle.z=Math.max(-boundZ,Math.min(boundZ,vehicle.z+dz*step));let want=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(want-vehicle.a),Math.cos(want-vehicle.a));vehicle.a+=difference*.2*Math.min(dt,2);}
+ let l=Math.hypot(dx,dz);if(l>.001){let step=Math.min(l,(type==='big'?.090:.065)*dt);dx/=l;dz/=l;
+   const n=Math.max(1,Math.ceil(step/.09));
+   for(let k=0;k<n;k++){
+     const xx=vehicle.x+dx*step/n,zz=vehicle.z+dz*step/n;
+     if(driveable(xx,vehicle.z))vehicle.x=xx;
+     if(driveable(vehicle.x,zz))vehicle.z=zz;
+   }
+   let want=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(want-vehicle.a),Math.cos(want-vehicle.a));vehicle.a+=difference*.2*Math.min(dt,2);}
  let changed=false,r=type==='big'?1.26:.79;for(let g of grass)if(!g.cut&&Math.hypot(g.x-vehicle.x,g.z-vehicle.z)<r){g.cut=true;changed=true;}if(changed){dirty=true;grassDirty=true;score();}
  }
  let destEye,destAt;if(view==='garden'){destEye=[0,19,19];destAt=[0,0,0]}else{destEye=[vehicle.x-Math.sin(vehicle.a)*6,6.2,vehicle.z-Math.cos(vehicle.a)*6];destAt=[vehicle.x,.65,vehicle.z];}for(let i=0;i<3;i++){camEye[i]+=(destEye[i]-camEye[i])*.07*Math.min(dt,2);camAt[i]+=(destAt[i]-camAt[i])*.07*Math.min(dt,2);}
