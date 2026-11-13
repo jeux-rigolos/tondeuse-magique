@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#e6f7fd">
-<meta name="description" content="Douze mini-jeux de graduations du CE1 au CM2, avec balance de cuisine, verre doseur, axes cassés et zéro au milieu.">
+<meta name="description" content="Treize aventures de graduations du CE1 au CM2, avec recettes réelles, thermomètre vertical et compteur de vitesse à aiguille.">
 <title>La mission des graduations — Jeux rigolos</title>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#21384b;background:#eff9ff;font-synthesis:none}
@@ -69,8 +69,8 @@ footer{text-align:center;padding:32px 5px 0;color:#608092;font-size:14px}
 <div class="wrap">
 <div class="top"><a href="../">← Tous les jeux rigolos</a><span class="brand">🎯 Mission Graduations <small>CE1 → CM2</small></span></div>
 <section id="home">
-<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">12 aventures · Du CE1 au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
-<div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 12</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
+<header class="hero"><div class="emoji">🐸 🚀 🧪 🏔️</div><h1>La mission des graduations</h1><span class="pill">13 aventures · Du CE1 au CM2</span><p>Apprends à placer et à lire les nombres sur une droite graduée. Fais des bonds, mesure, prépare des potions et pars en randonnée !</p></header>
+<div class="stats"><span class="stat" id="stat-completed">🏅 0 jeu terminé sur 13</span><span class="stat">🧩 5 défis par jeu</span><span class="stat">✨ À ton rythme, sans chrono</span></div>
 <div id="cards" class="grid"></div>
 <p class="tiny" style="text-align:center;margin-top:26px">Tu peux commencer par n'importe quel jeu. Les niveaux CE1 restent ouverts aux plus grands : s'entraîner, c'est progresser !</p>
 </section>
@@ -138,9 +138,12 @@ function renderHome(){
  recipe.className='game-card';
  recipe.innerHTML='<div class="scene" aria-hidden="true">🥞⚖️🥛</div><div class="cardbody"><span class="grade">CE2 → CM2</span><h2>Le défi du petit pâtissier</h2><p>Réussis une recette : pèse la farine et le sucre, puis mesure le lait et l’huile dans un verre doseur gradué.</p><div class="completed">5 ingrédients à doser</div><a class="btn primary" href="./recette/" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
  cards.appendChild(recipe);
+ var speed=document.createElement('article');speed.className='game-card';
+ speed.innerHTML='<div class="scene" aria-hidden="true">🚗📍</div><div class="cardbody"><span class="grade">CE2 → CM2</span><h2>Le compteur magique</h2><p>Lis la vitesse ou règle l’aiguille sur un vrai cadran dessiné, avec des graduations de 20, 10 et 5 km/h.</p><div class="completed">3 difficultés · 5 défis chacune</div><a class="btn primary" href="./compteur/" style="display:block;text-align:center;text-decoration:none">Jouer ▶</a></div>';
+ cards.appendChild(speed);
  var achieved=Object.keys(saved).filter(function(k){return saved[k]>0&&levels.some(function(l){return l.id===k})}).length;
- try{if(localStorage.getItem('mission-recette-done')==='oui')achieved++}catch(e){}
- document.getElementById('stat-completed').textContent='🏅 '+achieved+' jeu(x) terminé(s) sur 12';
+ try{if(localStorage.getItem('mission-recette-done')==='oui')achieved++;if(localStorage.getItem('compteur-done')==='oui')achieved++}catch(e){}
+ document.getElementById('stat-completed').textContent='🏅 '+achieved+' jeu(x) terminé(s) sur 13';
 }
 function showHome(){current=-1;home.style.display='block';play.style.display='none';renderHome();window.scrollTo({top:0,behavior:'smooth'})}
 function start(i){current=i;round=0;errors=0;lastTarget=-1;home.style.display='none';play.style.display='block';document.getElementById('regular').hidden=false;document.getElementById('finished').hidden=true;document.getElementById('grade').textContent=levels[i].grade+' · Aventure '+(i+1)+'/'+levels.length;document.getElementById('game-title').textContent=levels[i].icon+' '+levels[i].title;document.getElementById('story').textContent=levels[i].context;document.getElementById('real').textContent='🌍 '+levels[i].real;newRound();window.scrollTo({top:0,behavior:'smooth'})}
