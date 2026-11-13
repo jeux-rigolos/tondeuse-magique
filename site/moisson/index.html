@@ -277,6 +277,36 @@ function vehicleMesh(){
   b(0,.49,.73,1.40,.14,.83,'#a05d38');
   for(let k=0;k<7;k++)b(-.58+k*.19,.61,.76,.11,.09,.76,'#dbc07d');
  }
+ // Trémie ouverte : le niveau coloré s'élève pendant la récolte.
+ const binZ=beet?-1.28:-.98,binW=beet?1.76:1.42,binD=beet?1.16:.86;
+ const binFloor=beet?2.22:2.02,binH=beet?.67:.71;
+ const binColor=wheat?'#dbaa47':corn?'#f1c63c':'#ae5d45';
+ const binHighlight=wheat?'#f9de80':corn?'#ffeb80':'#d9856a';
+ b(0,binFloor-.035,binZ,binW,.075,binD,'#6b553e');
+ if(binLevel>.002){
+  const fillH=Math.max(.012,binLevel*(binH-.065));
+  b(0,binFloor+fillH/2,binZ,binW-.18,fillH,binD-.18,binColor);
+  if(binLevel>.20){
+   for(let i=0;i<5;i++){
+    const xx=(i-2)*.22;
+    sp(xx,binFloor+fillH+.015,binZ+(i%2?.11:-.11),.075+binLevel*.04,binHighlight);
+   }
+  }
+ }
+ // Quatre parois opaques, l'ouverture laisse voir la hauteur de la matière.
+ b(-binW/2,binFloor+binH/2,binZ,.085,binH,binD,top);
+ b(binW/2,binFloor+binH/2,binZ,.085,binH,binD,top);
+ b(0,binFloor+binH/2,binZ-binD/2,binW,binH+.075,.085,top);
+ b(0,binFloor+binH/2,binZ+binD/2,binW,binH+.075,.085,top);
+ // Petites particules qui voyagent du système de coupe au bac.
+ if(time<harvestEffectUntil){
+  for(let i=0;i<7;i++){
+   const phase=(time*1.7+i/7)%1;
+   const xx=(i%2?1:-1)*(.14+(i%3)*.06);
+   const zz=1.37-2.35*phase,yy=1.45+.85*Math.sin(Math.PI*phase);
+   sp(xx,yy,zz,beet?.069:.052,i%3===0?binHighlight:binColor);
+  }
+ }
  // Phares et petit visage, pour l'univers enfantin.
  for(const xx of [-.26,.26])sp(xx,1.18,1.06,.095,'#fff5d7');
  sp(0,1.03,1.08,.10,'#f8d27d');
