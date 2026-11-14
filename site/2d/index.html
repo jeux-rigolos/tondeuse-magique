@@ -164,6 +164,7 @@
     <div class="overlay" id="overlay" role="dialog" aria-label="Bravo, le jardin est tondu !"><div class="victory"><div class="trophy">🏆🌼</div><h2>Bravo, champion !</h2><p>Le jardin est magnifique ! ✨</p><button class="again" id="again">🌱 Jardin suivant !</button></div></div>
   </div>
   <div class="gamepad-help" id="gamepad-help" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette puis appuie sur A pour l’activer.</div>
+<div class="pad-test-link" style="margin:4px 0 8px;text-align:center;font:850 13px system-ui"><a href="../manette/" style="color:#32624a;text-decoration:underline">🔎 Ma manette ne réagit pas ? Tester sur cet appareil</a></div>
   <div class="instructions"><div class="pill"><b>👆</b> Touche ou glisse ton doigt</div><div class="pill"><b>🎮</b> Joystick ou croix · A : transformer · B : recommencer</div><div class="pill"><b>⌨️</b> Utilise les flèches</div></div>
   <footer>Aucune limite de temps, aucune défaite : on joue à son rythme ! 💚</footer>
 </div>
@@ -545,7 +546,15 @@
     ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(-5,0,5*flap+1,9,-.35,0,Math.PI*2);ctx.ellipse(5,0,5*flap+1,9,.35,0,Math.PI*2);ctx.fill();ctx.fillStyle='#704b4d';ctx.fillRect(-1,-4,2,10);ctx.restore();
   }
 
-  let padConnected=false,padHeld=new Set();
+  // Certains navigateurs Mac exposent la manette via gamepadconnected avant getGamepads().
+const eventGamepads=new Map();
+window.addEventListener('gamepadconnected',e=>{
+ if(e.gamepad)eventGamepads.set(e.gamepad.index,e.gamepad);
+});
+window.addEventListener('gamepaddisconnected',e=>{
+ if(e.gamepad)eventGamepads.delete(e.gamepad.index);
+});
+let padConnected=false,padHeld=new Set();
   const padInfo=document.getElementById('gamepad-help');
   function pollPad(){
     let pad=null;
@@ -553,6 +562,7 @@
       const getPads=navigator.getGamepads||navigator.webkitGetGamepads;
    const pads=typeof getPads==='function'?getPads.call(navigator):[];
       if(pads)for(const p of Array.from(pads)){if(p&&p.connected!==false){pad=p;break;}}
+   if(!pad)for(const p of eventGamepads.values()){if(p&&p.connected!==false){pad=p;break;}}
     }catch(e){}
     if(!pad){
       padHeld.clear();
