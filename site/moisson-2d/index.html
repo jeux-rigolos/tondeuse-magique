@@ -79,15 +79,40 @@
     .obstacle-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d}
     #shape-name{font-size:14px;color:#497a45;margin:1px 0 9px}
     @media(max-width:650px){.garden-selector{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.garden-select{min-height:47px}}
-    </style>
+    
+    /* Réglages repliables ancrés au bord supérieur du jeu : le panneau défile en interne. */
+    .game-settings{position:relative;z-index:20;margin:7px 0 10px;border:3px solid #cee5b7;border-radius:18px;background:#fffef2;box-shadow:0 3px 0 #cfdfc1}
+    .game-settings>summary{display:flex;align-items:center;flex-wrap:wrap;gap:6px 16px;padding:12px 15px;cursor:pointer;list-style:none;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+    .game-settings>summary::-webkit-details-marker{display:none}
+    .game-settings>summary::after{content:'▾';font-size:21px;margin-left:auto;color:#477541;font-weight:1000}
+    .game-settings[open]>summary::after{content:'▴'}
+    .settings-title{font-size:clamp(16px,2.4vw,20px);font-weight:1000;color:#355f38;line-height:1.2}
+    .settings-current{font-size:clamp(12px,1.9vw,14px);color:#56765b;font-weight:850;line-height:1.4;min-width:0;flex:1 1 210px}
+    .settings-body{position:absolute;top:calc(100% + 6px);left:-3px;right:-3px;z-index:25;padding:14px 14px 9px;background:linear-gradient(180deg,#fffff7,#f0fbeb);border:3px solid #cce4b8;border-radius:16px;box-shadow:0 15px 35px #315e3970;max-height:min(68dvh,540px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .settings-body .garden-heading{font-size:14px;margin:8px 0 6px}
+    .settings-body .vehicle-selector{margin-bottom:12px}
+    .settings-body .vehicle-select{min-height:54px}
+    .settings-body .garden-select{min-height:49px}
+    .settings-body .size-select{min-height:48px}
+    .settings-actions{position:sticky;bottom:-9px;z-index:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:center;background:linear-gradient(180deg,#f0fbebd9,#f0fbeb);padding:11px 1px 8px;margin-top:10px}
+    .settings-actions .actions{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+    .settings-actions .action{width:100%;box-shadow:none;min-height:46px}
+    .settings-close{grid-column:1 / -1;display:block;width:100%;min-height:50px;border:3px solid #ffffff;border-radius:15px;background:#63b96e;color:white;font-size:clamp(15px,2vw,18px);box-shadow:0 3px #418b50;font-weight:950}
+    .settings-close:active{transform:translateY(2px);box-shadow:0 1px #418b50}
+    @media(max-width:600px){.game-settings>summary{padding:9px 12px;gap:3px 8px}.settings-current{flex:1 1 100%;order:2}.game-settings>summary::after{order:1}.settings-body{max-height:min(73dvh,520px);padding:10px 10px 7px}.settings-body .garden-selector{gap:6px}.settings-body .vehicle-selector{gap:6px}}
+</style>
 </head>
 <body>
 <nav class="site-nav"><a href="../">← Choisir un jeu</a></nav>
 <div class="layout">
   <header>
     <div class="brand"><div class="brand-icon">🚜</div><div><h1>La Moissonneuse Magique 2D</h1><p class="subtitle">Trois machines pour trois récoltes 🌾🌽🥬</p></div></div>
-    <div class="actions"><button class="action" id="sound" aria-label="Activer ou désactiver le son">🔊 Son</button><button class="action" id="restart">↻ Recommencer</button></div>
+    
   </header>
+  <details class="game-settings" id="game-settings">
+    <summary><span class="settings-title">⚙️ Réglages du champ</span><span class="settings-current" id="settings-current">🌾 Blé · ▭ Rectangle · ✨ Vide · 🌱 Petit</span></summary>
+    <div class="settings-body">
+      <p class="garden-heading">🚜 Choisis ta machine :</p>
   <div class="vehicle-selector" role="group" aria-label="Choisir une machine agricole">
     <button class="vehicle-select active" data-machine="wheat" type="button" aria-pressed="true"><span class="emoji">🌾</span> Moissonneuse-batteuse</button>
     <button class="vehicle-select" data-machine="corn" type="button" aria-pressed="false"><span class="emoji">🌽</span> Récolteuse à maïs</button>
@@ -116,6 +141,13 @@
     <button class="size-select" data-size="medium" type="button" aria-pressed="false">🌿 Moyen</button>
     <button class="size-select" data-size="large" type="button" aria-pressed="false">🌳 Grand</button>
   </div>
+
+      <div class="settings-actions">
+        <div class="actions"><button class="action" id="sound" aria-label="Activer ou désactiver le son">🔊 Son</button><button class="action" id="restart">↻ Recommencer</button></div>
+        <button class="settings-close" id="settings-close" type="button">✅ Jouer ! Fermer les réglages</button>
+      </div>
+    </div>
+  </details>
   <div class="bin-hud" role="group" aria-label="Remplissage du bac de récolte">
     <span id="bin-label">🌾 Bac de blé</span><div class="bin-track"><div id="bin-fill" class="bin-fill"></div></div><span class="bin-value" id="bin-value">0 %</span>
   </div>
@@ -256,6 +288,12 @@
     for(const [dx,dy,r,col] of [[-27,-22,35,'#4ba854'],[23,-26,38,'#56b95d'],[-2,-48,42,'#68c971']]){ctx.fillStyle=col;ctx.beginPath();ctx.arc(dx,dy,r,0,Math.PI*2);ctx.fill();}
     ctx.fillStyle='#b0e88f';ctx.beginPath();ctx.ellipse(-12,-62,19,7,-.2,0,Math.PI*2);ctx.fill();ctx.restore();
   }
+
+  function updateSettingsSummary(){
+    const machineName={wheat:'🌾 Blé',corn:'🌽 Maïs',beet:'🥬 Betteraves'}[vehicleType];
+    const sizeKey=Object.keys(terrainSizes).find(k=>terrainSizes[k]===terrainScale)||'small';
+    document.getElementById('settings-current').textContent=machineName+' · '+gardens[gardenId].emoji+' '+gardens[gardenId].name+' · '+(obstaclesEnabled?'🌳 Obstacles':'✨ Vide')+' · '+terrainLabels[sizeKey];
+  }
   function reset(){
     randSeed=591;
     cells=[];
@@ -265,6 +303,7 @@
       cells.push({x,y,cut:false,tilt:rand()*6.283,variant:rand(),wiggle:rand()*2});
     }}
     mower=spawnPoint();
+    updateSettingsSummary();
     particles=[];animations=[];target=null;dragged=false;pointerId=null;touchPos=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     binTarget=0;binLevel=0;harvestAnimUntil=0;binBar.style.width='0%';binValue.textContent='0 %';
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
@@ -600,6 +639,9 @@
   }
   document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>chooseSize(b.dataset.size)));
   document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;ui.sound.textContent=soundOn?'🔊 Son':'🔇 Muet';if(soundOn)tone(650,.13);});
+  document.getElementById('settings-close').addEventListener('click',()=>{
+    document.getElementById('game-settings').open=false;
+  });
   reset();requestAnimationFrame(frame);
 })();
 </script>
