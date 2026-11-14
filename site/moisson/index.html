@@ -68,6 +68,8 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 .camera-angle-settings{flex:1 1 126px;min-width:120px}.camera-angle-settings summary{font-size:13px}
 .camera-toolbar>.fullscreen-toggle{flex:1 1 115px;min-width:115px;font-size:13px}
 .camera-tilt{grid-template-columns:35px minmax(0,1fr) 35px}.camera-tilt button{min-height:42px}}
+.pad-info{margin:5px 0 4px;padding:7px 10px;border:1px solid #bdd7ae;background:#f0fae5;border-radius:12px;color:#477354;font:850 clamp(12px,1.7vw,14px) system-ui}
+#mow3d:fullscreen>.pad-info,#mow3d.pseudo-fullscreen>.pad-info{flex:none;margin:0;padding:3px 8px;font-size:11px}
 </style></head><body><div class="wrap" id="mow3d">
 <nav style="margin-bottom:0"><a href="../" style="display:inline-block;padding:9px 13px;border:2px solid #d2e3bc;border-radius:12px;background:white;color:#3b6e33;text-decoration:none;font-weight:800">← Choisir un jeu</a></nav>
 <div class="top"><div><div class="title">🌾 La Moissonneuse Magique 3D</div><div class="subtitle">Conduis trois machines et découvre trois récoltes !</div></div><b id="pct">0 %</b></div>
@@ -111,7 +113,8 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 <div class="stage"><canvas id="scene" width="960" height="780" aria-label="Champs et machines agricoles en trois dimensions. Maintiens et glisse ton doigt pour conduire."></canvas><div class="finger-target" id="finger-target" aria-hidden="true"></div><div class="win" id="win">🌟 BRAVO ! 🌟<span>Tu as terminé toute la récolte ! 🌾🌽🥬</span></div></div>
 <div class="status" id="status">👆 Maintiens ton doigt pour guider doucement la moissonneuse !</div>
 <div class="bottom"><div class="game-actions"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌾 Champ suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
-<div class="foot">👆 Glisse et relâche pour arrêter · Flèches · Manette 🎮</div>
+<div class="pad-info" id="pad-info" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette, puis appuie sur A pour l’activer.</div>
+<div class="foot">🎮 Joystick ou croix : conduire · A : caméra · B : recommencer · X : conduite · Y : vitesse · Tactile disponible</div>
 </div><script>
 (()=>{
 const root=document.getElementById('mow3d');if(root.dataset.ready)return;root.dataset.ready='1';
@@ -610,7 +613,56 @@ window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','Arr
   keys={};held={};pointerActive=false;pointerId=null;touchPos=null;target=null;
   fingerIndicator.style.display='none';
 });
+
+let padConnected=false,padHeld=new Set();
+const padInfo=root.querySelector('#pad-info');
+function pollPad(){
+ let pad=null;
+ try{
+   const pads=typeof navigator.getGamepads==='function'?navigator.getGamepads():[];
+   if(pads)for(const p of pads){if(p&&p.connected!==false){pad=p;break;}}
+ }catch(e){}
+ if(!pad){
+   padHeld.clear();
+   if(padConnected){padConnected=false;padInfo.textContent='🎮 Manette déconnectée. Appuie sur un bouton après reconnexion.';}
+   else if(typeof navigator.getGamepads!=='function')padInfo.textContent='🎮 Manette non prise en charge dans ce navigateur. Tactile et clavier disponibles.';
+   return{turn:0,drive:0};
+ }
+ if(!padConnected){
+   padConnected=true;
+   padInfo.textContent='🎮 Connectée ! Joystick/croix : conduire · A : caméra · B : recommencer · X : tactile auto/libre · Y : vitesse';
+ }
+ const buttons=pad.buttons||[],down=i=>!!(buttons[i]&&(buttons[i].pressed||buttons[i].value>.55));
+ const old=padHeld,edge=i=>down(i)&&!old.has(i),next=new Set();
+ for(let i=0;i<buttons.length;i++)if(down(i))next.add(i);
+ padHeld=next;
+ if(complete){
+   if(edge(0)||edge(9))reset();
+   return{turn:0,drive:0};
+ }
+ if(edge(0))root.querySelector('#camera').click();
+ if(edge(1))reset();
+ if(edge(2)){
+   const other=driveMode==='auto'?'hold':'auto';
+   const button=Array.from(root.querySelectorAll('[data-drive]')).find(b=>b.dataset.drive===other);
+   if(button)button.click();
+ }
+ if(edge(3)){
+   const modes=['doux','normal','rapide'];
+   const nextMode=modes[(modes.indexOf(controlMode)+1)%modes.length];
+   const button=Array.from(root.querySelectorAll('[data-control]')).find(b=>b.dataset.control===nextMode);
+   if(button)button.click();
+ }
+ const axes=pad.axes||[],dead=v=>Math.abs(v)>.17?Math.sign(v)*Math.min(1,(Math.abs(v)-.17)/.83):0;
+ let turn=dead(axes[0]||0),drive=-dead(axes[1]||0);
+ if(!turn&&!drive){turn=dead(axes[2]||0);drive=-dead(axes[3]||0);}
+ if(down(14))turn=-1;if(down(15))turn=1;
+ if(down(12))drive=1;if(down(13))drive=-1;
+ return{turn,drive};
+}
+
 function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previous=now;time+=dt*.016;
+const pad=pollPad();
  // La caméra bouge : recalcule la cible à partir de la position actuelle du doigt.
  if(driveMode==='hold'&&pointerActive&&touchPos)target=groundPoint(touchPos);
  if(!complete){
@@ -620,17 +672,7 @@ function render(now){let dt=Math.min(2,previous?(now-previous)/16.667:1);previou
     if(keys.ArrowRight||keys.d||held.right)turn+=1;
     if(keys.ArrowUp||keys.w||held.up)drive+=1;
     if(keys.ArrowDown||keys.s||held.down)drive-=1;
-    try{
-      for(let gp of navigator.getGamepads?.()||[])if(gp){
-        const sx=gp.axes?.[0]||0,sy=gp.axes?.[1]||0;
-        if(Math.abs(sx)>.18)turn+=sx;
-        if(Math.abs(sy)>.18)drive-=sy;
-        if(gp.buttons?.[12]?.pressed)drive+=1;
-        if(gp.buttons?.[13]?.pressed)drive-=1;
-        if(gp.buttons?.[14]?.pressed)turn-=1;
-        if(gp.buttons?.[15]?.pressed)turn+=1;
-      }
-    }catch(e){}
+    turn+=pad.turn;drive+=pad.drive;
     turn=Math.max(-1,Math.min(1,turn));
     drive=Math.max(-1,Math.min(1,drive));
     if(Math.abs(turn)>.05||Math.abs(drive)>.05)target=null;
