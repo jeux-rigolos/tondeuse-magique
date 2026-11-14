@@ -550,13 +550,14 @@
   function pollPad(){
     let pad=null;
     try{
-      const pads=typeof navigator.getGamepads==='function'?navigator.getGamepads():[];
-      if(pads)for(const p of pads){if(p&&p.connected!==false){pad=p;break;}}
+      const getPads=navigator.getGamepads||navigator.webkitGetGamepads;
+   const pads=typeof getPads==='function'?getPads.call(navigator):[];
+      if(pads)for(const p of Array.from(pads)){if(p&&p.connected!==false){pad=p;break;}}
     }catch(e){}
     if(!pad){
       padHeld.clear();
       if(padConnected){padConnected=false;padInfo.textContent='🎮 Manette déconnectée : reconnecte-la et appuie sur A.';}
-      else if(typeof navigator.getGamepads!=='function')padInfo.textContent='🎮 Manette non prise en charge par ce navigateur. Utilise le tactile ou le clavier.';
+      else if(typeof navigator.getGamepads!=='function'&&typeof navigator.webkitGetGamepads!=='function')padInfo.textContent='🎮 Manette non prise en charge par ce navigateur. Utilise le tactile ou le clavier.';
       return{x:0,y:0};
     }
     if(!padConnected){padConnected=true;padInfo.textContent='🎮 Connectée ! Joystick/croix : rouler · A : robot/transformer · B : recommencer · X : véhicule · Y : forme';}
