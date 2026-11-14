@@ -74,6 +74,15 @@
     .obstacle-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d}
     #shape-name{font-size:14px;color:#497a45;margin:1px 0 9px}
     @media(max-width:650px){.garden-selector{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.garden-select{min-height:47px}}
+    
+    .vehicle-selector{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .vehicle-select{min-width:0;white-space:normal;line-height:1.2;padding:10px 7px;text-align:center}
+    .robot-panel{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:linear-gradient(110deg,#e3faff,#fff3c8);border:3px solid #89c4cd;border-radius:20px;padding:12px 14px;margin:0 0 14px;box-shadow:0 4px #d4e9d5}
+    .robot-panel[hidden]{display:none!important}
+    .robot-panel span{flex:1 1 210px;font-weight:900;color:#375977;font-size:14px}
+    .robot-transform{flex:1 1 190px;min-height:60px;border:3px solid #fff;border-radius:17px;background:#ffcd55;color:#624417;font-weight:950;font-size:17px;box-shadow:0 5px #d7a736}
+    .robot-transform:active{transform:translateY(3px);box-shadow:0 2px #d7a736}
+    @media(max-width:650px){.vehicle-selector{gap:6px}.vehicle-select{flex-direction:column;min-height:67px;font-size:12px;gap:3px}.vehicle-select .emoji{font-size:24px}.robot-panel{padding:10px}.robot-panel span{font-size:13px}.robot-transform{min-height:55px}}
     </style>
 </head>
 <body>
@@ -86,6 +95,11 @@
   <div class="vehicle-selector" role="group" aria-label="Choisir un véhicule">
     <button class="vehicle-select active" id="choose-small" type="button" aria-pressed="true"><span class="emoji">🔴</span> Petite tondeuse</button>
     <button class="vehicle-select" id="choose-tractor" type="button" aria-pressed="false"><span class="emoji">🚜</span> Tracteur-tondeuse</button>
+    <button class="vehicle-select" id="choose-transformer" type="button" aria-pressed="false"><span class="emoji">🤖</span> Robot transformeur</button>
+  </div>
+  <div class="robot-panel" id="robot-panel" hidden role="group" aria-label="Robot transformeur">
+  <span id="robot-help">🤖 En robot, tu peux explorer. Transforme-le en tondeuse pour couper l’herbe !</span>
+  <button class="robot-transform" type="button" id="transform">🔁 Devenir une tondeuse !</button>
   </div>
   <p class="garden-heading">🔷 Quelle forme reconnais-tu ?</p>
   <div class="garden-selector" role="group" aria-label="Choisir une forme de terrain">
@@ -128,6 +142,7 @@
   const ui={bar:document.getElementById('bar'),pct:document.getElementById('pct'),msg:document.getElementById('message'),overlay:document.getElementById('overlay'),status:document.getElementById('status'),sound:document.getElementById('sound')};
   const keys=new Set();
   let vehicleType='small', gardenId='rectangle', terrainScale=1, obstaclesEnabled=false;
+  let robotForm='robot',previousRobotForm='robot',transformStarted=-5;
   const terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
   const camera={x:W/2,y:H/2};
 
@@ -252,6 +267,7 @@
       cells.push({x,y,cut:false,tilt:rand()*6.283,variant:rand(),wiggle:rand()*2});
     }}
     mower=spawnPoint();
+    if(vehicleType==='transformer'){robotForm='robot';previousRobotForm='robot';transformStarted=-5;updateRobotControls();}
     particles=[];animations=[];target=null;dragged=false;pointerId=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
     ui.bar.style.width='0%';ui.pct.textContent='0 %';
@@ -380,7 +396,73 @@
     ctx.fillStyle='#fff9df';rounded(-28,-61,19,10,5);ctx.fill();rounded(9,-61,19,10,5);ctx.fill();
     ctx.restore();
   }
+
+  function drawTransformer(){
+    ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);ctx.scale(1/terrainScale,1/terrainScale);
+    const progress=clamp((clock-transformStarted)/.68,0,1);
+    const transforming=progress<1;
+    const bounce=Math.sin(clock*13)*Math.min(1,mower.speed/210)*1.7;
+    ctx.translate(0,bounce);
+    function robot(alpha){
+      if(alpha<=.001)return;
+      ctx.save();ctx.globalAlpha*=alpha;
+      const shimmer=Math.sin(clock*4)*.7;
+      ctx.fillStyle='#2a41644b';ctx.beginPath();ctx.ellipse(0,13,60,69,0,0,7);ctx.fill();
+      // Jambes articulées, épaules et mains de ce petit robot original.
+      ctx.fillStyle='#294869';
+      for(const x of [-29,15]){rounded(x,31,18,29,7);ctx.fill();}
+      ctx.fillStyle='#d0dce3';for(const x of [-30,14]){rounded(x,47,20,13,5);ctx.fill();}
+      ctx.fillStyle='#256a91';rounded(-55,-24,22,62,10);ctx.fill();rounded(33,-24,22,62,10);ctx.fill();
+      ctx.fillStyle='#f5be40';rounded(-58,24,25,18,7);ctx.fill();rounded(33,24,25,18,7);ctx.fill();
+      ctx.fillStyle='#37b4c5';rounded(-37,-40,74,83,15);ctx.fill();
+      ctx.fillStyle='#d7f9fb';rounded(-29,-30,58,60,12);ctx.fill();
+      ctx.fillStyle='#207a94';rounded(-22,-23,44,41,9);ctx.fill();
+      // Tête carrée avec yeux lumineux.
+      ctx.fillStyle='#f4c444';rounded(-30,-64,60,38,9);ctx.fill();
+      ctx.fillStyle='#275578';rounded(-24,-59,48,29,7);ctx.fill();
+      ctx.fillStyle='#a8f5ff';rounded(-18,-52,14,10,4);ctx.fill();rounded(4,-52,14,10,4);ctx.fill();
+      ctx.strokeStyle='#a8f5ff';ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(0,-41,9,.12,Math.PI-.12);ctx.stroke();
+      // Emblème éclair.
+      ctx.fillStyle='#f3c83c';ctx.beginPath();ctx.moveTo(5,-16);ctx.lineTo(-10,3);ctx.lineTo(0,5);ctx.lineTo(-6,24+shimmer);ctx.lineTo(14,0);ctx.lineTo(3,-1);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#ffe2a0';rounded(-26,-61,9,5,3);ctx.fill();
+      ctx.restore();
+    }
+    function mowerRobot(alpha){
+      if(alpha<=.001)return;
+      ctx.save();ctx.globalAlpha*=alpha;
+      ctx.fillStyle='#2e546843';ctx.beginPath();ctx.ellipse(0,13,56,63,0,0,7);ctx.fill();
+      ctx.fillStyle='#243e4e';
+      for(const x of [-46,33])for(const y of [-39,29]){rounded(x,y,14,27,6);ctx.fill();}
+      // Plateau et lame sous la machine : cette forme coupe vraiment l'herbe.
+      ctx.fillStyle='#f0b638';rounded(-49,30,98,23,11);ctx.fill();
+      ctx.fillStyle='#f7de7b';rounded(-40,33,80,16,7);ctx.fill();
+      ctx.fillStyle='#23527c';rounded(-39,-56,78,94,22);ctx.fill();
+      ctx.fillStyle='#3faec4';rounded(-33,-50,66,85,19);ctx.fill();
+      ctx.fillStyle='#a4eff5';rounded(-26,-42,52,26,11);ctx.fill();
+      ctx.fillStyle='#1d4c6b';rounded(-24,-37,48,20,8);ctx.fill();
+      ctx.fillStyle='#b9faff';rounded(-19,-32,13,9,4);ctx.fill();rounded(6,-32,13,9,4);ctx.fill();
+      ctx.fillStyle='#f6c74e';rounded(-20,-6,40,29,9);ctx.fill();
+      ctx.fillStyle='#fff5af';rounded(-15,1,30,12,6);ctx.fill();
+      ctx.fillStyle='#ebfafa';rounded(-30,-56,18,10,5);ctx.fill();rounded(12,-56,18,10,5);ctx.fill();
+      ctx.fillStyle='#ec9e32';ctx.beginPath();ctx.arc(0,11,6,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#153f5d';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-21,28);ctx.lineTo(21,28);ctx.stroke();
+      ctx.restore();
+    }
+    if(transforming){
+      const smooth=progress*progress*(3-2*progress);
+      // Transition visible en deux temps : le robot se replie puis devient tondeuse.
+      ctx.save();ctx.scale(1,1-.18*Math.sin(Math.PI*progress));
+      if(previousRobotForm==='robot'){robot(1-smooth);mowerRobot(smooth);}
+      else{mowerRobot(1-smooth);robot(smooth);}
+      ctx.restore();
+      ctx.save();ctx.globalAlpha=.8*(1-progress);ctx.strokeStyle='#ffe76a';ctx.lineWidth=4;ctx.lineCap='round';
+      for(let i=0;i<5;i++){const a=clock*8+i*6.28/5,r=58+10*Math.sin(clock*12+i);ctx.beginPath();ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);ctx.lineTo(Math.cos(a)*(r+17),Math.sin(a)*(r+17));ctx.stroke();}
+      ctx.restore();
+    }else if(robotForm==='robot')robot(1);else mowerRobot(1);
+    ctx.restore();
+  }
   function drawMower(){
+    if(vehicleType==='transformer'){drawTransformer();return;}
     if(vehicleType==='tractor'){drawTractor();return;}
     ctx.save();ctx.translate(mower.x,mower.y);ctx.rotate(mower.angle);ctx.scale(1/terrainScale,1/terrainScale);
     const bounce=Math.sin(clock*18)*Math.min(1,mower.speed/200)*1.7;
@@ -440,7 +522,7 @@
     else if(target){const dx=target.x-mower.x,dy=target.y-mower.y,dist=Math.hypot(dx,dy);
       if(dist>8){const fraction=Math.min(1,dist/38);vx=(dx/dist)*fraction;vy=(dy/dist)*fraction;}else target=null;
     }
-    const speed=(vehicleType==='tractor'?280:210)/terrainScale,moving=Math.hypot(vx,vy);
+    const speed=(vehicleType==='tractor'?280:vehicleType==='transformer'?220:210)/terrainScale,moving=Math.hypot(vx,vy);
     mower.speed=moving*speed;
     if(moving>.01){
       // Glissement sur les bordures et les obstacles, sans les traverser.
@@ -452,9 +534,13 @@
       }
       let desired=Math.atan2(vy,vx)+Math.PI/2,diff=Math.atan2(Math.sin(desired-mower.angle),Math.cos(desired-mower.angle));
       mower.angle+=diff*Math.min(1,dt*12);
-      let justCut=0;
-      for(const c of cells){if(!c.cut&&Math.hypot(c.x-mower.x,c.y-mower.y)<(vehicleType==='tractor'?68:48)/terrainScale){c.cut=true;justCut++;}}
-      if(justCut){addCutParticles(mower.x,mower.y);updateProgress();}
+      if(vehicleType!=='transformer'||robotForm==='mower'){
+        let justCut=0;
+        for(const c of cells){
+          if(!c.cut&&Math.hypot(c.x-mower.x,c.y-mower.y)<(vehicleType==='tractor'?68:49)/terrainScale){c.cut=true;justCut++;}
+        }
+        if(justCut){addCutParticles(mower.x,mower.y);updateProgress();}
+      }
     }
   }
   function frame(time){
@@ -482,16 +568,46 @@
   window.addEventListener('keydown',ev=>{const k=ev.key.length===1?ev.key.toLowerCase():ev.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();keys.add(k);if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','q','z'].includes(k))hideHelp();if(won&&(k==='Enter'||k===' '))reset();});
   window.addEventListener('keyup',ev=>keys.delete(ev.key.length===1?ev.key.toLowerCase():ev.key));
   window.addEventListener('blur',()=>keys.clear());
+
+  const robotPanel=document.getElementById('robot-panel');
+  const transformButton=document.getElementById('transform');
+  function updateRobotControls(){
+    robotPanel.hidden=vehicleType!=='transformer';
+    transformButton.textContent=robotForm==='robot'?'🔁 Devenir une tondeuse !':'🔁 Redevenir un robot !';
+    document.getElementById('robot-help').textContent=robotForm==='robot'
+      ?'🤖 Le robot explore sans couper. Transforme-le en tondeuse !'
+      :'🚜 Transformation réussie ! La tondeuse-robot coupe maintenant l’herbe.';
+  }
+  function transformRobot(){
+    if(vehicleType!=='transformer'||won)return;
+    previousRobotForm=robotForm;
+    robotForm=robotForm==='robot'?'mower':'robot';
+    transformStarted=clock;
+    target=null;dragged=false;pointerId=null;
+    for(let i=0;i<18;i++){const a=i*2*Math.PI/18;
+      particles.push({x:mower.x+Math.cos(a)*25/terrainScale,y:mower.y+Math.sin(a)*25/terrainScale,
+        vx:Math.cos(a)*(55+i%4*18),vy:Math.sin(a)*(55+i%4*18)-25,
+        life:1.05,max:1.05,size:4+(i%3),star:true,hue:i%2?183:42});}
+    updateRobotControls();
+    ui.status.textContent=robotForm==='mower'?'✨ Transformation ! Le robot est devenu une tondeuse !':'🤖 Le robot est de retour !';
+    ui.msg.style.opacity='0';
+    tone(420,.14,.035);tone(740,.18,.033,.15);
+  }
   function chooseVehicle(next){
     vehicleType=next;
-    const small=document.getElementById('choose-small'),big=document.getElementById('choose-tractor');
-    small.classList.toggle('active',next==='small');big.classList.toggle('active',next==='tractor');
-    small.setAttribute('aria-pressed',String(next==='small'));
-    big.setAttribute('aria-pressed',String(next==='tractor'));
-    reset();ui.status.textContent=next==='tractor'?'🚜 Tracteur prêt !':'🔴 Tondeuse prête !';
+    if(next==='transformer'){robotForm='robot';previousRobotForm='robot';transformStarted=-5;}
+    const small=document.getElementById('choose-small'),big=document.getElementById('choose-tractor'),robot=document.getElementById('choose-transformer');
+    for(const [b,v] of [[small,'small'],[big,'tractor'],[robot,'transformer']]){
+      const selected=next===v;
+      b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
+    }
+    updateRobotControls();reset();
+    ui.status.textContent=next==='transformer'?'🤖 Le robot transformeur est prêt !':next==='tractor'?'🚜 Tracteur prêt !':'🔴 Tondeuse prête !';
   }
   document.getElementById('choose-small').addEventListener('click',()=>chooseVehicle('small'));
   document.getElementById('choose-tractor').addEventListener('click',()=>chooseVehicle('tractor'));
+  document.getElementById('choose-transformer').addEventListener('click',()=>chooseVehicle('transformer'));
+  transformButton.addEventListener('click',transformRobot);
   document.getElementById('restart').addEventListener('click',()=>{reset();tone(520,.13,.025);});
   document.getElementById('again').addEventListener('click',()=>{
     const ids=Object.keys(gardens);
