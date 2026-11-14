@@ -114,6 +114,7 @@ footer{margin-top:15px;text-align:center;font-size:12px;color:#55735e;font-weigh
  </div>
 </div>
 <div class="gamepad-help" id="gamepad-help" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette, puis appuie sur un bouton pour l’activer.</div>
+<div class="pad-test-link" style="margin:4px 0 8px;text-align:center;font:850 13px system-ui"><a href="../manette/" style="color:#32624a;text-decoration:underline">🔎 Ma manette ne réagit pas ? Tester sur cet appareil</a></div>
 <div class="note" id="message" aria-live="polite">🤖 Touche deux fois le terrain pour devenir une machine à scie !</div>
 <div class="instructions">👆 Toucher : conduire · ✨ Double-tap : transformer · 🎮 Joystick ou croix : conduire, A : transformer, B : décharger, X : usine</div>
 <footer>Un jeu imaginaire pour découvrir la fabrication du papier. Dans la vraie vie, on protège les forêts et on replante des arbres. 🌱</footer>
@@ -142,6 +143,14 @@ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 let level='small',trees=[],mode='robot',previousMode='robot',morph=1,vehicle={x:340,y:554,angle:-Math.PI/2},
  target=null,cargo=0,delivered=0,paper=0,cutCount=0,cuttingId=null,cutProgress=0,processing=0,processingTotal=0,
  won=false,clock=0,lastFrame=0,particles=[],soundOn=true,audio=null,keys=new Set(),touchStart=null,lastTap=null;
+// Certains navigateurs Mac exposent la manette via gamepadconnected avant getGamepads().
+const eventGamepads=new Map();
+window.addEventListener('gamepadconnected',e=>{
+ if(e.gamepad)eventGamepads.set(e.gamepad.index,e.gamepad);
+});
+window.addEventListener('gamepaddisconnected',e=>{
+ if(e.gamepad)eventGamepads.delete(e.gamepad.index);
+});
 let padConnected=false,padHeld=new Set();
 function note(text){if(UI.message.textContent!==text)UI.message.textContent=text;}
 function tone(frequency=580,length=.08){
@@ -330,6 +339,7 @@ function pollGamepad(){
    const getPads=navigator.getGamepads||navigator.webkitGetGamepads;
    const pads=typeof getPads==='function'?getPads.call(navigator):[];
    if(pads)for(const p of Array.from(pads)){if(p&&p.connected!==false){pad=p;break;}}
+   if(!pad)for(const p of eventGamepads.values()){if(p&&p.connected!==false){pad=p;break;}}
  }catch(e){}
  if(!pad){
    padHeld.clear();
