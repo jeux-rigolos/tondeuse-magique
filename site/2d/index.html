@@ -104,7 +104,9 @@
     .settings-close{grid-column:1 / -1;display:block;width:100%;min-height:50px;border:3px solid #ffffff;border-radius:15px;background:#63b96e;color:white;font-size:clamp(15px,2vw,18px);box-shadow:0 3px #418b50;font-weight:950}
     .settings-close:active{transform:translateY(2px);box-shadow:0 1px #418b50}
     @media(max-width:600px){.game-settings>summary{padding:9px 12px;gap:3px 8px}.settings-current{flex:1 1 100%;order:2}.game-settings>summary::after{order:1}.settings-body{max-height:73vh;max-height:min(73dvh,520px);padding:10px 10px 7px}.settings-body .garden-selector{gap:6px}.settings-body .vehicle-selector{gap:6px}}
-</style>
+
+    .gamepad-help{margin:10px 0 3px;padding:9px 12px;background:#f0f8e7;border:2px solid #d3e8bc;border-radius:14px;color:#467354;font-size:clamp(12px,1.8vw,14px);font-weight:850;line-height:1.4}
+    </style>
 </head>
 <body>
 <nav class="site-nav"><a href="../">← Choisir un jeu</a></nav>
@@ -161,7 +163,8 @@
     <div class="message" id="message">👆 Touche le jardin pour conduire !</div>
     <div class="overlay" id="overlay" role="dialog" aria-label="Bravo, le jardin est tondu !"><div class="victory"><div class="trophy">🏆🌼</div><h2>Bravo, champion !</h2><p>Le jardin est magnifique ! ✨</p><button class="again" id="again">🌱 Jardin suivant !</button></div></div>
   </div>
-  <div class="instructions"><div class="pill"><b>👆</b> Touche ou glisse ton doigt</div><div class="pill"><b>🎮</b> Bouge le joystick</div><div class="pill"><b>⌨️</b> Utilise les flèches</div></div>
+  <div class="gamepad-help" id="gamepad-help" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette puis appuie sur A pour l’activer.</div>
+  <div class="instructions"><div class="pill"><b>👆</b> Touche ou glisse ton doigt</div><div class="pill"><b>🎮</b> Joystick ou croix · A : transformer · B : recommencer</div><div class="pill"><b>⌨️</b> Utilise les flèches</div></div>
   <footer>Aucune limite de temps, aucune défaite : on joue à son rythme ! 💚</footer>
 </div>
 <script>
@@ -541,24 +544,63 @@
     ctx.save();ctx.translate(bx,by);let flap=Math.abs(Math.sin(clock*12+phase));
     ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(-5,0,5*flap+1,9,-.35,0,Math.PI*2);ctx.ellipse(5,0,5*flap+1,9,.35,0,Math.PI*2);ctx.fill();ctx.fillStyle='#704b4d';ctx.fillRect(-1,-4,2,10);ctx.restore();
   }
-  function move(dt){
-    if(won){
-      try { const pads=navigator.getGamepads?Array.from(navigator.getGamepads()):[]; if(pads.some(p=>p&&p.buttons&&p.buttons[0]&&p.buttons[0].pressed))reset(); }catch(e){}
-      return;
+
+  let padConnected=false,padHeld=new Set();
+  const padInfo=document.getElementById('gamepad-help');
+  function pollPad(){
+    let pad=null;
+    try{
+      const pads=typeof navigator.getGamepads==='function'?navigator.getGamepads():[];
+      if(pads)for(const p of pads){if(p&&p.connected!==false){pad=p;break;}}
+    }catch(e){}
+    if(!pad){
+      padHeld.clear();
+      if(padConnected){padConnected=false;padInfo.textContent='🎮 Manette déconnectée : reconnecte-la et appuie sur A.';}
+      else if(typeof navigator.getGamepads!=='function')padInfo.textContent='🎮 Manette non prise en charge par ce navigateur. Utilise le tactile ou le clavier.';
+      return{x:0,y:0};
     }
+    if(!padConnected){padConnected=true;padInfo.textContent='🎮 Connectée ! Joystick/croix : rouler · A : robot/transformer · B : recommencer · X : véhicule · Y : forme';}
+    const buttons=pad.buttons||[];
+    const down=i=>!!(buttons[i]&&(buttons[i].pressed||buttons[i].value>.55));
+    const old=padHeld,edge=i=>down(i)&&!old.has(i),next=new Set();
+    for(let i=0;i<buttons.length;i++)if(down(i))next.add(i);
+    padHeld=next;
+
+    if(won){
+      if(edge(0)||edge(9))reset();
+      return{x:0,y:0};
+    }
+    if(edge(0)){
+      if(vehicleType==='transformer')transformRobot();
+      else chooseVehicle('transformer');
+    }
+    if(edge(1))reset();
+    if(edge(2)){
+      const vehicles=['small','tractor','transformer'];
+      chooseVehicle(vehicles[(vehicles.indexOf(vehicleType)+1)%vehicles.length]);
+    }
+    if(edge(3)){
+      const shapes=Object.keys(gardens);
+      chooseGarden(shapes[(shapes.indexOf(gardenId)+1)%shapes.length]);
+    }
+
+    const axes=pad.axes||[],dead=v=>Math.abs(v)>.17?Math.sign(v)*Math.min(1,(Math.abs(v)-.17)/.83):0;
+    let x=dead(axes[0]||0),y=dead(axes[1]||0);
+    if(!x&&!y){x=dead(axes[2]||0);y=dead(axes[3]||0);}
+    if(down(14))x=-1;if(down(15))x=1;
+    if(down(12))y=-1;if(down(13))y=1;
+    return{x,y};
+  }
+
+  function move(dt){
+    const pad=pollPad();
+    if(won)return;
     let vx=0,vy=0;
     if(keys.has('ArrowLeft')||keys.has('a')||keys.has('q'))vx--;
     if(keys.has('ArrowRight')||keys.has('d'))vx++;
     if(keys.has('ArrowUp')||keys.has('w')||keys.has('z'))vy--;
     if(keys.has('ArrowDown')||keys.has('s'))vy++;
-    let pads=[];try {pads=navigator.getGamepads?Array.from(navigator.getGamepads()).filter(Boolean):[];}catch(e){}
-    const active=pads.find(p=>p.connected!==false);
-    if(Boolean(active)!==connected){connected=Boolean(active);ui.status.textContent=connected?'🎮 Manette connectée !':'🌼 Amuse-toi !';}
-    if(active){
-      let a=active.axes||[];let gx=Math.abs(a[0]||0)>.17?a[0]:0,gy=Math.abs(a[1]||0)>.17?a[1]:0;
-      const b=active.buttons||[];if(b[14]?.pressed)gx=-1;if(b[15]?.pressed)gx=1;if(b[12]?.pressed)gy=-1;if(b[13]?.pressed)gy=1;
-      vx+=gx;vy+=gy;
-    }
+    vx+=pad.x;vy+=pad.y;
     let len=Math.hypot(vx,vy);
     if(len>.06){target=null;vx/=Math.max(1,len);vy/=Math.max(1,len);hideHelp();}
     else if(target){const dx=target.x-mower.x,dy=target.y-mower.y,dist=Math.hypot(dx,dy);
