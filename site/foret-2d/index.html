@@ -150,6 +150,7 @@ function tone(frequency=580,length=.08){
   osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+length+.015);
  }catch(e){}
 }
+function atDock(){return vehicle.x>704&&Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)<45;}
 function refresh(){
  UI.trees.textContent=cutCount+'/'+trees.length;
  UI.paper.textContent=paper+'/'+trees.length;
@@ -159,7 +160,7 @@ function refresh(){
   UI.cargo.appendChild(block);
  }
  UI.transform.textContent=mode==='robot'?'🤖 Devenir une scie !':'🔁 Redevenir robot !';
- const nearFactory=Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)<66;
+ const nearFactory=atDock();
  UI.unload.disabled=cargo===0||!nearFactory||processing>0||won;
  UI.unload.textContent=processing>0?'🏭 Fabrication…':'📦 Décharger le bois';
  UI.factory.disabled=processing>0||won;
@@ -247,7 +248,7 @@ canvas.addEventListener('dblclick',ev=>ev.preventDefault());
 root.querySelector('#transform').addEventListener('click',transform);
 root.querySelector('#factory-button').addEventListener('click',goFactory);
 root.querySelector('#unload').addEventListener('click',()=>{
- if(cargo===0||processing>0||won||Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)>=66)return;
+ if(cargo===0||processing>0||won||!atDock())return;
  target=null;cuttingId=null;cutProgress=0;
  processing=1.55;processingTotal=1.55;
  note('🏭 Le bois entre dans l’usine… et devient du papier !');
@@ -346,7 +347,7 @@ function update(dt){
    if(cutProgress>=1.05)cutTree(best);
   }else{cuttingId=null;cutProgress=0;}
  }else{cuttingId=null;cutProgress=0;}
- if(Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)<66&&cargo>0){
+ if(atDock()&&cargo>0){
   if(!UI.unload.disabled)return;
   note('🏭 Tu es à l’usine ! Appuie sur « Décharger le bois ».');
  }
