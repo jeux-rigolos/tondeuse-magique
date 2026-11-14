@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tester ma manette — Les jeux rigolos</title>
+<meta name="theme-color" content="#e4f7d8">
+<style>
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#f4ffe6,#dceffe);font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,sans-serif;color:#294534}
+main{max-width:870px;margin:auto;padding:clamp(12px,3vw,30px)}
+h1{margin:0;font-size:clamp(27px,5vw,38px)}p{margin:9px 0}h2{margin:12px 0 6px;font-size:20px}
+nav{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+a,button{display:inline-block;padding:10px 13px;border:2px solid #bad69d;border-radius:13px;background:#fff;color:#295b37;font:800 15px system-ui;text-decoration:none;cursor:pointer}
+button{background:#f9d26e;color:#573c15;border-color:#e9bd54;min-height:49px}
+.card{border:3px solid #d5e9c6;border-radius:20px;padding:clamp(14px,2.6vw,23px);background:#fffefa;margin:13px 0;box-shadow:0 4px 16px #3b66421c}
+#status{font-size:clamp(18px,3vw,24px);font-weight:900;padding:12px;border-radius:14px;background:#f1f4ee;margin:11px 0}
+#status.good{background:#e2f9d4;color:#2a7136}#status.warn{background:#fff0cc;color:#795100}
+#status.bad{background:#ffe6e6;color:#983333}
+#eventlog{font:13px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;color:#577261;min-height:40px}
+.small{font-size:13px;color:#597065}#meta{font-size:14px;overflow-wrap:anywhere}
+.boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.axis{background:#eff6f2;border-radius:12px;padding:11px}
+.axis .bar{background:#d2e5d8;border-radius:7px;position:relative;height:15px;margin:9px 0;overflow:hidden}
+.axis .center{height:100%;width:3px;background:#789885;position:absolute;left:50%;top:0;z-index:1}
+.axis .level{height:100%;position:absolute;background:#3880ba;left:50%;width:0;top:0}
+.axis .value{font:800 14px ui-monospace,Menlo,monospace}
+#buttons{display:flex;flex-wrap:wrap;gap:6px}
+.gbutton{border:2px solid #c4d9c3;padding:8px 10px;border-radius:10px;background:#eff4eb;font:800 14px system-ui;min-width:55px}
+.gbutton.pressed{background:#f8c768;border-color:#e9a332;color:#5e4010;transform:scale(1.045)}
+#test{min-height:45px;font-size:15px;font-weight:850}
+ol{padding-left:26px}li{padding:3px 0}footer{color:#66826f;font-size:13px;margin:22px 0}
+</style></head><body><main>
+<nav><a href="../">← Tous les jeux</a><a href="../foret-2d/">🤖 Robot Forestier</a></nav>
+<h1>🎮 Tester ma manette</h1>
+<p>Cette page vérifie si <strong>le navigateur de ton Mac reçoit réellement les boutons et les joysticks</strong>, indépendamment des jeux.</p>
+<div class="card">
+  <button id="test" type="button">🔎 Tester la connexion</button>
+  <div id="status" role="status" aria-live="polite">Vérification de la manette…</div>
+  <div id="hint">Clique sur « Tester la connexion » puis appuie sur A ou déplace un joystick de la manette.</div>
+  <p id="meta">—</p>
+  <div class="small" id="browser"></div>
+  <div class="small" id="eventlog">En attente d’une manette…</div>
+</div>
+<div class="card">
+<h2>🕹️ Mouvements des joysticks</h2>
+<div class="boxes" id="axes">Aucune donnée d’axe disponible.</div>
+<h2>🔘 Boutons reconnus</h2>
+<div id="buttons">Aucun bouton disponible.</div>
+</div>
+<div class="card">
+<h2>Si la manette n'est pas détectée</h2>
+<ol>
+<li>Dans <strong>Réglages Système → Bluetooth</strong> sur le Mac, vérifie que la manette est connectée.</li>
+<li>Clique dans cette page puis appuie sur <strong>A</strong> (ou un autre bouton), et bouge le joystick. Certains navigateurs n’exposent la manette au site qu’après une pression.</li>
+<li>Essaie cette même page dans <strong>Chrome</strong> et dans <strong>Safari</strong> pour comparer.</li>
+<li>Si elle apparaît ici mais pas dans le jeu, indique le <strong>nom, le nombre d'axes et le nombre de boutons</strong> affichés. Si rien n'apparaît, indique le navigateur et le modèle de manette.</li>
+</ol>
+<p class="small">Le test reste local à ton navigateur et n’envoie aucune information de la manette à un serveur.</p>
+</div>
+<footer>Les jeux rigolos · Test indépendant des jeux · Aucun compte nécessaire</footer>
+</main>
+<script>
+(()=>{
+"use strict";
+const byId=id=>document.getElementById(id), status=byId('status'),hint=byId('hint'),meta=byId('meta'),axes=byId('axes'),buttons=byId('buttons'),log=byId('eventlog');
+const eventPads=new Map();let lastStatus='',lastMeta='',lastEvent='en attente';
+const getAPI=()=>navigator.getGamepads||navigator.webkitGetGamepads;
+byId('browser').textContent='Navigateur : '+navigator.userAgent;
+function updateStatus(kind,label,tip){
+ if(lastStatus!==kind+'|'+label){lastStatus=kind+'|'+label;status.className=kind;status.textContent=label;}
+ if(hint.textContent!==tip)hint.textContent=tip;
+}
+function padFromAPI(){
+ try{
+  const fn=getAPI();
+  if(typeof fn!=='function')return null;
+  const pads=fn.call(navigator)||[];
+  return Array.from(pads).find(x=>x&&x.connected!==false)||null;
+ }catch(e){lastEvent='Lecture impossible : '+(e?.name||'erreur')+' '+(e?.message||'');return null;}
+}
+function findPad(){return padFromAPI()||[...eventPads.values()].find(x=>x&&x.connected!==false)||null;}
+window.addEventListener('gamepadconnected',e=>{
+ if(e.gamepad){eventPads.set(e.gamepad.index,e.gamepad);lastEvent='Événement « gamepadconnected » reçu.';}
+});
+window.addEventListener('gamepaddisconnected',e=>{
+ if(e.gamepad){eventPads.delete(e.gamepad.index);lastEvent='Événement « gamepaddisconnected » reçu.';}
+});
+function renderPad(pad){
+ const info=(pad.id||'Manette sans nom')+' | mapping : '+(pad.mapping||'non standard')+' | '+(pad.axes?.length||0)+' axes | '+(pad.buttons?.length||0)+' boutons';
+ if(lastMeta!==info){lastMeta=info;meta.textContent=info;
+  axes.innerHTML='';
+  (pad.axes||[]).forEach((_,i)=>{const box=document.createElement('div');box.className='axis';box.innerHTML='<strong>Axe '+i+'</strong><div class="bar"><span class="center"></span><span class="level"></span></div><span class="value">0.00</span>';axes.appendChild(box);});
+  if(!pad.axes?.length)axes.textContent='Aucun axe détecté.';
+  buttons.innerHTML='';
+  (pad.buttons||[]).forEach((_,i)=>{const b=document.createElement('span');b.className='gbutton';b.textContent=i;buttons.appendChild(b);});
+  if(!pad.buttons?.length)buttons.textContent='Aucun bouton détecté.';
+ }
+ [...axes.querySelectorAll('.axis')].forEach((box,i)=>{
+  const v=Math.max(-1,Math.min(1,Number(pad.axes?.[i]||0)));
+  box.querySelector('.value').textContent=v.toFixed(2);
+  const level=box.querySelector('.level');level.style.left=(v<0?50+v*50:50)+'%';level.style.width=(Math.abs(v)*50)+'%';
+ });
+ [...buttons.querySelectorAll('.gbutton')].forEach((b,i)=>{
+  const pressed=!!(pad.buttons?.[i]?.pressed||pad.buttons?.[i]?.value>.55);
+  b.classList.toggle('pressed',pressed);
+  b.textContent=(i===0?'A / 0':i===1?'B / 1':i===2?'X / 2':i===3?'Y / 3':String(i))+(pressed?' ●':'');
+ });
+}
+function tick(){
+ const pad=findPad();
+ log.textContent=lastEvent;
+ if(pad){
+  updateStatus('good','✅ Manette détectée !','Appuie sur les boutons et bouge les joysticks : les valeurs ci-dessous doivent bouger en direct.');
+  renderPad(pad);
+ }else if(typeof getAPI()!=='function'){
+  updateStatus('bad','❌ Ce navigateur n’expose pas l’API Gamepad.','Essaie un autre navigateur récent (Safari ou Chrome), puis recharge cette page.');
+ }else{
+  updateStatus('warn','⏳ Aucun signal de manette reçu','Clique sur le bouton de test, puis appuie sur un bouton de la manette en gardant cet onglet visible.');
+ }
+ requestAnimationFrame(tick);
+}
+byId('test').addEventListener('click',()=>{lastEvent='Test lancé après clic dans la page…';byId('test').focus();tick();});
+window.addEventListener('focus',()=>{lastEvent='Fenêtre active : appuie maintenant sur A.';});
+requestAnimationFrame(tick);
+})();
+</script></body></html>
