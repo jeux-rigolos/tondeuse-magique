@@ -103,6 +103,7 @@ body.game-fullscreen{overflow:hidden;overscroll-behavior:none}
 <div class="status" id="status">👆 Touche le jardin pour conduire !</div>
 <div class="bottom"><div class="game-actions"><button id="restart" class="restart">↻ Rejouer</button><button id="next-garden" class="restart" style="background:#e0f3d1;border-color:#afd38e;color:#3b6530">🌿 Jardin suivant</button></div><div class="dpad"><button class="dir" data-dir="up" style="grid-area:1/2">↑</button><button class="dir" data-dir="left" style="grid-area:2/1">←</button><button class="dir" data-dir="down" style="grid-area:2/2">↓</button><button class="dir" data-dir="right" style="grid-area:2/3">→</button></div></div>
 <div class="pad-info" id="pad-info" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette, puis appuie sur A pour l’activer.</div>
+<div class="pad-test-link" style="margin:4px 0 8px;text-align:center;font:850 13px system-ui"><a href="../manette/" style="color:#32624a;text-decoration:underline">🔎 Ma manette ne réagit pas ? Tester sur cet appareil</a></div>
 <div class="foot">🎮 Joystick ou croix : conduire · A : caméra · B : recommencer · X : conduite · Y : vitesse · Tactile disponible</div>
 </div><script>
 (()=>{
@@ -449,6 +450,14 @@ for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.add
 for(let b of root.querySelectorAll('[data-dir]')){let d=b.dataset.dir;b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);held[d]=true;});for(let ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{held[d]=false});}
 window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});window.addEventListener('blur',()=>{keys={};held={};pointerActive=false;pointerId=null;touchPos=null;target=null;});
 
+// Certains navigateurs Mac exposent la manette via gamepadconnected avant getGamepads().
+const eventGamepads=new Map();
+window.addEventListener('gamepadconnected',e=>{
+ if(e.gamepad)eventGamepads.set(e.gamepad.index,e.gamepad);
+});
+window.addEventListener('gamepaddisconnected',e=>{
+ if(e.gamepad)eventGamepads.delete(e.gamepad.index);
+});
 let padConnected=false,padHeld=new Set();
 const padInfo=root.querySelector('#pad-info');
 function pollPad(){
@@ -457,6 +466,7 @@ function pollPad(){
    const getPads=navigator.getGamepads||navigator.webkitGetGamepads;
    const pads=typeof getPads==='function'?getPads.call(navigator):[];
    if(pads)for(const p of Array.from(pads)){if(p&&p.connected!==false){pad=p;break;}}
+   if(!pad)for(const p of eventGamepads.values()){if(p&&p.connected!==false){pad=p;break;}}
  }catch(e){}
  if(!pad){
    padHeld.clear();
