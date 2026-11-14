@@ -42,14 +42,16 @@ h2{font-size:19px;margin:8px 0}
 .cargo{display:flex;gap:4px;align-items:center;justify-content:center}
 .cargo span{display:grid;place-items:center;border-radius:7px;width:19px;height:21px;background:#e1e9d5;color:#95a490}
 .cargo span.full{background:#efb96c;color:#875322}
-.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:0 0 9px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 9px}
 .action{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;min-width:0;min-height:60px;padding:10px;border:3px solid #fff;border-radius:17px;color:#fff;font-size:clamp(13px,2vw,19px);line-height:1.14;text-align:center;box-shadow:0 4px #99bca1}
 .action:active{transform:translateY(2px);box-shadow:0 2px #99bca1}
 .action:disabled{background:#e1e7dc;color:#7a8b7a;border-color:#fff;box-shadow:0 2px #c3d2c0;cursor:not-allowed}
 #transform{background:#328ab2}
 #factory-button{background:#a5733f}
-#unload{background:#67aa51}
-#transform:disabled,#factory-button:disabled,#unload:disabled{background:#e1e7dc;color:#7a8b7a}
+#unload{position:absolute;z-index:1;right:clamp(4px,8%,20%);bottom:24%;max-width:calc(100% - 8px);min-height:44px;padding:7px 11px;background:#427637;font-size:clamp(13px,2vw,17px)}
+#unload[hidden]{display:none}
+#unload::after{content:"";position:absolute;top:100%;right:30%;border:8px solid transparent;border-top-color:#fff;pointer-events:none}
+#transform:disabled,#factory-button:disabled{background:#e1e7dc;color:#7a8b7a}
 .board{position:relative;overflow:hidden;border:6px solid white;border-radius:24px;background:#a2d47a;box-shadow:0 6px #bdddb6,0 16px 30px #365b3d30;isolation:isolate}
 canvas{display:block;width:100%;height:auto;aspect-ratio:1000/620;touch-action:none;cursor:crosshair}
 .note{font-size:clamp(13px,2vw,17px);background:#fffef1;border:2px solid #d2e5b9;border-radius:14px;padding:10px 13px;margin:10px 0 0;min-height:45px;font-weight:850;color:#526b4b}
@@ -80,12 +82,12 @@ footer{margin-top:15px;text-align:center;font-size:12px;color:#55735e;font-weigh
  <a class="back" href="../">← Choisir un jeu</a>
 </header>
 <details class="settings" id="settings">
- <summary>⚙️ Réglages de la forêt <span class="settings-current" id="settings-current">🌳 Petite forêt · 6 arbres</span></summary>
+ <summary>⚙️ Réglages de la forêt <span class="settings-current" id="settings-current">🌳 Petite forêt · 9 arbres</span></summary>
  <div class="settings-content">
   <p>🌲 Choisis ta forêt :</p>
   <div class="mode-options" role="group" aria-label="Nombre d’arbres">
-    <button type="button" class="option active" data-level="small" aria-pressed="true">🌱 Petite forêt<br>6 arbres</button>
-    <button type="button" class="option" data-level="large" aria-pressed="false">🌳 Grande forêt<br>12 arbres</button>
+    <button type="button" class="option active" data-level="small" aria-pressed="true">🌱 Petite forêt<br>9 arbres</button>
+    <button type="button" class="option" data-level="large" aria-pressed="false">🌳 Grande forêt<br>18 arbres</button>
   </div>
   <div class="settings-actions">
    <button class="small-action" type="button" id="sound">🔊 Son activé</button>
@@ -95,23 +97,23 @@ footer{margin-top:15px;text-align:center;font-size:12px;color:#55735e;font-weigh
  </div>
 </details>
 <div class="progress" aria-label="Progression">
- <div class="stat">🌳 Arbres <strong id="tree-count">0/6</strong></div>
+ <div class="stat">🌳 Arbres <strong id="tree-count">0/9</strong></div>
  <div class="stat">🪵 Bois <div class="cargo" id="cargo" aria-label="Bac de bois"><span>·</span><span>·</span><span>·</span></div></div>
- <div class="stat">📄 Papier <strong id="paper-count">0/6</strong></div>
+ <div class="stat">📄 Papier <strong id="paper-count">0/9</strong></div>
 </div>
 <div class="actions" role="group" aria-label="Actions du robot">
  <button type="button" class="action" id="transform">🤖 Se transformer</button>
  <button type="button" class="action" id="factory-button">🏭 Aller à l’usine</button>
- <button type="button" class="action" id="unload" disabled>📦 Décharger le bois</button>
 </div>
 <div class="board" id="board">
- <canvas id="scene" width="1000" height="620" tabindex="0" aria-label="Forêt en deux dimensions. Touche un arbre pour t’y rendre. Double-tape pour transformer le robot. Touche l’usine pour transporter le bois."></canvas>
+ <canvas id="scene" width="1000" height="620" tabindex="0" aria-label="Forêt en deux dimensions. Glisse le doigt pour guider le robot ou touche un arbre pour t’y rendre. Double-tape pour transformer le robot. Touche l’usine pour transporter le bois."></canvas>
+ <button type="button" class="action" id="unload" hidden>📦 Décharger le bois</button>
  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Partie terminée">
   <div class="win"><div class="trophy">🏆📄🌱</div><h2>Bravo, champion du papier !</h2><p>Tous les arbres ont été récoltés et transformés en papier. On replante une nouvelle forêt ?</p><button type="button" class="replant" id="replant">🌱 Replanter et rejouer !</button></div>
  </div>
 </div>
 <div class="note" id="message" aria-live="polite">🤖 Touche deux fois le terrain pour devenir une machine à scie !</div>
-<div class="instructions">👆 Touche un arbre pour rouler vers lui · ✨ Double-tap pour transformer · 🏭 Rapporte le bois à l’usine</div>
+<div class="instructions">👆 Glisse le doigt pour guider le robot ou touche une destination · ✨ Double-tap pour transformer · 🏭 Décharge le bois au quai</div>
 <footer>Un jeu imaginaire pour découvrir la fabrication du papier. Dans la vraie vie, on protège les forêts et on replante des arbres. 🌱</footer>
 </div>
 <script>
@@ -129,11 +131,11 @@ const UI={
 };
 const W=1000,H=620,dock={x:731,y:487},capacity=3;
 const baseTrees=[
- [157,166,1.00],[302,144,1.05],[459,190,.97],[612,153,1.08],
- [153,311,.96],[315,319,1.04],[470,341,.92],[630,320,1.06],
- [192,463,.98],[352,483,1.02],[514,464,1.00],[645,462,.95]
+ [148,160,.94],[250,155,.91],[354,148,1.05],[455,174,.97],[554,162,.88],[648,151,1.03],
+ [125,307,.96],[232,332,.89],[336,301,1.04],[440,329,.92],[546,293,.94],[646,324,1.00],
+ [145,476,.98],[253,448,.90],[355,477,1.02],[460,453,.92],[553,478,1.00],[649,444,.91]
 ];
-const easyIndices=[0,2,4,6,9,11];
+const easyIndices=[0,2,5,6,8,10,13,15,17];
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 let level='small',trees=[],mode='robot',previousMode='robot',morph=1,vehicle={x:340,y:554,angle:-Math.PI/2},
  target=null,cargo=0,delivered=0,paper=0,cutCount=0,cuttingId=null,cutProgress=0,processing=0,processingTotal=0,
@@ -164,12 +166,10 @@ function refresh(){
   UI.cargo.appendChild(block);
  }
  UI.transform.textContent=mode==='robot'?'🤖 Devenir une scie !':'🔁 Redevenir robot !';
- const nearFactory=atDock();
- UI.unload.disabled=cargo===0||!nearFactory||processing>0||won;
- UI.unload.textContent=processing>0?'🏭 Fabrication…':'📦 Décharger le bois';
+ UI.unload.hidden=cargo===0||!atDock()||processing>0||won;
  UI.factory.disabled=processing>0||won;
  UI.transform.disabled=processing>0||won;
- root.querySelector('#settings-current').textContent=(level==='small'?'🌱 Petite forêt · 6 arbres':'🌳 Grande forêt · 12 arbres');
+ root.querySelector('#settings-current').textContent=(level==='small'?'🌱 Petite forêt':'🌳 Grande forêt')+' · '+trees.length+' arbres';
 }
 function init(){
  const ids=level==='small'?easyIndices:baseTrees.map((_,i)=>i);
@@ -227,33 +227,49 @@ function coords(ev){
  return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H};
 }
 canvas.addEventListener('pointerdown',ev=>{
- if(won||processing>0||touchStart)return;
+ if(won||processing>0||touchStart||ev.button!==0)return;
  ev.preventDefault();canvas.focus({preventScroll:true});
- const now=Date.now(),p=coords(ev);
- if(lastTap&&now-lastTap.time<480&&Math.hypot(p.x-lastTap.x,p.y-lastTap.y)<90){
-  lastTap=null;touchStart=null;transform();return;
- }
- touchStart={pointerId:ev.pointerId,x:p.x,y:p.y,start:now,moved:false};
- try{canvas.setPointerCapture(ev.pointerId)}catch(e){}
+ touchStart={pointerId:ev.pointerId,x:ev.clientX,y:ev.clientY,start:Date.now(),point:null};
+ canvas.setPointerCapture(ev.pointerId);
 });
 canvas.addEventListener('pointermove',ev=>{
- if(!touchStart||touchStart.pointerId!==ev.pointerId)return;
- const p=coords(ev);if(Math.hypot(p.x-touchStart.x,p.y-touchStart.y)>28)touchStart.moved=true;
+ if(touchStart?.pointerId!==ev.pointerId)return;
+ if(!touchStart.point&&Math.hypot(ev.clientX-touchStart.x,ev.clientY-touchStart.y)<8)return;
+ if(!touchStart.point){
+  target=null;lastTap=null;
+  note('👆 Le robot suit ton doigt. Relâche pour t’arrêter.');
+ }
+ const {x,y}=coords(ev);
+ touchStart.point={x:clamp(x,73,751),y:clamp(y,94,561)};
 });
 canvas.addEventListener('pointerup',ev=>{
- if(!touchStart||touchStart.pointerId!==ev.pointerId)return;
- const p=coords(ev),now=Date.now(),single=!touchStart.moved&&now-touchStart.start<430;
+ if(touchStart?.pointerId!==ev.pointerId)return;
+ const gesture=touchStart;
  touchStart=null;
- if(single){lastTap={time:now,x:p.x,y:p.y};handleTouch(p.x,p.y);}
- else lastTap=null;
+ const now=Date.now();
+ if(gesture.point||now-gesture.start>=430||
+    Math.hypot(ev.clientX-gesture.x,ev.clientY-gesture.y)>=8){
+  lastTap=null;return;
+ }
+ const p=coords(ev);
+ if(lastTap&&now-lastTap.time<480&&Math.hypot(p.x-lastTap.x,p.y-lastTap.y)<90){
+  lastTap=null;transform();return;
+ }
+ lastTap={time:now,x:p.x,y:p.y};handleTouch(p.x,p.y);
 });
-canvas.addEventListener('pointercancel',()=>{touchStart=null;lastTap=null});
+function cancelPointer(ev){
+ if(touchStart?.pointerId!==ev.pointerId)return;
+ touchStart=null;lastTap=null;
+}
+canvas.addEventListener('pointercancel',cancelPointer);
+canvas.addEventListener('lostpointercapture',cancelPointer);
 canvas.addEventListener('dblclick',ev=>ev.preventDefault());
 root.querySelector('#transform').addEventListener('click',transform);
 root.querySelector('#factory-button').addEventListener('click',goFactory);
-root.querySelector('#unload').addEventListener('click',()=>{
+UI.unload.addEventListener('click',()=>{
  if(cargo===0||processing>0||won||!atDock())return;
- target=null;cuttingId=null;cutProgress=0;
+ if(document.activeElement===UI.unload)canvas.focus({preventScroll:true});
+ target=null;touchStart=null;lastTap=null;cuttingId=null;cutProgress=0;
  processing=1.55;processingTotal=1.55;
  note('🏭 Le bois entre dans l’usine… et devient du papier !');
  refresh();tone(630,.2);
@@ -269,6 +285,7 @@ root.querySelector('#settings-close').addEventListener('click',()=>{UI.settings.
 root.querySelector('#replant').addEventListener('click',()=>{init();tone(710,.17);});
 window.addEventListener('keydown',ev=>{
  const k=ev.key.length===1?ev.key.toLowerCase():ev.key;
+ if(k===' '&&ev.target instanceof HTMLButtonElement)return;
  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();
  if(k===' '&&!ev.repeat){transform();return;}
  if(k==='f'&&!ev.repeat){goFactory();return;}
@@ -276,7 +293,7 @@ window.addEventListener('keydown',ev=>{
  keys.add(k);
 });
 window.addEventListener('keyup',ev=>{keys.delete(ev.key.length===1?ev.key.toLowerCase():ev.key);});
-window.addEventListener('blur',()=>{keys.clear();touchStart=null;});
+window.addEventListener('blur',()=>{keys.clear();touchStart=null;lastTap=null;});
 function win(){
  won=true;target=null;UI.overlay.classList.add('show');
  note('🎉 Bravo ! Tous les arbres sont devenus du papier !');
@@ -325,10 +342,13 @@ function update(dt){
  if(keys.has('ArrowUp')||keys.has('w')||keys.has('z'))dy--;
  if(keys.has('ArrowDown')||keys.has('s'))dy++;
  if(Math.hypot(dx,dy)>.01){target=null;const n=Math.hypot(dx,dy);dx/=n;dy/=n;}
- else if(target){
-  const offX=target.x-vehicle.x,offY=target.y-vehicle.y,dist=Math.hypot(offX,offY);
-  if(dist>5){dx=offX/dist*Math.min(1,dist/32);dy=offY/dist*Math.min(1,dist/32);}
-  else if(target.kind==='factory'||target.kind==='point')target=null;
+ else {
+  const destination=touchStart?.point||target;
+  if(destination){
+   const offX=destination.x-vehicle.x,offY=destination.y-vehicle.y,dist=Math.hypot(offX,offY);
+   if(dist>5){dx=offX/dist*Math.min(1,dist/32);dy=offY/dist*Math.min(1,dist/32);}
+   else if(destination===target&&target.kind!=='tree')target=null;
+  }
  }
  if(Math.hypot(dx,dy)>.01){
   const speed=mode==='robot'?220:178;
