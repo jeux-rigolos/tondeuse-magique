@@ -83,23 +83,44 @@
     .robot-transform{flex:1 1 190px;min-height:60px;border:3px solid #fff;border-radius:17px;background:#ffcd55;color:#624417;font-weight:950;font-size:17px;box-shadow:0 5px #d7a736}
     .robot-transform:active{transform:translateY(3px);box-shadow:0 2px #d7a736}
     @media(max-width:650px){.vehicle-selector{gap:6px}.vehicle-select{flex-direction:column;min-height:67px;font-size:12px;gap:3px}.vehicle-select .emoji{font-size:24px}.robot-panel{padding:10px}.robot-panel span{font-size:13px}.robot-transform{min-height:55px}}
-    </style>
+    
+    /* Réglages repliables ancrés au bord supérieur du jeu : le panneau défile en interne. */
+    .game-settings{position:relative;z-index:20;margin:7px 0 10px;border:3px solid #cee5b7;border-radius:18px;background:#fffef2;box-shadow:0 3px 0 #cfdfc1}
+    .game-settings>summary{display:flex;align-items:center;flex-wrap:wrap;gap:6px 16px;padding:12px 15px;cursor:pointer;list-style:none;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+    .game-settings>summary::-webkit-details-marker{display:none}
+    .game-settings>summary::after{content:'▾';font-size:21px;margin-left:auto;color:#477541;font-weight:1000}
+    .game-settings[open]>summary::after{content:'▴'}
+    .settings-title{font-size:clamp(16px,2.4vw,20px);font-weight:1000;color:#355f38;line-height:1.2}
+    .settings-current{font-size:clamp(12px,1.9vw,14px);color:#56765b;font-weight:850;line-height:1.4;min-width:0;flex:1 1 210px}
+    .settings-body{position:absolute;top:calc(100% + 6px);left:-3px;right:-3px;z-index:25;padding:14px 14px 9px;background:linear-gradient(180deg,#fffff7,#f0fbeb);border:3px solid #cce4b8;border-radius:16px;box-shadow:0 15px 35px #315e3970;max-height:min(68dvh,540px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .settings-body .garden-heading{font-size:14px;margin:8px 0 6px}
+    .settings-body .vehicle-selector{margin-bottom:12px}
+    .settings-body .vehicle-select{min-height:54px}
+    .settings-body .garden-select{min-height:49px}
+    .settings-body .size-select{min-height:48px}
+    .settings-actions{position:sticky;bottom:-9px;z-index:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:center;background:linear-gradient(180deg,#f0fbebd9,#f0fbeb);padding:11px 1px 8px;margin-top:10px}
+    .settings-actions .actions{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+    .settings-actions .action{width:100%;box-shadow:none;min-height:46px}
+    .settings-close{grid-column:1 / -1;display:block;width:100%;min-height:50px;border:3px solid #ffffff;border-radius:15px;background:#63b96e;color:white;font-size:clamp(15px,2vw,18px);box-shadow:0 3px #418b50;font-weight:950}
+    .settings-close:active{transform:translateY(2px);box-shadow:0 1px #418b50}
+    @media(max-width:600px){.game-settings>summary{padding:9px 12px;gap:3px 8px}.settings-current{flex:1 1 100%;order:2}.game-settings>summary::after{order:1}.settings-body{max-height:min(73dvh,520px);padding:10px 10px 7px}.settings-body .garden-selector{gap:6px}.settings-body .vehicle-selector{gap:6px}}
+</style>
 </head>
 <body>
 <nav class="site-nav"><a href="../">← Choisir un jeu</a></nav>
 <div class="layout">
   <header>
     <div class="brand"><div class="brand-icon">🚜</div><div><h1>La Tondeuse Magique</h1><p class="subtitle">Un petit jardin à rendre tout joli 🌼</p></div></div>
-    <div class="actions"><button class="action" id="sound" aria-label="Activer ou désactiver le son">🔊 Son</button><button class="action" id="restart">↻ Recommencer</button></div>
+    
   </header>
+  <details class="game-settings" id="game-settings">
+    <summary><span class="settings-title">⚙️ Réglages du jardin</span><span class="settings-current" id="settings-current">🔴 Tondeuse · ▭ Rectangle · ✨ Vide · 🌱 Petit</span></summary>
+    <div class="settings-body">
+      <p class="garden-heading">🚜 Choisis ton véhicule :</p>
   <div class="vehicle-selector" role="group" aria-label="Choisir un véhicule">
     <button class="vehicle-select active" id="choose-small" type="button" aria-pressed="true"><span class="emoji">🔴</span> Petite tondeuse</button>
     <button class="vehicle-select" id="choose-tractor" type="button" aria-pressed="false"><span class="emoji">🚜</span> Tracteur-tondeuse</button>
     <button class="vehicle-select" id="choose-transformer" type="button" aria-pressed="false"><span class="emoji">🤖</span> Robot transformeur</button>
-  </div>
-  <div class="robot-panel" id="robot-panel" hidden role="group" aria-label="Robot transformeur">
-  <span id="robot-help">🤖 Double-tape le jardin pour me transformer en tondeuse !</span>
-  <button class="robot-transform" type="button" id="transform">🔁 Devenir une tondeuse !</button>
   </div>
   <p class="garden-heading">🔷 Quelle forme reconnais-tu ?</p>
   <div class="garden-selector" role="group" aria-label="Choisir une forme de terrain">
@@ -122,6 +143,17 @@
     <button class="size-select active" data-size="small" type="button" aria-pressed="true">🌱 Petit</button>
     <button class="size-select" data-size="medium" type="button" aria-pressed="false">🌿 Moyen</button>
     <button class="size-select" data-size="large" type="button" aria-pressed="false">🌳 Grand</button>
+  </div>
+
+      <div class="settings-actions">
+        <div class="actions"><button class="action" id="sound" aria-label="Activer ou désactiver le son">🔊 Son</button><button class="action" id="restart">↻ Recommencer</button></div>
+        <button class="settings-close" id="settings-close" type="button">✅ Jouer ! Fermer les réglages</button>
+      </div>
+    </div>
+  </details>
+  <div class="robot-panel" id="robot-panel" hidden role="group" aria-label="Robot transformeur">
+  <span id="robot-help">🤖 Double-tape le jardin pour me transformer en tondeuse !</span>
+  <button class="robot-transform" type="button" id="transform">🔁 Devenir une tondeuse !</button>
   </div>
   <div class="game-wrap">
     <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Jardin à tondre. En mode robot, double-tape le terrain pour le transformer. Un toucher simple permet de conduire. Flèches et manette compatibles."></canvas>
@@ -259,6 +291,12 @@
     for(const [dx,dy,r,col] of [[-27,-22,35,'#4ba854'],[23,-26,38,'#56b95d'],[-2,-48,42,'#68c971']]){ctx.fillStyle=col;ctx.beginPath();ctx.arc(dx,dy,r,0,Math.PI*2);ctx.fill();}
     ctx.fillStyle='#b0e88f';ctx.beginPath();ctx.ellipse(-12,-62,19,7,-.2,0,Math.PI*2);ctx.fill();ctx.restore();
   }
+
+  function updateSettingsSummary(){
+    const vehicleName={small:'🔴 Tondeuse',tractor:'🚜 Tracteur',transformer:'🤖 Robot transformeur'}[vehicleType];
+    const sizeKey=Object.keys(terrainSizes).find(k=>terrainSizes[k]===terrainScale)||'small';
+    document.getElementById('settings-current').textContent=vehicleName+' · '+gardens[gardenId].emoji+' '+gardens[gardenId].name+' · '+(obstaclesEnabled?'🌳 Obstacles':'✨ Vide')+' · '+terrainLabels[sizeKey];
+  }
   function reset(){
     randSeed=591;
     cells=[];
@@ -268,6 +306,7 @@
       cells.push({x,y,cut:false,tilt:rand()*6.283,variant:rand(),wiggle:rand()*2});
     }}
     mower=spawnPoint();
+    updateSettingsSummary();
     if(vehicleType==='transformer'){robotForm='robot';previousRobotForm='robot';transformStarted=-5;updateRobotControls();}
     particles=[];animations=[];target=null;dragged=false;pointerId=null;lastTapAt=0;tapMoved=false;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
@@ -686,6 +725,9 @@
   }
   document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>chooseSize(b.dataset.size)));
   document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;ui.sound.textContent=soundOn?'🔊 Son':'🔇 Muet';if(soundOn)tone(650,.13);});
+  document.getElementById('settings-close').addEventListener('click',()=>{
+    document.getElementById('game-settings').open=false;
+  });
   reset();requestAnimationFrame(frame);
 })();
 </script>
