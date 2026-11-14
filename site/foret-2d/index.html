@@ -138,7 +138,7 @@ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 let level='small',trees=[],mode='robot',previousMode='robot',morph=1,vehicle={x:340,y:554,angle:-Math.PI/2},
  target=null,cargo=0,delivered=0,paper=0,cutCount=0,cuttingId=null,cutProgress=0,processing=0,processingTotal=0,
  won=false,clock=0,lastFrame=0,particles=[],soundOn=true,audio=null,keys=new Set(),touchStart=null,lastTap=null;
-function note(text){UI.message.textContent=text;}
+function note(text){if(UI.message.textContent!==text)UI.message.textContent=text;}
 function tone(frequency=580,length=.08){
  if(!soundOn)return;
  try{
@@ -151,7 +151,11 @@ function tone(frequency=580,length=.08){
  }catch(e){}
 }
 function atDock(){return vehicle.x>704&&Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)<45;}
+let lastHudSignature='';
 function refresh(){
+ const signature=[level,mode,cargo,paper,cutCount,atDock(),processing>0,won].join('|');
+ if(signature===lastHudSignature)return;
+ lastHudSignature=signature;
  UI.trees.textContent=cutCount+'/'+trees.length;
  UI.paper.textContent=paper+'/'+trees.length;
  UI.cargo.innerHTML='';
@@ -172,7 +176,7 @@ function init(){
  trees=ids.map((idx,i)=>({id:i,x:baseTrees[idx][0],y:baseTrees[idx][1],scale:baseTrees[idx][2],cut:false,flash:0}));
  vehicle={x:330,y:548,angle:-Math.PI/2};mode='robot';previousMode='robot';morph=1;
  target=null;cargo=0;delivered=0;paper=0;cutCount=0;cuttingId=null;cutProgress=0;processing=0;processingTotal=0;
- won=false;clock=0;lastFrame=0;lastTap=null;touchStart=null;particles.length=0;
+ won=false;clock=0;lastFrame=0;lastTap=null;touchStart=null;particles.length=0;lastHudSignature='';
  UI.overlay.classList.remove('show');
  note('🤖 Double-tape le terrain pour te transformer en machine à scie !');
  refresh();
@@ -347,10 +351,7 @@ function update(dt){
    if(cutProgress>=1.05)cutTree(best);
   }else{cuttingId=null;cutProgress=0;}
  }else{cuttingId=null;cutProgress=0;}
- if(atDock()&&cargo>0){
-  if(!UI.unload.disabled)return;
-  note('🏭 Tu es à l’usine ! Appuie sur « Décharger le bois ».');
- }
+ if(atDock()&&cargo>0)note('🏭 Tu es à l’usine ! Appuie sur « Décharger le bois ».');
  refresh();
 }
 function roundRect(x,y,w,h,r,color,stroke=null,line=1){
