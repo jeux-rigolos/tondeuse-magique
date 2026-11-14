@@ -271,7 +271,9 @@
     particles=[];animations=[];target=null;dragged=false;pointerId=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
     ui.bar.style.width='0%';ui.pct.textContent='0 %';
-    for(const c of cells) if(Math.hypot(c.x-mower.x,c.y-mower.y)<49/terrainScale)c.cut=true;
+    if(vehicleType!=='transformer'||robotForm==='mower'){
+      for(const c of cells)if(Math.hypot(c.x-mower.x,c.y-mower.y)<49/terrainScale)c.cut=true;
+    }
     updateProgress();
     const halfW=W/(2*terrainScale),halfH=H/(2*terrainScale);
     camera.x=clamp(mower.x,halfW,W-halfW);
