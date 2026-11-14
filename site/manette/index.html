@@ -117,7 +117,7 @@ function tick(){
  }
  requestAnimationFrame(tick);
 }
-byId('test').addEventListener('click',()=>{lastEvent='Test lancé après clic dans la page…';byId('test').focus();tick();});
+byId('test').addEventListener('click',()=>{lastEvent='Test lancé après clic dans la page…';byId('test').focus();});
 window.addEventListener('focus',()=>{lastEvent='Fenêtre active : appuie maintenant sur A.';});
 requestAnimationFrame(tick);
 })();
