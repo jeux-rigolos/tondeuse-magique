@@ -619,13 +619,14 @@ const padInfo=root.querySelector('#pad-info');
 function pollPad(){
  let pad=null;
  try{
-   const pads=typeof navigator.getGamepads==='function'?navigator.getGamepads():[];
-   if(pads)for(const p of pads){if(p&&p.connected!==false){pad=p;break;}}
+   const getPads=navigator.getGamepads||navigator.webkitGetGamepads;
+   const pads=typeof getPads==='function'?getPads.call(navigator):[];
+   if(pads)for(const p of Array.from(pads)){if(p&&p.connected!==false){pad=p;break;}}
  }catch(e){}
  if(!pad){
    padHeld.clear();
    if(padConnected){padConnected=false;padInfo.textContent='🎮 Manette déconnectée. Appuie sur un bouton après reconnexion.';}
-   else if(typeof navigator.getGamepads!=='function')padInfo.textContent='🎮 Manette non prise en charge dans ce navigateur. Tactile et clavier disponibles.';
+   else if(typeof navigator.getGamepads!=='function'&&typeof navigator.webkitGetGamepads!=='function')padInfo.textContent='🎮 Manette non prise en charge dans ce navigateur. Tactile et clavier disponibles.';
    return{turn:0,drive:0};
  }
  if(!padConnected){
