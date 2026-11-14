@@ -98,7 +98,7 @@
     <button class="vehicle-select" id="choose-transformer" type="button" aria-pressed="false"><span class="emoji">🤖</span> Robot transformeur</button>
   </div>
   <div class="robot-panel" id="robot-panel" hidden role="group" aria-label="Robot transformeur">
-  <span id="robot-help">🤖 En robot, tu peux explorer. Transforme-le en tondeuse pour couper l’herbe !</span>
+  <span id="robot-help">🤖 Double-tape le jardin pour me transformer en tondeuse !</span>
   <button class="robot-transform" type="button" id="transform">🔁 Devenir une tondeuse !</button>
   </div>
   <p class="garden-heading">🔷 Quelle forme reconnais-tu ?</p>
@@ -124,7 +124,7 @@
     <button class="size-select" data-size="large" type="button" aria-pressed="false">🌳 Grand</button>
   </div>
   <div class="game-wrap">
-    <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Jardin à tondre. Flèches du clavier, manette ou toucher pour conduire la tondeuse."></canvas>
+    <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Jardin à tondre. En mode robot, double-tape le terrain pour le transformer. Un toucher simple permet de conduire. Flèches et manette compatibles."></canvas>
     <div class="hud"><div class="progress-box"><div class="progress-emoji">🌱</div><div><span class="progress-name">Herbe tondue</span><div class="track"><div class="bar" id="bar"></div></div></div><span class="pct" id="pct">0 %</span></div><div class="tip" id="status">🌼 Amuse-toi !</div></div>
     <div class="message" id="message">👆 Touche le jardin pour conduire !</div>
     <div class="overlay" id="overlay" role="dialog" aria-label="Bravo, le jardin est tondu !"><div class="victory"><div class="trophy">🏆🌼</div><h2>Bravo, champion !</h2><p>Le jardin est magnifique ! ✨</p><button class="again" id="again">🌱 Jardin suivant !</button></div></div>
@@ -143,6 +143,7 @@
   const keys=new Set();
   let vehicleType='small', gardenId='rectangle', terrainScale=1, obstaclesEnabled=false;
   let robotForm='robot',previousRobotForm='robot',transformStarted=-5;
+  let lastTapAt=0,lastTapX=0,lastTapY=0,tapDownAt=0,tapDownX=0,tapDownY=0,tapMoved=false;
   const terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
   const camera={x:W/2,y:H/2};
 
@@ -268,7 +269,7 @@
     }}
     mower=spawnPoint();
     if(vehicleType==='transformer'){robotForm='robot';previousRobotForm='robot';transformStarted=-5;updateRobotControls();}
-    particles=[];animations=[];target=null;dragged=false;pointerId=null;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
+    particles=[];animations=[];target=null;dragged=false;pointerId=null;lastTapAt=0;tapMoved=false;won=false;progress=0;clock=0;last=0;noteAt=0;helpHidden=false;
     ui.overlay.classList.remove('show');ui.msg.style.opacity='1';ui.status.textContent='🌼 Amuse-toi !';
     ui.bar.style.width='0%';ui.pct.textContent='0 %';
     if(vehicleType!=='transformer'||robotForm==='mower'){
@@ -563,10 +564,49 @@
     return {x:clamp(camera.x+(sx-W/2)/terrainScale,field.l+25/terrainScale,field.r-25/terrainScale),
             y:clamp(camera.y+(sy-H/2)/terrainScale,field.t+25/terrainScale,field.b-25/terrainScale)};
   }
-  canvas.addEventListener('pointerdown',ev=>{if(won)return;ev.preventDefault();canvas.focus({preventScroll:true});pointerId=ev.pointerId;dragged=true;target=coordinates(ev);hideHelp();try{canvas.setPointerCapture(pointerId);}catch(e){};tone(420,.055,.008);});
-  canvas.addEventListener('pointermove',ev=>{if(!dragged||ev.pointerId!==pointerId||won)return;target=coordinates(ev);});
-  const stopDrag=ev=>{if(ev.pointerId!==pointerId)return;dragged=false;pointerId=null;};
-  canvas.addEventListener('pointerup',stopDrag);canvas.addEventListener('pointercancel',stopDrag);
+  // Deux tapotements rapprochés (ni glissement ni appui long) déclenchent
+  // une transformation. Un tap simple conserve la conduite automatique 2D.
+  // touch-action:none sur canvas empêche le double tap de zoomer la page.
+  const doubleTapDelay=480,doubleTapRadius=76,shortTapDelay=400,dragRadius=24;
+  canvas.addEventListener('pointerdown',ev=>{
+    if(won||dragged)return;
+    ev.preventDefault();
+    canvas.focus({preventScroll:true});
+    const now=Date.now();
+    const secondTap=vehicleType==='transformer'&&lastTapAt>0&&
+      now-lastTapAt<=doubleTapDelay&&
+      Math.hypot(ev.clientX-lastTapX,ev.clientY-lastTapY)<=doubleTapRadius&&
+      clock-transformStarted>=.64;
+    if(secondTap){
+      lastTapAt=0;
+      target=null;
+      transformRobot();
+      return;
+    }
+    if(lastTapAt&&now-lastTapAt>doubleTapDelay)lastTapAt=0;
+    tapDownAt=now;tapDownX=ev.clientX;tapDownY=ev.clientY;tapMoved=false;
+    pointerId=ev.pointerId;dragged=true;
+    target=coordinates(ev);hideHelp();
+    try{canvas.setPointerCapture(pointerId);}catch(e){}
+    tone(420,.055,.008);
+  });
+  canvas.addEventListener('pointermove',ev=>{
+    if(!dragged||ev.pointerId!==pointerId||won)return;
+    if(Math.hypot(ev.clientX-tapDownX,ev.clientY-tapDownY)>dragRadius)tapMoved=true;
+    target=coordinates(ev);
+  });
+  const stopDrag=ev=>{
+    if(ev.pointerId!==pointerId)return;
+    const now=Date.now();
+    if(ev.type==='pointerup'&&vehicleType==='transformer'&&!tapMoved&&
+       now-tapDownAt<=shortTapDelay){
+      lastTapAt=now;lastTapX=ev.clientX;lastTapY=ev.clientY;
+    }else lastTapAt=0;
+    dragged=false;pointerId=null;
+  };
+  canvas.addEventListener('pointerup',stopDrag);
+  canvas.addEventListener('pointercancel',stopDrag);
+  canvas.addEventListener('dblclick',ev=>ev.preventDefault());
   window.addEventListener('keydown',ev=>{const k=ev.key.length===1?ev.key.toLowerCase():ev.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();keys.add(k);if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','q','z'].includes(k))hideHelp();if(won&&(k==='Enter'||k===' '))reset();});
   window.addEventListener('keyup',ev=>keys.delete(ev.key.length===1?ev.key.toLowerCase():ev.key));
   window.addEventListener('blur',()=>keys.clear());
@@ -577,11 +617,12 @@
     robotPanel.hidden=vehicleType!=='transformer';
     transformButton.textContent=robotForm==='robot'?'🔁 Devenir une tondeuse !':'🔁 Redevenir un robot !';
     document.getElementById('robot-help').textContent=robotForm==='robot'
-      ?'🤖 Le robot explore sans couper. Transforme-le en tondeuse !'
-      :'🚜 Transformation réussie ! La tondeuse-robot coupe maintenant l’herbe.';
+      ?'🤖 Double-tape le jardin pour devenir une tondeuse !'
+      :'🚜 Je tonds l’herbe ! Double-tape le jardin pour redevenir robot.';
   }
   function transformRobot(){
-    if(vehicleType!=='transformer'||won)return;
+    if(vehicleType!=='transformer'||won||clock-transformStarted<.64)return;
+    lastTapAt=0;
     previousRobotForm=robotForm;
     robotForm=robotForm==='robot'?'mower':'robot';
     transformStarted=clock;
@@ -597,6 +638,7 @@
   }
   function chooseVehicle(next){
     vehicleType=next;
+    lastTapAt=0;
     if(next==='transformer'){robotForm='robot';previousRobotForm='robot';transformStarted=-5;}
     const small=document.getElementById('choose-small'),big=document.getElementById('choose-tractor'),robot=document.getElementById('choose-transformer');
     for(const [b,v] of [[small,'small'],[big,'tractor'],[robot,'transformer']]){
