@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e5f5df">
+<meta name="description" content="Jeu 2D gratuit : robot transformeur forestier, récolter du bois, le décharger à l'usine et fabriquer du papier.">
+<title>Le Robot Forestier — Les jeux rigolos</title>
+<style>
+:root{font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:#254935;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;overscroll-behavior-x:none}
+body{background:radial-gradient(circle at 8% 3%,#fff0bd,transparent 38%),linear-gradient(#e3f4ff,#eaf9df 55%,#d8efce)}
+button,summary{font:inherit;touch-action:manipulation}
+button{cursor:pointer;border:0;font-weight:900;-webkit-tap-highlight-color:transparent}
+button:focus-visible,canvas:focus-visible,summary:focus-visible{outline:4px solid #e5a234;outline-offset:2px}
+#forest-game{width:100%;max-width:1460px;margin:auto;padding:10px clamp(8px,1.7vw,23px) 25px;user-select:none;-webkit-user-select:none}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{display:grid;place-items:center;width:55px;height:55px;border-radius:19px;border:3px solid #e2edbb;background:#fff;font-size:31px}
+h1{font-size:clamp(23px,3.2vw,34px);line-height:1.1;margin:0;font-weight:1000;letter-spacing:-.7px}
+.subtitle{margin:4px 0 0;color:#5b7865;font-size:clamp(12px,1.9vw,15px);font-weight:800}
+.back{display:inline-block;padding:11px 13px;background:#fff;border:2px solid #d5e6bc;border-radius:14px;text-decoration:none;color:#31643e;font-weight:900}
+h2{font-size:19px;margin:8px 0}
+.settings{position:sticky;top:0;top:env(safe-area-inset-top,0px);z-index:30;border:3px solid #bedcae;border-radius:16px;background:#fffef0;box-shadow:0 3px #d3e6c6;margin:8px 0}
+.settings>summary{display:flex;align-items:center;flex-wrap:wrap;gap:8px 15px;min-height:53px;padding:9px 13px;list-style:none;cursor:pointer;font-weight:1000}
+.settings>summary::-webkit-details-marker{display:none}
+.settings>summary:after{content:"▾";margin-left:auto;font-size:22px;color:#548553}
+.settings[open]>summary:after{content:"▴"}
+.settings-current{font-size:13px;color:#668467;flex:1 1 170px}
+.settings-content{position:absolute;top:calc(100% + 5px);left:-3px;right:-3px;padding:14px;background:#fffef5;border:3px solid #c8e1ae;border-radius:16px;box-shadow:0 13px 30px #21483358;max-height:65vh;max-height:min(65dvh,460px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.settings-content p{margin:3px 0 8px;font-size:14px;font-weight:850}
+.mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.option{min-width:0;min-height:58px;border:3px solid #cfdfb3;border-radius:15px;background:#fff;padding:9px;color:#355d37;font-size:clamp(12px,2vw,16px)}
+.option.active{border-color:#5fac61;background:#dff5d3}
+.settings-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.small-action{min-height:45px;border-radius:13px;background:#e8f5e3;color:#336246;border:2px solid #b5d5b1;font-size:14px}
+.close-settings{grid-column:1/-1;background:#60b66e;color:white;min-height:52px;border-radius:13px;font-size:16px}
+.progress{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:9px 0}
+.stat{min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 9px;background:#fffdf2;border:2px solid #d4e5c3;border-radius:15px;font-weight:1000;font-size:clamp(12px,1.7vw,17px);font-variant-numeric:tabular-nums}
+.stat strong{font-size:clamp(15px,2.3vw,23px)}
+.cargo{display:flex;gap:4px;align-items:center;justify-content:center}
+.cargo span{display:grid;place-items:center;border-radius:7px;width:19px;height:21px;background:#e1e9d5;color:#95a490}
+.cargo span.full{background:#efb96c;color:#875322}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:0 0 9px}
+.action{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;min-width:0;min-height:60px;padding:10px;border:3px solid #fff;border-radius:17px;color:#fff;font-size:clamp(13px,2vw,19px);line-height:1.14;text-align:center;box-shadow:0 4px #99bca1}
+.action:active{transform:translateY(2px);box-shadow:0 2px #99bca1}
+.action:disabled{background:#e1e7dc;color:#7a8b7a;border-color:#fff;box-shadow:0 2px #c3d2c0;cursor:not-allowed}
+#transform{background:#328ab2}
+#factory-button{background:#a5733f}
+#unload{background:#67aa51}
+#transform:disabled,#factory-button:disabled,#unload:disabled{background:#e1e7dc;color:#7a8b7a}
+.board{position:relative;overflow:hidden;border:6px solid white;border-radius:24px;background:#a2d47a;box-shadow:0 6px #bdddb6,0 16px 30px #365b3d30;isolation:isolate}
+canvas{display:block;width:100%;height:auto;aspect-ratio:1000/620;touch-action:none;cursor:crosshair}
+.note{font-size:clamp(13px,2vw,17px);background:#fffef1;border:2px solid #d2e5b9;border-radius:14px;padding:10px 13px;margin:10px 0 0;min-height:45px;font-weight:850;color:#526b4b}
+.instructions{text-align:center;font-size:clamp(12px,1.6vw,15px);color:#63826a;font-weight:850;margin-top:10px}
+.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#204e3d9c;z-index:10;padding:15px;backdrop-filter:blur(2px)}
+.overlay.show{display:flex}
+.win{width:min(520px,95%);border:5px solid #fff;border-radius:27px;background:linear-gradient(180deg,#fff8d8,#e5ffe7);box-shadow:0 9px 0 #a5cf93;text-align:center;padding:20px}
+.win .trophy{font-size:62px}
+.win h2{font-size:clamp(23px,3.7vw,35px);margin:5px 0}
+.win p{font-weight:850;font-size:clamp(14px,2vw,19px)}
+.replant{width:100%;background:#ffc960;color:#584522;border:3px solid #fff;border-radius:18px;min-height:60px;font-size:18px}
+footer{margin-top:15px;text-align:center;font-size:12px;color:#55735e;font-weight:800}
+@media(max-width:650px){
+ #forest-game{padding:6px 7px 18px}
+ header{gap:5px}.brand-icon{width:44px;height:44px;font-size:25px}h1{font-size:23px}.subtitle{font-size:12px}.back{padding:8px;font-size:12px}
+ .settings>summary{gap:4px;padding:8px 10px}.settings-current{flex:1 1 100%;order:2}.settings>summary:after{order:1}
+ .settings-content{max-height:70vh;max-height:min(70dvh,500px);padding:10px}
+ .stat{padding:6px 2px;gap:3px;flex-wrap:wrap}.stat strong{font-size:17px}.cargo span{width:16px;height:19px}
+ .actions{gap:6px}.action{min-height:69px;padding:7px 3px;border-width:2px;font-size:clamp(12px,3.2vw,15px)}
+ .board{border-width:4px;border-radius:18px}.note{padding:9px}
+}
+</style>
+</head>
+<body>
+<div id="forest-game">
+<header>
+ <div class="brand"><span class="brand-icon">🤖</span><div><h1>Le Robot Forestier 2D</h1><p class="subtitle">Du bois à l’usine… puis du papier ! 🪵🏭🧻</p></div></div>
+ <a class="back" href="../">← Choisir un jeu</a>
+</header>
+<details class="settings" id="settings">
+ <summary>⚙️ Réglages de la forêt <span class="settings-current" id="settings-current">🌳 Petite forêt · 6 arbres</span></summary>
+ <div class="settings-content">
+  <p>🌲 Choisis ta forêt :</p>
+  <div class="mode-options" role="group" aria-label="Nombre d’arbres">
+    <button type="button" class="option active" data-level="small" aria-pressed="true">🌱 Petite forêt<br>6 arbres</button>
+    <button type="button" class="option" data-level="large" aria-pressed="false">🌳 Grande forêt<br>12 arbres</button>
+  </div>
+  <div class="settings-actions">
+   <button class="small-action" type="button" id="sound">🔊 Son activé</button>
+   <button class="small-action" type="button" id="restart">↻ Recommencer</button>
+   <button class="close-settings" type="button" id="settings-close">✅ Fermer et jouer !</button>
+  </div>
+ </div>
+</details>
+<div class="progress" aria-label="Progression">
+ <div class="stat">🌳 Arbres <strong id="tree-count">0/6</strong></div>
+ <div class="stat">🪵 Bois <div class="cargo" id="cargo" aria-label="Bac de bois"><span>·</span><span>·</span><span>·</span></div></div>
+ <div class="stat">📄 Papier <strong id="paper-count">0/6</strong></div>
+</div>
+<div class="actions" role="group" aria-label="Actions du robot">
+ <button type="button" class="action" id="transform">🤖 Se transformer</button>
+ <button type="button" class="action" id="factory-button">🏭 Aller à l’usine</button>
+ <button type="button" class="action" id="unload" disabled>📦 Décharger le bois</button>
+</div>
+<div class="board" id="board">
+ <canvas id="scene" width="1000" height="620" tabindex="0" aria-label="Forêt en deux dimensions. Touche un arbre pour t’y rendre. Double-tape pour transformer le robot. Touche l’usine pour transporter le bois."></canvas>
+ <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Partie terminée">
+  <div class="win"><div class="trophy">🏆📄🌱</div><h2>Bravo, champion du papier !</h2><p>Tous les arbres ont été récoltés et transformés en papier. On replante une nouvelle forêt ?</p><button type="button" class="replant" id="replant">🌱 Replanter et rejouer !</button></div>
+ </div>
+</div>
+<div class="note" id="message" aria-live="polite">🤖 Touche deux fois le terrain pour devenir une machine à scie !</div>
+<div class="instructions">👆 Touche un arbre pour rouler vers lui · ✨ Double-tap pour transformer · 🏭 Rapporte le bois à l’usine</div>
+<footer>Un jeu imaginaire pour découvrir la fabrication du papier. Dans la vraie vie, on protège les forêts et on replante des arbres. 🌱</footer>
+</div>
+<script>
+(()=>{
+'use strict';
+const root=document.getElementById('forest-game');
+if(root.dataset.ready)return;
+root.dataset.ready='1';
+const canvas=root.querySelector('#scene'),ctx=canvas.getContext('2d');
+if(!ctx){root.querySelector('#message').textContent='Ce navigateur ne permet pas ce jeu 2D.';return;}
+const UI={
+ message:root.querySelector('#message'),trees:root.querySelector('#tree-count'),paper:root.querySelector('#paper-count'),
+ cargo:root.querySelector('#cargo'),transform:root.querySelector('#transform'),factory:root.querySelector('#factory-button'),
+ unload:root.querySelector('#unload'),overlay:root.querySelector('#overlay'),settings:root.querySelector('#settings'),
+};
+const W=1000,H=620,dock={x:731,y:487},capacity=3;
+const baseTrees=[
+ [157,166,1.00],[302,144,1.05],[459,190,.97],[612,153,1.08],
+ [153,311,.96],[315,319,1.04],[470,341,.92],[630,320,1.06],
+ [192,463,.98],[352,483,1.02],[514,464,1.00],[645,462,.95]
+];
+const easyIndices=[0,2,4,6,9,11];
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+let level='small',trees=[],mode='robot',previousMode='robot',morph=1,vehicle={x:340,y:554,angle:-Math.PI/2},
+ target=null,cargo=0,delivered=0,paper=0,cutCount=0,cuttingId=null,cutProgress=0,processing=0,processingTotal=0,
+ won=false,clock=0,lastFrame=0,particles=[],soundOn=true,audio=null,keys=new Set(),touchStart=null,lastTap=null;
+function note(text){UI.message.textContent=text;}
+function tone(frequency=580,length=.08){
+ if(!soundOn)return;
+ try{
+  if(!audio)audio=new (window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==='suspended')audio.resume();
+  const now=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+  osc.type='sine';osc.frequency.setValueAtTime(frequency,now);osc.frequency.exponentialRampToValueAtTime(frequency*1.16,now+length);
+  gain.gain.setValueAtTime(.035,now);gain.gain.exponentialRampToValueAtTime(.0001,now+length);
+  osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+length+.015);
+ }catch(e){}
+}
+function refresh(){
+ UI.trees.textContent=cutCount+'/'+trees.length;
+ UI.paper.textContent=paper+'/'+trees.length;
+ UI.cargo.innerHTML='';
+ for(let i=0;i<capacity;i++){
+  const block=document.createElement('span');block.textContent=i<cargo?'🪵':'·';block.className=i<cargo?'full':'';
+  UI.cargo.appendChild(block);
+ }
+ UI.transform.textContent=mode==='robot'?'🤖 Devenir une scie !':'🔁 Redevenir robot !';
+ const nearFactory=Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)<66;
+ UI.unload.disabled=cargo===0||!nearFactory||processing>0||won;
+ UI.unload.textContent=processing>0?'🏭 Fabrication…':'📦 Décharger le bois';
+ UI.factory.disabled=processing>0||won;
+ UI.transform.disabled=processing>0||won;
+ root.querySelector('#settings-current').textContent=(level==='small'?'🌱 Petite forêt · 6 arbres':'🌳 Grande forêt · 12 arbres');
+}
+function init(){
+ const ids=level==='small'?easyIndices:baseTrees.map((_,i)=>i);
+ trees=ids.map((idx,i)=>({id:i,x:baseTrees[idx][0],y:baseTrees[idx][1],scale:baseTrees[idx][2],cut:false,flash:0}));
+ vehicle={x:330,y:548,angle:-Math.PI/2};mode='robot';previousMode='robot';morph=1;
+ target=null;cargo=0;delivered=0;paper=0;cutCount=0;cuttingId=null;cutProgress=0;processing=0;processingTotal=0;
+ won=false;clock=0;lastFrame=0;lastTap=null;touchStart=null;particles.length=0;
+ UI.overlay.classList.remove('show');
+ note('🤖 Double-tape le terrain pour te transformer en machine à scie !');
+ refresh();
+}
+function transform(){
+ if(won||processing>0||morph<.95)return false;
+ previousMode=mode;mode=mode==='robot'?'saw':'robot';morph=0;lastTap=null;
+ cuttingId=null;cutProgress=0;
+ for(let i=0;i<16;i++){
+  const a=i*Math.PI*2/16;
+  particles.push({x:vehicle.x+Math.cos(a)*25,y:vehicle.y+Math.sin(a)*25,vx:Math.cos(a)*80,vy:Math.sin(a)*80,
+   life:.8,size:4,hue:i%2?'#88dfff':'#ffe68b'});
+ }
+ note(mode==='saw'?'🪚 Transformation réussie ! Touche un arbre pour le couper.':'🤖 Robot de retour ! Double-tape pour ressortir la scie.');
+ tone(510,.17);refresh();return true;
+}
+function goFactory(){
+ if(won||processing>0)return;
+ target={x:dock.x,y:dock.y,kind:'factory'};
+ note(cargo>0?'🏭 Direction l’usine à papier !':'🏭 Voici l’usine ! Récolte du bois et reviens ici.');
+ tone(460,.09);
+}
+function goTree(tree){
+ if(tree.cut||won||processing>0)return;
+ // La destination est au pied de l'arbre, juste à portée de scie.
+ target={x:clamp(tree.x+48,90,735),y:clamp(tree.y+37,98,555),kind:'tree',treeId:tree.id};
+ note(mode==='saw'?'🪚 En route ! La scie coupe quand tu arrives près de l’arbre.':'🤖 Approche de l’arbre, puis double-tape pour sortir la scie.');
+ tone(650,.06);
+}
+function selectedTreeAt(x,y){
+ let nearest=null,d=60;
+ for(const t of trees)if(!t.cut){
+  const dd=Math.hypot(x-t.x,y-t.y);
+  if(dd<d){d=dd;nearest=t;}
+ }
+ return nearest;
+}
+function handleTouch(x,y){
+ if(won||processing>0)return;
+ if(x>758&&y>150&&y<566){goFactory();return;}
+ const tree=selectedTreeAt(x,y);
+ if(tree){goTree(tree);return;}
+ target={kind:'point',x:clamp(x,65,749),y:clamp(y,84,568)};
+ note('👆 Le robot roule vers le point que tu as choisi.');
+}
+function coords(ev){
+ const r=canvas.getBoundingClientRect();
+ return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H};
+}
+canvas.addEventListener('pointerdown',ev=>{
+ if(won||processing>0||touchStart)return;
+ ev.preventDefault();canvas.focus({preventScroll:true});
+ const now=Date.now(),p=coords(ev);
+ if(lastTap&&now-lastTap.time<480&&Math.hypot(p.x-lastTap.x,p.y-lastTap.y)<90){
+  lastTap=null;touchStart=null;transform();return;
+ }
+ touchStart={pointerId:ev.pointerId,x:p.x,y:p.y,start:now,moved:false};
+ try{canvas.setPointerCapture(ev.pointerId)}catch(e){}
+});
+canvas.addEventListener('pointermove',ev=>{
+ if(!touchStart||touchStart.pointerId!==ev.pointerId)return;
+ const p=coords(ev);if(Math.hypot(p.x-touchStart.x,p.y-touchStart.y)>28)touchStart.moved=true;
+});
+canvas.addEventListener('pointerup',ev=>{
+ if(!touchStart||touchStart.pointerId!==ev.pointerId)return;
+ const p=coords(ev),now=Date.now(),single=!touchStart.moved&&now-touchStart.start<430;
+ touchStart=null;
+ if(single){lastTap={time:now,x:p.x,y:p.y};handleTouch(p.x,p.y);}
+ else lastTap=null;
+});
+canvas.addEventListener('pointercancel',()=>{touchStart=null;lastTap=null});
+canvas.addEventListener('dblclick',ev=>ev.preventDefault());
+root.querySelector('#transform').addEventListener('click',transform);
+root.querySelector('#factory-button').addEventListener('click',goFactory);
+root.querySelector('#unload').addEventListener('click',()=>{
+ if(cargo===0||processing>0||won||Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)>=66)return;
+ target=null;cuttingId=null;cutProgress=0;
+ processing=1.55;processingTotal=1.55;
+ note('🏭 Le bois entre dans l’usine… et devient du papier !');
+ refresh();tone(630,.2);
+});
+root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{
+ level=b.dataset.level;
+ root.querySelectorAll('[data-level]').forEach(x=>{const yes=x.dataset.level===level;x.classList.toggle('active',yes);x.setAttribute('aria-pressed',String(yes));});
+ init();
+}));
+root.querySelector('#sound').addEventListener('click',()=>{soundOn=!soundOn;root.querySelector('#sound').textContent=soundOn?'🔊 Son activé':'🔇 Son coupé';if(soundOn)tone();});
+root.querySelector('#restart').addEventListener('click',()=>{init();tone(540);});
+root.querySelector('#settings-close').addEventListener('click',()=>{UI.settings.open=false;});
+root.querySelector('#replant').addEventListener('click',()=>{init();tone(710,.17);});
+window.addEventListener('keydown',ev=>{
+ const k=ev.key.length===1?ev.key.toLowerCase():ev.key;
+ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();
+ if(k===' '&&!ev.repeat){transform();return;}
+ if(k==='f'&&!ev.repeat){goFactory();return;}
+ if(k==='e'&&!ev.repeat){UI.unload.click();return;}
+ keys.add(k);
+});
+window.addEventListener('keyup',ev=>{keys.delete(ev.key.length===1?ev.key.toLowerCase():ev.key);});
+window.addEventListener('blur',()=>{keys.clear();touchStart=null;});
+function win(){
+ won=true;target=null;UI.overlay.classList.add('show');
+ note('🎉 Bravo ! Tous les arbres sont devenus du papier !');
+ for(let i=0;i<65;i++){
+  const a=i*2.399;
+  particles.push({x:500+Math.cos(a)*190,y:270+Math.sin(a)*150,
+   vx:Math.cos(a)*110,vy:-80+Math.sin(a)*80,life:1.7+Math.random()*.7,size:6,hue:['#ffe35f','#82cc6e','#91dcee'][i%3]});
+ }
+ tone(780,.3);
+}
+function spark(x,y,color,count=9){
+ for(let i=0;i<count;i++){const a=i*6.28/count;
+  particles.push({x,y,vx:Math.cos(a)*(50+i%3*20),vy:Math.sin(a)*(50+i%3*20)-35,life:.6,size:3+i%3,hue:color});
+ }
+}
+function cutTree(t){
+ if(t.cut||cargo>=capacity)return;
+ t.cut=true;cutCount++;cargo++;cuttingId=null;cutProgress=0;target=null;
+ spark(t.x,t.y,'#e9c482',18);tone(390,.19);
+ if(cargo===capacity)note('🪵 Le bac est plein ! Touche « Aller à l’usine ».');
+ else note('🌳 Bravo ! Un tronc dans le bac. Choisis un autre arbre !');
+ refresh();
+}
+function update(dt){
+ clock+=dt;
+ if(morph<1)morph=Math.min(1,morph+dt/0.72);
+ for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.vy+=18*dt;}
+ particles=particles.filter(p=>p.life>0);
+ if(won)return;
+ if(processing>0){
+  processing=Math.max(0,processing-dt);
+  if(processing===0){
+   const count=cargo;cargo=0;delivered+=count;paper+=count;
+   spark(888,314,'#fff4d5',24);
+   note('📄 L’usine a fabriqué '+count+' paquet'+(count>1?'s':'')+' de papier !');
+   refresh();tone(820,.22);
+   if(paper===trees.length){win();return;}
+   note('📄 Papier fabriqué ! Retourne dans la forêt chercher du bois.');
+  }
+  refresh();return;
+ }
+ let moved=false;
+ let dx=0,dy=0;
+ if(keys.has('ArrowLeft')||keys.has('a')||keys.has('q'))dx--;
+ if(keys.has('ArrowRight')||keys.has('d'))dx++;
+ if(keys.has('ArrowUp')||keys.has('w')||keys.has('z'))dy--;
+ if(keys.has('ArrowDown')||keys.has('s'))dy++;
+ if(Math.hypot(dx,dy)>.01){target=null;const n=Math.hypot(dx,dy);dx/=n;dy/=n;}
+ else if(target){
+  const offX=target.x-vehicle.x,offY=target.y-vehicle.y,dist=Math.hypot(offX,offY);
+  if(dist>5){dx=offX/dist*Math.min(1,dist/32);dy=offY/dist*Math.min(1,dist/32);}
+  else if(target.kind==='factory'||target.kind==='point')target=null;
+ }
+ if(Math.hypot(dx,dy)>.01){
+  const speed=mode==='robot'?220:178;
+  vehicle.x=clamp(vehicle.x+dx*speed*dt,73,751);
+  vehicle.y=clamp(vehicle.y+dy*speed*dt,94,561);
+  const aim=Math.atan2(dy,dx)+Math.PI/2;
+  vehicle.angle+=Math.atan2(Math.sin(aim-vehicle.angle),Math.cos(aim-vehicle.angle))*Math.min(1,dt*9);
+  moved=true;
+ }
+ if(mode==='saw'&&morph>=.9&&cargo<capacity){
+  let best=null,bestDist=83;
+  // Privilégier l'arbre choisi, mais accepter celui qui se trouve tout près.
+  for(const t of trees)if(!t.cut){
+   const d=Math.hypot(vehicle.x-t.x,vehicle.y-t.y);
+   if(d<bestDist){best=t;bestDist=d;}
+  }
+  if(best&&(!moved||bestDist<57)){
+   if(cuttingId!==best.id){cuttingId=best.id;cutProgress=0;}
+   cutProgress+=dt;
+   if(cutProgress>=1.05)cutTree(best);
+  }else{cuttingId=null;cutProgress=0;}
+ }else{cuttingId=null;cutProgress=0;}
+ if(Math.hypot(vehicle.x-dock.x,vehicle.y-dock.y)<66&&cargo>0){
+  if(!UI.unload.disabled)return;
+  note('🏭 Tu es à l’usine ! Appuie sur « Décharger le bois ».');
+ }
+ refresh();
+}
+function roundRect(x,y,w,h,r,color,stroke=null,line=1){
+ ctx.beginPath();ctx.roundRect(x,y,w,h,r);
+ if(color){ctx.fillStyle=color;ctx.fill();}
+ if(stroke){ctx.lineWidth=line;ctx.strokeStyle=stroke;ctx.stroke();}
+}
+function label(text,x,y,font='18px system-ui',color='#294b35',align='center'){
+ ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='middle';ctx.font=font;ctx.fillText(text,x,y);
+}
+function ring(x,y,r,color,width=5){
+ ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.lineWidth=width;ctx.strokeStyle=color;ctx.stroke();
+}
+function drawTree(t){
+ const bob=Math.sin(clock*1.5+t.id*1.4)*1.1;
+ ctx.save();ctx.translate(t.x,t.y);
+ if(t.cut){
+  ctx.fillStyle='#ae7d48';ctx.beginPath();ctx.ellipse(0,6,19,15,0,0,7);ctx.fill();
+  ctx.fillStyle='#edc68c';ctx.beginPath();ctx.ellipse(0,3,16,11,0,0,7);ctx.fill();
+  ring(0,3,6,'#b68450',2);
+  ctx.restore();return;
+ }
+ const scale=t.scale;
+ ctx.scale(scale,scale);
+ ctx.fillStyle='#34664330';ctx.beginPath();ctx.ellipse(12,16,38,25,0,0,7);ctx.fill();
+ ctx.fillStyle='#8c613c';roundRect(-10,-8,20,42,6,'#8c613c');
+ ctx.fillStyle=t.id%3===0?'#3d9a56':t.id%3===1?'#53af58':'#70b95c';
+ for(const [xx,yy,rad] of [[-18,-16,25],[15,-22,26],[0,-34,29],[-8,5,24],[18,2,23]]){
+  ctx.beginPath();ctx.arc(xx,yy+bob,rad,0,7);ctx.fill();
+ }
+ ctx.fillStyle='#9bd979';ctx.beginPath();ctx.arc(-10,-37+bob,15,0,7);ctx.fill();
+ ctx.fillStyle='#d3eeac';ctx.beginPath();ctx.arc(13,-42+bob,6,0,7);ctx.fill();
+ if(target?.kind==='tree'&&target.treeId===t.id){
+  ring(0,0,57,'#fce36a',5);
+  label('✦',0,-65,'bold 27px system-ui','#fbe269');
+ }
+ if(cuttingId===t.id){
+  ctx.beginPath();ctx.arc(0,0,49,-Math.PI/2,-Math.PI/2+Math.min(1,cutProgress/1.05)*2*Math.PI);
+  ctx.strokeStyle='#ffe378';ctx.lineWidth=9;ctx.stroke();
+ }
+ ctx.restore();
+}
+function drawFactory(){
+ // Chemin de livraison séparé de la forêt.
+ roundRect(746,119,243,428,20,'#b1baa5');
+ roundRect(768,143,207,343,18,'#e4ddc5','#b89c69',4);
+ roundRect(791,185,169,200,16,'#f6d98f','#c59354',5);
+ roundRect(816,159,22,79,5,'#c98d60');
+ roundRect(852,145,27,88,5,'#b87e54');
+ ctx.fillStyle='#eb9f6c';
+ for(const [x,y] of [[829,138],[867,125],[893,147]]){
+  ctx.beginPath();ctx.arc(x+Math.sin(clock*1.2+x)*4,y,11,0,7);ctx.fill();
+ }
+ ctx.fillStyle='#c9775d';ctx.beginPath();ctx.moveTo(782,207);ctx.lineTo(875,150);ctx.lineTo(968,208);ctx.closePath();ctx.fill();
+ for(const xx of [812,855,900]){
+  roundRect(xx,227,28,38,5,'#81c6d9','#ffffff',3);
+  ctx.strokeStyle='#e3fcff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xx+14,227);ctx.lineTo(xx+14,265);ctx.stroke();
+ }
+ roundRect(821,285,116,67,8,'#c9d1ad','#9caa79',3);
+ label('🏭',879,316,'36px system-ui');
+ label('USINE À',876,389,'900 20px system-ui','#70502c');
+ label('PAPIER',876,417,'900 26px system-ui','#4d6138');
+ // Quai : les bûches entrent sur le tapis et ressortent en feuilles.
+ roundRect(750,466,91,65,14,'#d8ac68','#fff6d9',4);
+ roundRect(762,485,75,21,8,'#645846');
+ for(let xx=766;xx<831;xx+=14){ctx.fillStyle='#b09d7a';ctx.fillRect(xx,485,3,21);}
+ label('QUAI',792,457,'900 18px system-ui','#73542b');
+ ctx.beginPath();ctx.setLineDash([7,7]);ctx.arc(dock.x,dock.y,34,0,7);
+ ctx.strokeStyle='#fff8ba';ctx.lineWidth=5;ctx.stroke();ctx.setLineDash([]);
+ if(target?.kind==='factory')ring(dock.x,dock.y,41,'#ffee7d',6);
+ // Animation des bûches sur le convoyeur pendant la fabrication.
+ if(processing>0){
+  const phase=1-processing/processingTotal;
+  const x=768+phase*120,y=492-phase*90;
+  ctx.save();ctx.translate(x,y);ctx.rotate(-phase*.4);
+  roundRect(-25,-11,50,23,10,'#c88e4e','#8d633b',3);
+  label('🪵',0,0,'27px system-ui');ctx.restore();
+  for(let i=0;i<5;i++)label('✨',830+i*22,280+Math.sin(clock*8+i)*13,'20px system-ui','#fff8cf');
+ }
+ for(let i=0;i<Math.min(12,paper);i++){
+  const x=826+i%4*28,y=358-Math.floor(i/4)*7;
+  roundRect(x,y,24,32,2,'#fcffff','#91b6ac',2);
+  ctx.fillStyle='#bcddda';ctx.fillRect(x+5,y+10,14,2);
+ }
+}
+function drawRobot(){
+ ctx.save();ctx.translate(vehicle.x,vehicle.y);ctx.rotate(vehicle.angle);
+ const sway=Math.sin(clock*11)*2;
+ ctx.fillStyle='#183b4230';ctx.beginPath();ctx.ellipse(2,15,39,44,0,0,7);ctx.fill();
+ function robot(a){
+  if(a<.01)return;ctx.save();ctx.globalAlpha*=a;
+  roundRect(-28,8+sway,18,34,5,'#244d73');
+  roundRect(10,8-sway,18,34,5,'#244d73');
+  roundRect(-43,-17,17,41,6,'#3c94ad');
+  roundRect(26,-17,17,41,6,'#3c94ad');
+  roundRect(-33,-28,66,62,12,'#54bac7');
+  roundRect(-25,-18,50,40,9,'#a9e5da');
+  roundRect(-29,-47,58,35,9,'#ebbc48');
+  roundRect(-23,-40,46,25,7,'#1f546c');
+  roundRect(-18,-34,12,9,4,'#aeffff');roundRect(6,-34,12,9,4,'#aeffff');
+  label('⚡',0,7,'bold 25px system-ui','#efa935');
+  ctx.restore();
+ }
+ function saw(a){
+  if(a<.01)return;ctx.save();ctx.globalAlpha*=a;
+  // Machine roulante forestière : chenilles, cabine et scie sous carter orange.
+  roundRect(-48,-38,18,77,8,'#354e4c');
+  roundRect(30,-38,18,77,8,'#354e4c');
+  roundRect(-41,-42,82,89,17,'#e8a33d');
+  roundRect(-34,-37,68,77,14,'#f2ca60');
+  roundRect(-25,-29,50,37,8,'#3b7f98');
+  roundRect(-19,-24,38,24,6,'#a6e6e9');
+  roundRect(-26,13,52,24,7,'#986c48');
+  for(let i=0;i<cargo;i++)roundRect(-19+i*13,16,12,16,5,'#dca76d');
+  roundRect(31,-43,16,60,6,'#916437');
+  // La scie stylisée tourne uniquement en mode engin.
+  ctx.save();ctx.translate(48,-31);ctx.rotate(clock*8);
+  ctx.fillStyle='#9fb9c2';ctx.beginPath();ctx.arc(0,0,22,0,7);ctx.fill();
+  ctx.fillStyle='#dce8eb';
+  for(let i=0;i<12;i++){const a=i*Math.PI/6;ctx.beginPath();ctx.moveTo(Math.cos(a)*18,Math.sin(a)*18);ctx.lineTo(Math.cos(a+.14)*28,Math.sin(a+.14)*28);ctx.lineTo(Math.cos(a+.3)*18,Math.sin(a+.3)*18);ctx.fill();}
+  ctx.fillStyle='#567787';ctx.beginPath();ctx.arc(0,0,7,0,7);ctx.fill();
+  ctx.restore();
+  ctx.restore();
+ }
+ if(morph<1){
+  const p=morph*morph*(3-2*morph);
+  ctx.scale(1,1-.19*Math.sin(morph*Math.PI));
+  if(previousMode==='robot'){robot(1-p);saw(p);}else{saw(1-p);robot(p);}
+ }else if(mode==='robot')robot(1);else saw(1);
+ ctx.restore();
+}
+function drawParticles(){
+ for(const p of particles){
+  ctx.save();ctx.globalAlpha=Math.min(1,p.life*2);
+  ctx.fillStyle=p.hue;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,7);ctx.fill();ctx.restore();
+ }
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#cce5a5');bg.addColorStop(1,'#82c279');
+ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ // Pelouse parsemée de fleurs : l'usine se distingue à droite.
+ for(let i=0;i<76;i++){
+  const x=44+(i*107)%704,y=69+(i*73)%511;
+  const a=Math.sin(i*1.9)*.6;ctx.fillStyle=i%6===0?'#fdf5b7':'#95cd85';
+  ctx.beginPath();ctx.ellipse(x+a,y,3,6,i,0,7);ctx.fill();
+ }
+ roundRect(28,34,703,544,22,null,'#f9f4ce',7);
+ drawFactory();
+ for(const t of trees)drawTree(t);
+ // Indique visuellement le chemin de la machine, sans couvrir les arbres.
+ if(target){
+  ctx.beginPath();ctx.setLineDash([12,11]);
+  ctx.moveTo(vehicle.x,vehicle.y);ctx.lineTo(target.x,target.y);
+  ctx.strokeStyle='#fffde6';ctx.lineWidth=4;ctx.stroke();ctx.setLineDash([]);
+  ring(target.x,target.y,12,'#fffde8',4);
+ }
+ drawRobot();drawParticles();
+ if(cargo>0){
+  roundRect(vehicle.x-36,vehicle.y+50,72,28,10,'#fff8d9','#debc80',2);
+  label('🪵 '+cargo+'/'+capacity,vehicle.x,vehicle.y+64,'bold 17px system-ui','#684e2a');
+ }
+ label('🌲 FORÊT',133,54,'900 22px system-ui','#45753e');
+ // Petite aide sur place, sous la forêt.
+ label(mode==='robot'?'🤖 Robot':'🪚 Scie',622,55,'900 20px system-ui','#3b6c45');
+}
+function loop(now){
+ const dt=lastFrame?Math.min(.04,(now-lastFrame)/1000):.016;
+ lastFrame=now;update(dt);draw();requestAnimationFrame(loop);
+}
+init();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
