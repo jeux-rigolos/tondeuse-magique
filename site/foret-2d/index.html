@@ -54,6 +54,7 @@ h2{font-size:19px;margin:8px 0}
 #transform:disabled,#factory-button:disabled{background:#e1e7dc;color:#7a8b7a}
 .board{position:relative;overflow:hidden;border:6px solid white;border-radius:24px;background:#a2d47a;box-shadow:0 6px #bdddb6,0 16px 30px #365b3d30;isolation:isolate}
 canvas{display:block;width:100%;height:auto;aspect-ratio:1000/620;touch-action:none;cursor:crosshair}
+.gamepad-help{margin:7px 0 0;padding:7px 12px;border-radius:13px;background:#f0f7e7;border:1px solid #d2e2c1;color:#4d7358;font-size:clamp(12px,1.7vw,14px);font-weight:850}
 .note{font-size:clamp(13px,2vw,17px);background:#fffef1;border:2px solid #d2e5b9;border-radius:14px;padding:10px 13px;margin:10px 0 0;min-height:45px;font-weight:850;color:#526b4b}
 .instructions{text-align:center;font-size:clamp(12px,1.6vw,15px);color:#63826a;font-weight:850;margin-top:10px}
 .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#204e3d9c;z-index:10;padding:15px;backdrop-filter:blur(2px)}
@@ -112,8 +113,9 @@ footer{margin-top:15px;text-align:center;font-size:12px;color:#55735e;font-weigh
   <div class="win"><div class="trophy">🏆📄🌱</div><h2>Bravo, champion du papier !</h2><p>Tous les arbres ont été récoltés et transformés en papier. On replante une nouvelle forêt ?</p><button type="button" class="replant" id="replant">🌱 Replanter et rejouer !</button></div>
  </div>
 </div>
+<div class="gamepad-help" id="gamepad-help" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette, puis appuie sur un bouton pour l’activer.</div>
 <div class="note" id="message" aria-live="polite">🤖 Touche deux fois le terrain pour devenir une machine à scie !</div>
-<div class="instructions">👆 Glisse le doigt pour guider le robot ou touche une destination · ✨ Double-tap pour transformer · 🏭 Décharge le bois au quai</div>
+<div class="instructions">👆 Toucher : conduire · ✨ Double-tap : transformer · 🎮 Joystick ou croix : conduire, A : transformer, B : décharger, X : usine</div>
 <footer>Un jeu imaginaire pour découvrir la fabrication du papier. Dans la vraie vie, on protège les forêts et on replante des arbres. 🌱</footer>
 </div>
 <script>
@@ -127,7 +129,7 @@ if(!ctx){root.querySelector('#message').textContent='Ce navigateur ne permet pas
 const UI={
  message:root.querySelector('#message'),trees:root.querySelector('#tree-count'),paper:root.querySelector('#paper-count'),
  cargo:root.querySelector('#cargo'),transform:root.querySelector('#transform'),factory:root.querySelector('#factory-button'),
- unload:root.querySelector('#unload'),overlay:root.querySelector('#overlay'),settings:root.querySelector('#settings'),
+ unload:root.querySelector('#unload'),overlay:root.querySelector('#overlay'),settings:root.querySelector('#settings'),padHelp:root.querySelector('#gamepad-help'),
 };
 const W=1000,H=620,dock={x:731,y:487},capacity=3;
 const baseTrees=[
@@ -140,6 +142,7 @@ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 let level='small',trees=[],mode='robot',previousMode='robot',morph=1,vehicle={x:340,y:554,angle:-Math.PI/2},
  target=null,cargo=0,delivered=0,paper=0,cutCount=0,cuttingId=null,cutProgress=0,processing=0,processingTotal=0,
  won=false,clock=0,lastFrame=0,particles=[],soundOn=true,audio=null,keys=new Set(),touchStart=null,lastTap=null;
+let padConnected=false,padHeld=new Set();
 function note(text){if(UI.message.textContent!==text)UI.message.textContent=text;}
 function tone(frequency=580,length=.08){
  if(!soundOn)return;
@@ -266,14 +269,15 @@ canvas.addEventListener('lostpointercapture',cancelPointer);
 canvas.addEventListener('dblclick',ev=>ev.preventDefault());
 root.querySelector('#transform').addEventListener('click',transform);
 root.querySelector('#factory-button').addEventListener('click',goFactory);
-UI.unload.addEventListener('click',()=>{
+function unloadWood(){
  if(cargo===0||processing>0||won||!atDock())return;
  if(document.activeElement===UI.unload)canvas.focus({preventScroll:true});
  target=null;touchStart=null;lastTap=null;cuttingId=null;cutProgress=0;
  processing=1.55;processingTotal=1.55;
  note('🏭 Le bois entre dans l’usine… et devient du papier !');
  refresh();tone(630,.2);
-});
+}
+UI.unload.addEventListener('click',unloadWood);
 root.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{
  level=b.dataset.level;
  root.querySelectorAll('[data-level]').forEach(x=>{const yes=x.dataset.level===level;x.classList.toggle('active',yes);x.setAttribute('aria-pressed',String(yes));});
@@ -317,11 +321,57 @@ function cutTree(t){
  else note('🌳 Bravo ! Un tronc dans le bac. Choisis un autre arbre !');
  refresh();
 }
+
+function pollGamepad(){
+ // Lire la manette à chaque image (Web Gamepad API) : Safari et certains appareils
+ // ne l'exposent qu'après une première pression sur un bouton.
+ let pad=null;
+ try{
+   const pads=typeof navigator.getGamepads==='function'?navigator.getGamepads():[];
+   if(pads)for(const p of pads){if(p&&p.connected!==false){pad=p;break;}}
+ }catch(e){}
+ if(!pad){
+   padHeld.clear();
+   if(padConnected){padConnected=false;UI.padHelp.textContent='🎮 Manette déconnectée. Reconnecte-la et appuie sur A.';}
+   else if(typeof navigator.getGamepads!=='function')UI.padHelp.textContent='🎮 La manette n’est pas prise en charge par ce navigateur. Tactile et clavier disponibles.';
+   return{x:0,y:0};
+ }
+ if(!padConnected){
+   padConnected=true;
+   UI.padHelp.textContent='🎮 Connectée ! Joystick/croix : rouler · A : transformer · B : livrer/décharger · X : usine';
+ }
+ const buttons=pad.buttons||[];
+ const down=i=>!!(buttons[i]&&(buttons[i].pressed||buttons[i].value>.55));
+ const was=padHeld;
+ const just=i=>down(i)&&!was.has(i);
+ const pressed=new Set();
+ for(let i=0;i<buttons.length;i++)if(down(i))pressed.add(i);
+ padHeld=pressed;
+ if(won){
+   if(just(0)||just(9))init();
+   return{x:0,y:0};
+ }
+ if(just(0))transform();
+ if(just(1)){
+   if(cargo>0&&atDock())unloadWood();
+   else if(cargo>0)goFactory();
+ }
+ if(just(2)||just(3))goFactory();
+ const axes=pad.axes||[];
+ const dead=v=>Math.abs(v)>.17?Math.sign(v)*Math.min(1,(Math.abs(v)-.17)/.83):0;
+ let x=dead(axes[0]||0),y=dead(axes[1]||0);
+ if(!x&&!y){x=dead(axes[2]||0);y=dead(axes[3]||0);}
+ if(down(14))x=-1;if(down(15))x=1;
+ if(down(12))y=-1;if(down(13))y=1;
+ return{x,y};
+}
+
 function update(dt){
  clock+=dt;
  if(morph<1)morph=Math.min(1,morph+dt/0.72);
  for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.vy+=18*dt;}
  particles=particles.filter(p=>p.life>0);
+ const padDirection=pollGamepad();
  if(won)return;
  if(processing>0){
   processing=Math.max(0,processing-dt);
@@ -341,6 +391,7 @@ function update(dt){
  if(keys.has('ArrowRight')||keys.has('d'))dx++;
  if(keys.has('ArrowUp')||keys.has('w')||keys.has('z'))dy--;
  if(keys.has('ArrowDown')||keys.has('s'))dy++;
+ dx+=padDirection.x;dy+=padDirection.y;
  if(Math.hypot(dx,dy)>.01){target=null;const n=Math.hypot(dx,dy);dx/=n;dy/=n;}
  else {
   const destination=touchStart?.point||target;
