@@ -41,25 +41,29 @@ const modeCards = modes.map(({ name, color, icon }) => {
 const robot = { x: 0, y: 0, angle: -Math.PI / 2 };
 const keys = new Set();
 const directions = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-let width, height, radius, dirt, mode, cleaned, load, target, pointer, lastTap, flash, previous;
+let width, height, radius, dirt, mode, cleaned, cargoCounts, target, pointer, lastTap, flash, previous;
+let activeBin = -1;
+let unloadWidth = 0;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const total = 20;
 const capacity = 5;
-const bins = {
-  atelier: [{ x: 0.19, y: 0.09 }, { x: 0.81, y: 0.09 }],
-  cuisine: [{ x: 0.25, y: 0.93 }, { x: 0.75, y: 0.93 }]
-};
+const cargoSize = () => cargoCounts.reduce((sum, count) => sum + count, 0);
+const binX = type => width * (type + 0.5) / modes.length;
+const binY = () => height - binRadius() - 19;
+const binRadius = () => Math.min(radius, width / 17);
+const dirtY = item => item.y * (height - binRadius() * 2 - 24);
 const isKitchen = () => currentMap === "cuisine";
 
 function updateHud() {
   score.textContent = cleaned + " / " + total + " nettoyés";
   progress.value = cleaned;
+  const load = cargoSize();
   cargo.textContent = "Bac " + load + "/" + capacity;
   cargo.toggleAttribute("data-full", load === capacity);
-  const message = cleaned === total && load
-    ? "Vide le bac pour terminer"
-    : load === capacity ? "Bac plein · Va à une poubelle" : "";
+  const contents = modes.flatMap(({ name }, type) => cargoCounts[type] ? [name + " ×" + cargoCounts[type]] : []);
+  const lead = cleaned === total ? "Pour terminer, trie" : "À déposer";
+  const message = load ? lead + " · " + contents.join(", ") : "";
   if (cargoHint.textContent !== message) cargoHint.textContent = message;
   cargoHint.hidden = !message;
   updateUnloadButton();
@@ -96,7 +100,8 @@ function restart() {
   if (victory.open) victory.close();
   clearControls();
   mode = 0;
-  cleaned = load = 0;
+  cleaned = 0;
+  cargoCounts = modes.map(() => 0);
   robot.x = width / 2;
   robot.y = height / 2;
   robot.angle = -Math.PI / 2;
@@ -121,7 +126,7 @@ function workshopDirt() {
 function chooseMap(nextMap) {
   if (nextMap === currentMap) return;
   savedMaps.set(currentMap, {
-    dirt, cleaned, load, mode,
+    dirt, cleaned, cargoCounts, mode,
     x: robot.x / width,
     y: robot.y / height,
     angle: robot.angle
@@ -137,12 +142,12 @@ function chooseMap(nextMap) {
     return;
   }
   clearControls();
-  ({ dirt, cleaned, load, mode } = saved);
+  ({ dirt, cleaned, cargoCounts, mode } = saved);
   robot.x = saved.x * width;
   robot.y = saved.y * height;
   robot.angle = saved.angle;
   showForm();
-  if (cleaned === total && !load) victory.showModal();
+  if (cleaned === total && !cargoSize()) victory.showModal();
 }
 
 function resize() {
@@ -266,42 +271,70 @@ function rounded(x, y, w, h, corner, color) {
   ctx.fill();
 }
 
-function isNearBin(bin) {
-  return Math.hypot(robot.x - bin.x * width, robot.y - bin.y * height) <= radius * 2.5;
+function nearbyBin() {
+  const type = clamp(Math.floor(robot.x * modes.length / width), 0, modes.length - 1);
+  const distance = Math.hypot(robot.x - binX(type), robot.y - binY());
+  return distance <= binRadius() * 2.4 ? type : -1;
 }
 
 function updateUnloadButton() {
-  unload.hidden = !load || !bins[currentMap].some(isNearBin);
+  const nearby = nearbyBin();
+  const type = cargoCounts[nearby] ? nearby : -1;
+  if (activeBin !== type) {
+    activeBin = type;
+    unload.hidden = type === -1;
+    if (type !== -1) {
+      unload.textContent = "Vider · " + modes[type].name;
+      unload.style.setProperty("--bin-color", modes[type].color);
+      unloadWidth = unload.offsetWidth;
+    }
+  }
+  if (type !== -1) {
+    const side = robot.x + radius + 8 + unloadWidth <= width - 4
+      ? robot.x + radius + 8
+      : robot.x - radius - 8 - unloadWidth;
+    const left = clamp(side, 4, width - unloadWidth - 4);
+    const top = clamp(robot.y - radius - 38, 4, height - 48);
+    unload.style.transform = "translate3d(" + left + "px," + top + "px,0)";
+  }
 }
 
 function emptyBin() {
-  if (victory.open || !load || !bins[currentMap].some(isNearBin)) return;
-  load = 0;
+  const type = nearbyBin();
+  if (victory.open || !cargoCounts[type]) return;
+  cargoCounts[type] = 0;
   clearControls();
   updateHud();
-  if (cleaned === total) victory.showModal();
+  if (cleaned === total && !cargoSize()) victory.showModal();
   else transform.focus();
 }
 
 function drawBins() {
-  for (const bin of bins[currentMap]) {
-    const x = bin.x * width;
-    const y = bin.y * height;
-    const size = radius;
-    const ready = load > 0 && isNearBin(bin);
-    circle(x, y, size * 1.2, ready ? "#beffd6" : "#193b3c");
-    rounded(x - size * 0.59, y - size * 0.34, size * 1.18, size * 1.1, size * 0.23, "#369965");
-    rounded(x - size * 0.18, y - size * 0.76, size * 0.36, size * 0.23, size * 0.1, "#b8f6cd");
-    rounded(x - size * 0.71, y - size * 0.61, size * 1.42, size * 0.33, size * 0.11, "#9be0b4");
-    for (const offset of [-0.25, 0, 0.25]) {
-      rounded(x + size * offset - size * 0.04, y - size * 0.11, size * 0.08, size * 0.59, size * 0.04, "#1c613e");
-    }
-  }
+  const y = binY();
+  const size = binRadius();
+  const font = Math.round(clamp(width / 32, 9, 13));
+  modes.forEach(({ name, color, icon }, type) => {
+    const x = binX(type);
+    circle(x, y, size * 1.12, activeBin === type ? "#f8fff7" : "#26332c");
+    rounded(x - size * 0.66, y - size * 0.5, size * 1.32, size * 1.32, size * 0.22, color);
+    rounded(x - size * 0.18, y - size * 0.86, size * 0.36, size * 0.25, size * 0.1, color);
+    rounded(x - size * 0.8, y - size * 0.65, size * 1.6, size * 0.25, size * 0.09, "#f8fff7");
+    ctx.fillStyle = "#1e2930";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold " + Math.round(size * 0.85) + "px system-ui";
+    ctx.fillText(icon, x, y + size * 0.22);
+    ctx.font = "bold " + font + "px system-ui";
+    const labelWidth = Math.min(width / modes.length - 4, ctx.measureText(name).width + 8);
+    rounded(x - labelWidth / 2, y + size * 0.9, labelWidth, font + 4, 4, "#121b2e");
+    ctx.fillStyle = color;
+    ctx.fillText(name, x, y + size * 0.9 + (font + 4) / 2, labelWidth - 4);
+  });
 }
 
 function drawDirt(item, time) {
   const x = item.x * width;
-  const y = item.y * height;
+  const y = dirtY(item);
   const { color, icon } = modes[item.type];
   const size = radius * 0.81;
   if (item.clean) {
@@ -407,12 +440,14 @@ function frame(time) {
   previous = time;
   if (!victory.open) {
     move(dt);
+    let load = cargoSize();
     for (const item of dirt) {
       if (load >= capacity) break;
       if (item.clean || item.type !== mode) continue;
-      if (Math.hypot(robot.x - item.x * width, robot.y - item.y * height) > radius * 1.65) continue;
+      if (Math.hypot(robot.x - item.x * width, robot.y - dirtY(item)) > radius * 1.65) continue;
       item.clean = time;
       cleaned++;
+      cargoCounts[item.type]++;
       load++;
       updateHud();
     }

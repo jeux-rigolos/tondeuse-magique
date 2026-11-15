@@ -13,9 +13,10 @@ canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
 .hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;padding:5px 9px;border-radius:10px;background:#121b2e;color:#f8faff;font-size:13px;pointer-events:none}
 #cargo{border-left:1px solid #536987;padding-left:8px;color:#aef3c6}
 #cargo[data-full]{color:#ffda86}
-#unload{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:#9fedbf;color:#142b22;border-color:#d2ffe2;white-space:nowrap}
+#unload{position:absolute;top:0;left:0;background:var(--bin-color,#9fedbf);color:#142b22;border-color:#fff;white-space:nowrap;font-size:13px;box-shadow:0 3px 10px #121b2e70}
 #unload[hidden]{display:none}
-#cargo-hint{color:#ffda86}
+#cargo-hint{color:#ffda86;min-height:2.4em;line-height:1.2;margin-inline:2px}
+#cargo-hint[hidden]{display:block;visibility:hidden}
 progress{width:clamp(40px,16vw,130px);height:10px;accent-color:#6dedac}
 footer{display:grid;justify-items:center;gap:5px}
 .controls{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:100%}
