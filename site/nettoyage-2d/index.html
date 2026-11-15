@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#121b2e">
 <title>Robot Nettoyeur 2D — Les jeux rigolos</title>
-<link rel="stylesheet" href="./game.css">
-<script src="./game.js" defer></script>
+<link rel="stylesheet" href="./game.css?v=2">
+<script src="./kitchen.js" defer></script>
+<script src="./game.js?v=2" defer></script>
 </head>
 <body>
 <main id="game">
@@ -15,7 +16,7 @@
     <h1>Robot Nettoyeur</h1>
     <button id="fullscreen" type="button" aria-label="Activer le plein écran" title="Plein écran">⛶</button>
   </header>
-  <section class="arena" aria-label="Atelier">
+  <section class="arena" aria-label="Terrain de jeu">
     <canvas id="board" aria-label="Glisse le doigt ou utilise les flèches pour piloter. Double-tape ou appuie sur Espace pour changer de forme."></canvas>
     <div class="hud">
       <strong id="score" role="status"></strong>
@@ -25,10 +26,17 @@
       <span aria-hidden="true">🏆</span>
       <h2 id="victory-title">Atelier impeccable !</h2>
       <button id="replay" type="button">Rejouer</button>
+      <button id="other-map" type="button">Autre carte</button>
     </dialog>
   </section>
   <footer>
-    <button id="transform" type="button" aria-describedby="hint"></button>
+    <div class="controls">
+      <select id="map" aria-label="Choisir une carte">
+        <option value="atelier">Atelier</option>
+        <option value="cuisine">Cuisine</option>
+      </select>
+      <button id="transform" type="button" aria-describedby="hint"></button>
+    </div>
     <div id="forms" aria-label="Formes et salissures restantes"></div>
     <p id="hint">Glisse pour rouler · Double-tape pour te transformer</p>
     <p id="screen-note" role="status" hidden>Le jeu occupe tout l’espace disponible sur cet appareil.</p>

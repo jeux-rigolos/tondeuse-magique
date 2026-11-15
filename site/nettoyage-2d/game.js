@@ -10,6 +10,10 @@ const transform = document.querySelector("#transform");
 const fullscreen = document.querySelector("#fullscreen");
 const screenNote = document.querySelector("#screen-note");
 const victory = document.querySelector("#victory");
+const victoryTitle = document.querySelector("#victory-title");
+const mapPicker = document.querySelector("#map");
+const savedMaps = new Map();
+let currentMap = "atelier";
 
 const modes = [
   { name: "Taches", color: "#ffb678", icon: "✦", tool: "Éponge" },
@@ -38,6 +42,7 @@ let width, height, radius, dirt, mode, cleaned, target, pointer, lastTap, flash,
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const total = 20;
+const isKitchen = () => currentMap === "cuisine";
 
 function updateHud() {
   score.textContent = cleaned + " / " + total + " nettoyés";
@@ -65,28 +70,63 @@ function nextForm() {
   showForm();
 }
 
-function restart() {
-  if (victory.open) victory.close();
-  mode = 0;
-  cleaned = 0;
+function clearControls() {
   flash = -Infinity;
   target = pointer = lastTap = null;
   keys.clear();
+}
+
+function restart() {
+  if (victory.open) victory.close();
+  clearControls();
+  mode = 0;
+  cleaned = 0;
   robot.x = width / 2;
   robot.y = height / 2;
   robot.angle = -Math.PI / 2;
+  dirt = isKitchen() ? kitchenDirt() : workshopDirt();
+  showForm();
+}
+
+function workshopDirt() {
   const types = Array.from({ length: total }, (_, i) => i % modes.length);
   for (let i = types.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [types[i], types[j]] = [types[j], types[i]];
   }
-  dirt = types.map((type, index) => ({
+  return types.map((type, index) => ({
     type,
     x: 0.11 + (index % 4) * 0.26 + Math.random() * 0.035,
     y: 0.23 + Math.floor(index / 4) * 0.16 + Math.random() * 0.035,
     clean: false
   }));
+}
+
+function chooseMap(nextMap) {
+  if (nextMap === currentMap) return;
+  savedMaps.set(currentMap, {
+    dirt, cleaned, mode,
+    x: robot.x / width,
+    y: robot.y / height,
+    angle: robot.angle
+  });
+  if (victory.open) victory.close();
+  currentMap = nextMap;
+  mapPicker.value = nextMap;
+  victoryTitle.textContent = isKitchen() ? "Cuisine impeccable !" : "Atelier impeccable !";
+
+  const saved = savedMaps.get(nextMap);
+  if (!saved) {
+    restart();
+    return;
+  }
+  clearControls();
+  ({ dirt, cleaned, mode } = saved);
+  robot.x = saved.x * width;
+  robot.y = saved.y * height;
+  robot.angle = saved.angle;
   showForm();
+  if (cleaned === total) victory.showModal();
 }
 
 function resize() {
@@ -187,7 +227,11 @@ document.querySelector("#replay").addEventListener("click", () => {
   restart();
   transform.focus();
 });
-victory.addEventListener("cancel", event => event.preventDefault());
+mapPicker.addEventListener("change", () => chooseMap(mapPicker.value));
+document.querySelector("#other-map").addEventListener("click", () => {
+  chooseMap(isKitchen() ? "atelier" : "cuisine");
+  if (!victory.open) mapPicker.focus();
+});
 
 function circle(x, y, size, color) {
   ctx.fillStyle = color;
@@ -219,6 +263,10 @@ function drawDirt(item, time) {
       }
       ctx.globalAlpha = 1;
     }
+    return;
+  }
+  if (isKitchen()) {
+    drawKitchenDirt(ctx, item, x, y, radius);
     return;
   }
   circle(x, y + 2, size + 2, "#131d30");
@@ -278,17 +326,28 @@ function move(dt) {
     dx += directions[key][0];
     dy += directions[key][1];
   }
+  const top = radius + (isKitchen() ? kitchenCounterHeight(height) : 0);
   if (target && !keys.size) {
     dx = clamp(target.x, radius, width - radius) - robot.x;
-    dy = clamp(target.y, radius, height - radius) - robot.y;
+    dy = clamp(target.y, top, height - radius) - robot.y;
   }
   const length = Math.hypot(dx, dy);
   if (length < 0.1) return;
   const step = clamp(Math.min(width, height) * 0.72, 120, 340) * dt;
   const speed = keys.size ? step : Math.min(length, step);
   robot.x = clamp(robot.x + dx / length * speed, radius, width - radius);
-  robot.y = clamp(robot.y + dy / length * speed, radius, height - radius);
+  robot.y = clamp(robot.y + dy / length * speed, top, height - radius);
   robot.angle = Math.atan2(dy, dx);
+}
+
+function drawWorkshop() {
+  ctx.fillStyle = "#1d2b42";
+  ctx.fillRect(0, 0, width, height);
+  const tile = clamp(Math.min(width, height) / 8, 25, 60);
+  ctx.fillStyle = "#22334c";
+  for (let y = 0, row = 0; y < height; y += tile, row++) {
+    for (let x = row % 2 * tile; x < width; x += tile * 2) ctx.fillRect(x, y, tile, tile);
+  }
 }
 
 function frame(time) {
@@ -310,13 +369,8 @@ function frame(time) {
     }
   }
 
-  ctx.fillStyle = "#1d2b42";
-  ctx.fillRect(0, 0, width, height);
-  const tile = clamp(Math.min(width, height) / 8, 25, 60);
-  ctx.fillStyle = "#22334c";
-  for (let y = 0, row = 0; y < height; y += tile, row++) {
-    for (let x = row % 2 * tile; x < width; x += tile * 2) ctx.fillRect(x, y, tile, tile);
-  }
+  if (isKitchen()) drawKitchen(ctx, width, height);
+  else drawWorkshop();
   for (const item of dirt) drawDirt(item, time);
   drawRobot(time);
   requestAnimationFrame(frame);
