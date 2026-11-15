@@ -3,19 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f6fbeb">
+  <meta name="theme-color" content="#121b2e">
   <title>La Tondeuse Magique 🌼</title>
   <style>
     :root { --ink:#284931; --green:#58b46f; --mint:#e7f7d6; --yellow:#ffde65; }
     * { box-sizing: border-box; }
     html, body { margin:0; min-height:100%; font-family:ui-rounded, "Trebuchet MS", system-ui, sans-serif; color:var(--ink); }
     body { background: radial-gradient(circle at 12% 8%, #fff9d2, transparent 31%), linear-gradient(160deg, #e6f8ff 0%, #f6fae8 58%, #d8f1db 100%); }
-    .layout { max-width:1160px; margin:0 auto; padding: 17px clamp(12px, 3vw, 30px) 26px; }
-    header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:13px; }
-    .brand {display:flex; align-items:center; gap:10px;}
-    .brand-icon { display:grid; place-items:center; background:#fff; border:3px solid #e5efc4; width:56px; height:56px; border-radius:20px; font-size:31px; transform:rotate(-5deg); box-shadow:0 4px 0 #dceba8; }
     h1 { margin:0; line-height:1.05; font-size:clamp(24px,4vw,36px); font-weight:1000; letter-spacing:-.8px; }
-    .subtitle { margin:4px 0 0; font-weight:750; font-size:14px; color:#64816d; }
     .actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
     button { border:0; cursor:pointer; font:inherit; font-weight:900; touch-action: manipulation; }
     button:focus-visible, canvas:focus-visible { outline:4px solid #dfaa31; outline-offset:3px; }
@@ -41,8 +36,6 @@
     .again {background:#ffcb4d; color:#5d4b1a; padding:15px 28px; border:4px solid #fff; border-radius:25px; font-size:23px; box-shadow:0 6px 0 #e7a939;}
     .again:active {transform:translateY(3px);box-shadow:0 3px 0 #e7a939;}
     @keyframes pop {0%{transform:scale(.65);opacity:0}100%{transform:scale(1);opacity:1}}
-    .site-nav{max-width:1160px;margin:10px auto 0;padding:0 20px;}
-    .site-nav a{display:inline-flex;align-items:center;gap:6px;color:#336c3a;font-weight:850;text-decoration:none;padding:8px 12px;border:2px solid #d4e7bb;border-radius:14px;background:#ffffffd9;}
     .vehicle-selector{display:flex;gap:10px;margin:0 0 14px;}
     .vehicle-select{flex:1;min-height:63px;border:3px solid #d2e5b8;background:#fffaf1;color:#3f6737;border-radius:19px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:clamp(13px,2.6vw,18px);box-shadow:0 4px 0 #dbe8c3;}
     .vehicle-select .emoji{font-size:28px;}
@@ -58,12 +51,7 @@
     .size-select.active{background:#e3f6d6;border-color:#54b04d;box-shadow:inset 0 0 0 1px #54b04d}
     @media(max-width:650px){.size-select{min-height:41px;font-size:12px}}
     @media(max-width:650px){.garden-selector{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.garden-select{min-height:41px;padding:5px 2px;font-size:12px}.garden-heading{margin-left:6px}}
-    .instructions {display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-top:22px;}
-    .pill { display:flex; align-items:center; gap:8px; background:#ffffffbf; border:2px solid #dfedc8; border-radius:16px; padding:10px 15px; font-size:14px; font-weight:800; }
-    .pill b{font-size:20px;}
-    footer {text-align:center; margin-top:17px; color:#6a876c; font-size:13px; font-weight:700;}
     @media (max-width:650px){
-      .layout {padding:10px 6px 22px;} header {padding:2px 10px 5px;} .brand-icon{width:45px;height:45px;font-size:26px;border-radius:14px;} .subtitle{font-size:12px;} .action{padding:9px 11px;font-size:13px;} .game-wrap{border-width:3px;border-radius:19px;} .hud{left:7px;top:7px;right:7px;} .progress-box{padding:6px 8px;min-width:140px;gap:5px;border-width:2px;border-radius:13px;} .progress-emoji{font-size:19px;} .progress-name{font-size:11px;margin-bottom:2px;} .track{height:10px;width:110px;max-width:19vw;} .pct{font-size:15px;min-width:35px;} .tip{padding:6px 8px;font-size:11px;border-width:2px;border-radius:11px;} .message{bottom:10px;padding:5px 11px;border-width:2px;} .pill{padding:8px 10px;font-size:12px;} .instructions{gap:5px;margin-top:15px;} .victory{padding:12px 12px 17px;border-width:4px;} .victory .trophy{font-size:35px;} .victory h2{margin:3px 0;font-size:25px;} .victory p{font-size:14px;margin:0 0 9px;} .again{font-size:16px;padding:8px 15px;}
     }
     @media (prefers-reduced-motion:reduce) { *, *::before, *::after {animation:none!important; transition:none!important;} }
   
@@ -107,16 +95,17 @@
 
     .gamepad-help{margin:10px 0 3px;padding:9px 12px;background:#f0f8e7;border:2px solid #d3e8bc;border-radius:14px;color:#467354;font-size:clamp(12px,1.8vw,14px);font-weight:850;line-height:1.4}
     </style>
+  <link rel="stylesheet" href="../game-screen.css">
 </head>
 <body>
-<nav class="site-nav"><a href="../">← Choisir un jeu</a></nav>
-<div class="layout">
-  <header>
-    <div class="brand"><div class="brand-icon">🚜</div><div><h1>La Tondeuse Magique</h1><p class="subtitle">Un petit jardin à rendre tout joli 🌼</p></div></div>
-    
+<main class="layout">
+  <header class="topbar">
+    <a class="screen-action" href="../" aria-label="Retour aux jeux" title="Retour aux jeux">←</a>
+    <h1>La Tondeuse Magique</h1>
+    <button class="screen-action" id="fullscreen" type="button" aria-label="Activer le plein écran" title="Activer le plein écran" aria-pressed="false">⛶</button>
   </header>
   <details class="game-settings" id="game-settings">
-    <summary><span class="settings-title">⚙️ Réglages du jardin</span><span class="settings-current" id="settings-current">🔴 Tondeuse · ▭ Rectangle · ✨ Vide · 🌱 Petit</span></summary>
+    <summary><span class="settings-title">⚙️ Réglages</span><span class="settings-current" id="settings-current">🔴 Tondeuse · ▭ Rectangle · ✨ Vide · 🌱 Petit</span></summary>
     <div class="settings-body">
       <p class="garden-heading">🚜 Choisis ton véhicule :</p>
   <div class="vehicle-selector" role="group" aria-label="Choisir un véhicule">
@@ -147,27 +136,30 @@
     <button class="size-select" data-size="large" type="button" aria-pressed="false">🌳 Grand</button>
   </div>
 
+      <div class="gamepad-help" id="gamepad-help" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette puis appuie sur A pour l’activer.</div>
+      <p class="pad-test-link"><a href="../manette/">Tester ma manette</a></p>
       <div class="settings-actions">
         <div class="actions"><button class="action" id="sound" aria-label="Activer ou désactiver le son">🔊 Son</button><button class="action" id="restart">↻ Recommencer</button></div>
         <button class="settings-close" id="settings-close" type="button">✅ Jouer ! Fermer les réglages</button>
       </div>
     </div>
   </details>
-  <div class="robot-panel" id="robot-panel" hidden role="group" aria-label="Robot transformeur">
-  <span id="robot-help">🤖 Double-tape le jardin pour me transformer en tondeuse !</span>
-  <button class="robot-transform" type="button" id="transform">🔁 Devenir une tondeuse !</button>
-  </div>
   <div class="game-wrap">
     <canvas id="garden" width="1000" height="600" tabindex="0" aria-label="Jardin à tondre. En mode robot, double-tape le terrain pour le transformer. Un toucher simple permet de conduire. Flèches et manette compatibles."></canvas>
     <div class="hud"><div class="progress-box"><div class="progress-emoji">🌱</div><div><span class="progress-name">Herbe tondue</span><div class="track"><div class="bar" id="bar"></div></div></div><span class="pct" id="pct">0 %</span></div><div class="tip" id="status">🌼 Amuse-toi !</div></div>
     <div class="message" id="message">👆 Touche le jardin pour conduire !</div>
     <div class="overlay" id="overlay" role="dialog" aria-label="Bravo, le jardin est tondu !"><div class="victory"><div class="trophy">🏆🌼</div><h2>Bravo, champion !</h2><p>Le jardin est magnifique ! ✨</p><button class="again" id="again">🌱 Jardin suivant !</button></div></div>
   </div>
-  <div class="gamepad-help" id="gamepad-help" role="status" aria-live="polite">🎮 Manette : associe-la à la tablette puis appuie sur A pour l’activer.</div>
-<div class="pad-test-link" style="margin:4px 0 8px;text-align:center;font:850 13px system-ui"><a href="../manette/" style="color:#32624a;text-decoration:underline">🔎 Ma manette ne réagit pas ? Tester sur cet appareil</a></div>
-  <div class="instructions"><div class="pill"><b>👆</b> Touche ou glisse ton doigt</div><div class="pill"><b>🎮</b> Joystick ou croix · A : transformer · B : recommencer</div><div class="pill"><b>⌨️</b> Utilise les flèches</div></div>
-  <footer>Aucune limite de temps, aucune défaite : on joue à son rythme ! 💚</footer>
-</div>
+  <footer class="screen-footer">
+    <div class="robot-panel" id="robot-panel" hidden role="group" aria-label="Robot transformeur">
+      <span id="robot-help">🤖 Double-tape le jardin pour me transformer en tondeuse !</span>
+      <button class="robot-transform" type="button" id="transform">🔁 Devenir une tondeuse !</button>
+    </div>
+    <p class="control-hint">Touche ou glisse pour conduire · Flèches · Manette</p>
+    <p id="fullscreen-note" role="status" hidden>Le jeu occupe tout l’espace disponible sur cet appareil.</p>
+  </footer>
+</main>
+<script src="../game-screen.js"></script>
 <script>
 (() => {
   'use strict';
@@ -179,9 +171,12 @@
   const keys=new Set();
   let vehicleType='small', gardenId='rectangle', terrainScale=1, obstaclesEnabled=false;
   let robotForm='robot',previousRobotForm='robot',transformStarted=-5;
+  let touchPos=null;
   let lastTapAt=0,lastTapX=0,lastTapY=0,tapDownAt=0,tapDownX=0,tapDownY=0,tapMoved=false;
   const terrainSizes={small:1,medium:1.5,large:2},terrainLabels={small:'Petit',medium:'Moyen',large:'Grand'};
   const camera={x:W/2,y:H/2};
+  const viewport=createGameViewport(canvas,W,H);
+  const settings=document.getElementById('game-settings');
 
   const gardens={
     carre:{name:'Carré',emoji:'🟩'},
@@ -319,10 +314,8 @@
       for(const c of cells)if(Math.hypot(c.x-mower.x,c.y-mower.y)<49/terrainScale)c.cut=true;
     }
     updateProgress();
-    const halfW=W/(2*terrainScale),halfH=H/(2*terrainScale);
-    camera.x=clamp(mower.x,halfW,W-halfW);
-    camera.y=clamp(mower.y,halfH,H-halfH);
-    canvas.focus({preventScroll:true});
+    viewport.follow(ctx,camera,mower,terrainScale,1);
+    if(!settings.open)canvas.focus({preventScroll:true});
   }
   function updateProgress(){
     let cut=0;for(const c of cells)if(c.cut)cut++;
@@ -605,7 +598,7 @@ let padConnected=false,padHeld=new Set();
 
   function move(dt){
     const pad=pollPad();
-    if(won)return;
+    if(won||settings.open){mower.speed=0;return;}
     let vx=0,vy=0;
     if(keys.has('ArrowLeft')||keys.has('a')||keys.has('q'))vx--;
     if(keys.has('ArrowRight')||keys.has('d'))vx++;
@@ -640,28 +633,26 @@ let padConnected=false,padHeld=new Set();
   }
   function frame(time){
     const dt=last?Math.min(.035,(time-last)/1000):.016;last=time;clock+=dt;
+    if(dragged&&touchPos)target=coordinates(touchPos);
     move(dt);
-    const halfW=W/(2*terrainScale),halfH=H/(2*terrainScale);
-    const desiredX=clamp(mower.x,halfW,W-halfW),desiredY=clamp(mower.y,halfH,H-halfH);
-    camera.x+=(desiredX-camera.x)*Math.min(1,dt*8);
-    camera.y+=(desiredY-camera.y)*Math.min(1,dt*8);
-    ctx.save();ctx.translate(W/2,H/2);ctx.scale(terrainScale,terrainScale);ctx.translate(-camera.x,-camera.y);
+    ctx.save();
+    viewport.follow(ctx,camera,mower,terrainScale,Math.min(1,dt*8));
     drawBackground();drawGrass();
     butterfly(385,168,.9,'#ffdc63');butterfly(701,367,2.5,'#f8a9dd');butterfly(555,475,1.7,'#b8b1ff');
     drawMower();drawParticles(dt);ctx.restore();
     requestAnimationFrame(frame);
   }
   function coordinates(ev){
-    const r=canvas.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*W,sy=(ev.clientY-r.top)/r.height*H;
-    return {x:clamp(camera.x+(sx-W/2)/terrainScale,field.l+25/terrainScale,field.r-25/terrainScale),
-            y:clamp(camera.y+(sy-H/2)/terrainScale,field.t+25/terrainScale,field.b-25/terrainScale)};
+    const {x,y}=viewport.toWorld(ev,camera,terrainScale);
+    return {x:clamp(x,field.l+25/terrainScale,field.r-25/terrainScale),
+            y:clamp(y,field.t+25/terrainScale,field.b-25/terrainScale)};
   }
   // Deux tapotements rapprochés (ni glissement ni appui long) déclenchent
   // une transformation. Un tap simple conserve la conduite automatique 2D.
   // touch-action:none sur canvas empêche le double tap de zoomer la page.
   const doubleTapDelay=480,doubleTapRadius=76,shortTapDelay=400,dragRadius=24;
   canvas.addEventListener('pointerdown',ev=>{
-    if(won||dragged)return;
+    if(won||dragged||settings.open)return;
     ev.preventDefault();
     canvas.focus({preventScroll:true});
     const now=Date.now();
@@ -678,14 +669,16 @@ let padConnected=false,padHeld=new Set();
     if(lastTapAt&&now-lastTapAt>doubleTapDelay)lastTapAt=0;
     tapDownAt=now;tapDownX=ev.clientX;tapDownY=ev.clientY;tapMoved=false;
     pointerId=ev.pointerId;dragged=true;
-    target=coordinates(ev);hideHelp();
+    touchPos={clientX:ev.clientX,clientY:ev.clientY};
+    target=coordinates(touchPos);hideHelp();
     try{canvas.setPointerCapture(pointerId);}catch(e){}
     tone(420,.055,.008);
   });
   canvas.addEventListener('pointermove',ev=>{
     if(!dragged||ev.pointerId!==pointerId||won)return;
     if(Math.hypot(ev.clientX-tapDownX,ev.clientY-tapDownY)>dragRadius)tapMoved=true;
-    target=coordinates(ev);
+    touchPos={clientX:ev.clientX,clientY:ev.clientY};
+    target=coordinates(touchPos);
   });
   const stopDrag=ev=>{
     if(ev.pointerId!==pointerId)return;
@@ -698,8 +691,23 @@ let padConnected=false,padHeld=new Set();
   };
   canvas.addEventListener('pointerup',stopDrag);
   canvas.addEventListener('pointercancel',stopDrag);
+  canvas.addEventListener('lostpointercapture',stopDrag);
   canvas.addEventListener('dblclick',ev=>ev.preventDefault());
-  window.addEventListener('keydown',ev=>{const k=ev.key.length===1?ev.key.toLowerCase():ev.key;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();keys.add(k);if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','q','z'].includes(k))hideHelp();if(won&&(k==='Enter'||k===' '))reset();});
+  window.addEventListener('keydown',ev=>{
+    if(settings.open){
+      if(ev.key==='Escape'){
+        settings.open=false;
+        canvas.focus({preventScroll:true});
+      }
+      return;
+    }
+    const k=ev.key.length===1?ev.key.toLowerCase():ev.key;
+    if((k===' '||k==='Enter')&&ev.target.closest('button, a, summary'))return;
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))ev.preventDefault();
+    keys.add(k);
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','q','z'].includes(k))hideHelp();
+    if(won&&(k==='Enter'||k===' '))reset();
+  });
   window.addEventListener('keyup',ev=>keys.delete(ev.key.length===1?ev.key.toLowerCase():ev.key));
   window.addEventListener('blur',()=>keys.clear());
 
@@ -779,7 +787,12 @@ let padConnected=false,padHeld=new Set();
   document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>chooseSize(b.dataset.size)));
   document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;ui.sound.textContent=soundOn?'🔊 Son':'🔇 Muet';if(soundOn)tone(650,.13);});
   document.getElementById('settings-close').addEventListener('click',()=>{
-    document.getElementById('game-settings').open=false;
+    settings.open=false;
+    canvas.focus({preventScroll:true});
+  });
+  settings.addEventListener('toggle',()=>{
+    if(!settings.open)return;
+    keys.clear();target=null;dragged=false;pointerId=null;touchPos=null;
   });
   reset();requestAnimationFrame(frame);
 })();

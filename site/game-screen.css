@@ -1,0 +1,55 @@
+:root{color-scheme:dark;background:#121b2e}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:#121b2e}
+.layout{width:100%;height:100%;height:100dvh;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:7px;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:#121b2e;color:#f8faff}
+.layout:fullscreen{width:100%;height:100%}
+.topbar{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;text-align:center}
+.topbar h1{font-size:clamp(17px,4vw,29px);line-height:1.08}
+.screen-action{display:grid;place-items:center;width:44px;height:44px;border:1px solid #536987;border-radius:12px;color:#f8faff;background:#263852;font-size:22px;text-decoration:none;touch-action:manipulation}
+.screen-action:focus-visible,.game-settings summary:focus-visible{outline:3px solid #ffda86;outline-offset:2px}
+.game-settings{position:relative;top:auto;min-width:0;margin:0;border:1px solid #536987;border-radius:12px;background:#263852;box-shadow:none}
+.game-settings>summary{min-height:44px;display:grid;grid-template-columns:auto minmax(0,1fr) 16px;gap:6px;padding:6px 9px;align-items:center}
+.game-settings .settings-title,.game-settings>summary::after{color:#f8faff;font-size:15px}
+.game-settings .settings-current{order:initial;color:#d1ddef;font-size:clamp(10px,2.7vw,13px);line-height:1.2}
+.game-settings>summary::after{order:initial}
+.settings-body{inset-inline:-1px;color-scheme:light;color:#284931;max-height:calc(100vh - 115px);max-height:min(540px,calc(100dvh - 115px))}
+.game-wrap{min-width:0;min-height:0;border:2px solid #536987;border-radius:16px;box-shadow:none}
+.game-wrap canvas{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto}
+.game-wrap canvas:focus-visible{outline-offset:-4px}
+.game-wrap .hud{inset:7px 7px auto;gap:5px;align-items:flex-start}
+.progress-box,.tip{padding:5px 8px;border:1px solid #536987;border-radius:10px;background:#121b2eee;color:#f8faff;box-shadow:none;min-width:0}
+.progress-box{gap:6px;flex-shrink:0}
+.progress-name{font-size:11px;margin-bottom:2px}
+.progress-emoji,.pct{font-size:16px}
+.pct{min-width:30px}
+.track{width:clamp(42px,13vw,118px);height:8px;border:0}
+.tip{font-size:11px;max-width:45%}
+.message{width:max-content;max-width:calc(100% - 16px);white-space:normal;text-align:center;bottom:10px;padding:6px 12px;border-width:2px;font-size:clamp(12px,2.2vw,17px);color:#284931}
+.overlay{color:#284931;overflow:auto}
+.victory{max-height:100%;overflow:auto}
+.screen-footer{display:grid;justify-items:center;gap:4px;min-width:0}
+.screen-footer p{margin:0;text-align:center;color:#d1ddef;font-size:clamp(11px,2.4vw,14px)}
+.control-hint{font-weight:750}
+.screen-footer .robot-panel{justify-content:center;padding:0;margin:0;gap:4px 10px;border:0;background:none;box-shadow:none}
+.screen-footer .robot-panel span{flex:initial;color:#d1ddef;text-align:center;font-size:12px}
+.screen-footer .robot-transform{flex:initial;min-height:44px;padding:5px 14px;border:1px solid #ffe9a0;border-radius:12px;box-shadow:none;font-size:14px}
+.screen-footer .bin-hud{justify-content:center;width:min(100%,370px);padding:5px 8px;margin:0;gap:6px;border:1px solid #536987;background:#263852;color:#ffe6aa;font-size:13px}
+.screen-footer .bin-track{height:9px;min-width:40px}
+.pad-test-link{margin:4px 0;text-align:center;font-size:13px;font-weight:850}
+.pad-test-link a{color:#32624a}
+@media (orientation:landscape) and (max-height:480px){
+  .layout{grid-template-columns:minmax(0,1fr) minmax(112px,24%);grid-template-rows:auto minmax(0,1fr)}
+  .topbar{grid-area:1/1}
+  .game-settings{grid-area:1/2}
+  .game-settings>summary{height:100%;grid-template-columns:minmax(0,1fr) 14px}
+  .game-settings .settings-current{display:none}
+  .settings-body{left:auto;width:min(470px,calc(100vw - 25px));max-height:calc(100vh - 66px);max-height:calc(100dvh - 66px)}
+  .screen-footer{align-content:center}
+  .screen-footer .bin-hud{display:grid;grid-template-columns:minmax(0,1fr) auto}
+  .screen-footer #bin-label{grid-column:1/-1;text-align:center}
+  .screen-footer .bin-value{min-width:0}
+  .victory{padding:8px 12px 12px}
+  .victory .trophy{font-size:27px}
+  .victory h2{font-size:23px}
+  .victory p{font-size:14px;margin-bottom:7px}
+  .again{min-height:44px;font-size:16px;padding:6px 12px}
+}
