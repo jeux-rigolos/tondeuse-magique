@@ -5,6 +5,9 @@ const board = document.querySelector("#board");
 const ctx = board.getContext("2d");
 const score = document.querySelector("#score");
 const progress = document.querySelector("#progress");
+const cargo = document.querySelector("#cargo");
+const cargoHint = document.querySelector("#cargo-hint");
+const unload = document.querySelector("#unload");
 const forms = document.querySelector("#forms");
 const transform = document.querySelector("#transform");
 const fullscreen = document.querySelector("#fullscreen");
@@ -38,15 +41,28 @@ const modeCards = modes.map(({ name, color, icon }) => {
 const robot = { x: 0, y: 0, angle: -Math.PI / 2 };
 const keys = new Set();
 const directions = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-let width, height, radius, dirt, mode, cleaned, target, pointer, lastTap, flash, previous;
+let width, height, radius, dirt, mode, cleaned, load, target, pointer, lastTap, flash, previous;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const total = 20;
+const capacity = 5;
+const bins = {
+  atelier: [{ x: 0.19, y: 0.09 }, { x: 0.81, y: 0.09 }],
+  cuisine: [{ x: 0.25, y: 0.93 }, { x: 0.75, y: 0.93 }]
+};
 const isKitchen = () => currentMap === "cuisine";
 
 function updateHud() {
   score.textContent = cleaned + " / " + total + " nettoyés";
   progress.value = cleaned;
+  cargo.textContent = "Bac " + load + "/" + capacity;
+  cargo.toggleAttribute("data-full", load === capacity);
+  const message = cleaned === total && load
+    ? "Vide le bac pour terminer"
+    : load === capacity ? "Bac plein · Va à une poubelle" : "";
+  if (cargoHint.textContent !== message) cargoHint.textContent = message;
+  cargoHint.hidden = !message;
+  updateUnloadButton();
   modeCards.forEach(({ card, count }, index) => {
     card.classList.toggle("active", index === mode);
     if (index === mode) card.setAttribute("aria-current", "true");
@@ -80,7 +96,7 @@ function restart() {
   if (victory.open) victory.close();
   clearControls();
   mode = 0;
-  cleaned = 0;
+  cleaned = load = 0;
   robot.x = width / 2;
   robot.y = height / 2;
   robot.angle = -Math.PI / 2;
@@ -105,7 +121,7 @@ function workshopDirt() {
 function chooseMap(nextMap) {
   if (nextMap === currentMap) return;
   savedMaps.set(currentMap, {
-    dirt, cleaned, mode,
+    dirt, cleaned, load, mode,
     x: robot.x / width,
     y: robot.y / height,
     angle: robot.angle
@@ -121,12 +137,12 @@ function chooseMap(nextMap) {
     return;
   }
   clearControls();
-  ({ dirt, cleaned, mode } = saved);
+  ({ dirt, cleaned, load, mode } = saved);
   robot.x = saved.x * width;
   robot.y = saved.y * height;
   robot.angle = saved.angle;
   showForm();
-  if (cleaned === total) victory.showModal();
+  if (cleaned === total && !load) victory.showModal();
 }
 
 function resize() {
@@ -189,11 +205,13 @@ board.addEventListener("pointercancel", cancelPointer);
 board.addEventListener("lostpointercapture", cancelPointer);
 
 window.addEventListener("keydown", event => {
-  if (victory.open) return;
+  if (victory.open || event.target.closest("select")) return;
   if (Object.hasOwn(directions, event.key)) {
     event.preventDefault();
     keys.add(event.key);
     target = null;
+  } else if (event.code === "KeyV" && !event.repeat) {
+    emptyBin();
   } else if (event.code === "Space" && !event.target.closest("a, button")) {
     event.preventDefault();
     if (!event.repeat) nextForm();
@@ -223,6 +241,7 @@ document.addEventListener("fullscreenchange", () => {
   fullscreen.title = label;
 });
 transform.addEventListener("click", nextForm);
+unload.addEventListener("click", emptyBin);
 document.querySelector("#replay").addEventListener("click", () => {
   restart();
   transform.focus();
@@ -245,6 +264,39 @@ function rounded(x, y, w, h, corner, color) {
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, corner);
   ctx.fill();
+}
+
+function isNearBin(bin) {
+  return Math.hypot(robot.x - bin.x * width, robot.y - bin.y * height) <= radius * 2.5;
+}
+
+function updateUnloadButton() {
+  unload.hidden = !load || !bins[currentMap].some(isNearBin);
+}
+
+function emptyBin() {
+  if (victory.open || !load || !bins[currentMap].some(isNearBin)) return;
+  load = 0;
+  clearControls();
+  updateHud();
+  if (cleaned === total) victory.showModal();
+  else transform.focus();
+}
+
+function drawBins() {
+  for (const bin of bins[currentMap]) {
+    const x = bin.x * width;
+    const y = bin.y * height;
+    const size = radius;
+    const ready = load > 0 && isNearBin(bin);
+    circle(x, y, size * 1.2, ready ? "#beffd6" : "#193b3c");
+    rounded(x - size * 0.59, y - size * 0.34, size * 1.18, size * 1.1, size * 0.23, "#369965");
+    rounded(x - size * 0.18, y - size * 0.76, size * 0.36, size * 0.23, size * 0.1, "#b8f6cd");
+    rounded(x - size * 0.71, y - size * 0.61, size * 1.42, size * 0.33, size * 0.11, "#9be0b4");
+    for (const offset of [-0.25, 0, 0.25]) {
+      rounded(x + size * offset - size * 0.04, y - size * 0.11, size * 0.08, size * 0.59, size * 0.04, "#1c613e");
+    }
+  }
 }
 
 function drawDirt(item, time) {
@@ -356,21 +408,20 @@ function frame(time) {
   if (!victory.open) {
     move(dt);
     for (const item of dirt) {
+      if (load >= capacity) break;
       if (item.clean || item.type !== mode) continue;
       if (Math.hypot(robot.x - item.x * width, robot.y - item.y * height) > radius * 1.65) continue;
       item.clean = time;
       cleaned++;
+      load++;
       updateHud();
-      if (cleaned === total) {
-        target = pointer = lastTap = null;
-        keys.clear();
-        victory.showModal();
-      }
     }
+    updateUnloadButton();
   }
 
   if (isKitchen()) drawKitchen(ctx, width, height);
   else drawWorkshop();
+  drawBins();
   for (const item of dirt) drawDirt(item, time);
   drawRobot(time);
   requestAnimationFrame(frame);

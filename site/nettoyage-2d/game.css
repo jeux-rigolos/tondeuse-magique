@@ -11,7 +11,12 @@ header a,header button{font-size:22px}
 .arena{position:relative;min-width:0;border:2px solid #536987;border-radius:16px;overflow:hidden;background:#1d2b42}
 canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
 .hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;padding:5px 9px;border-radius:10px;background:#121b2e;color:#f8faff;font-size:13px;pointer-events:none}
-progress{width:clamp(54px,18vw,145px);height:10px;accent-color:#6dedac}
+#cargo{border-left:1px solid #536987;padding-left:8px;color:#aef3c6}
+#cargo[data-full]{color:#ffda86}
+#unload{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:#9fedbf;color:#142b22;border-color:#d2ffe2;white-space:nowrap}
+#unload[hidden]{display:none}
+#cargo-hint{color:#ffda86}
+progress{width:clamp(40px,16vw,130px);height:10px;accent-color:#6dedac}
 footer{display:grid;justify-items:center;gap:5px}
 .controls{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:100%}
 #map{max-width:100%;border-color:#7891af}
