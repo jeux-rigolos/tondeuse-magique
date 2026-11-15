@@ -1,0 +1,32 @@
+:root{color-scheme:dark;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;background:#121b2e;color:#f8faff}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+#game{width:100%;height:100%;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:#121b2e;user-select:none}
+#game:fullscreen{height:100%;width:100%}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{margin:0;text-align:center;font-size:clamp(18px,4.5vw,30px)}
+button,header a{display:inline-grid;place-items:center;min-width:44px;min-height:44px;padding:6px 12px;border:1px solid #536987;border-radius:12px;background:#263852;color:inherit;font:inherit;font-weight:800;text-decoration:none;cursor:pointer;touch-action:manipulation}
+header a,header button{font-size:22px}
+:focus-visible{outline:3px solid #ffda86;outline-offset:2px}
+.arena{position:relative;min-width:0;border:2px solid #536987;border-radius:16px;overflow:hidden;background:#1d2b42}
+canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;padding:5px 9px;border-radius:10px;background:#121b2e;color:#f8faff;font-size:13px;pointer-events:none}
+progress{width:clamp(54px,18vw,145px);height:10px;accent-color:#6dedac}
+footer{display:grid;justify-items:center;gap:5px}
+#transform{background:var(--form-color,#ffb678);color:#121b2e;border-color:transparent}
+#forms{display:flex;justify-content:center;gap:4px;width:100%}
+.form{display:grid;justify-items:center;min-width:0;width:clamp(52px,17vw,94px);padding:3px 0;border:1px solid #536987;border-radius:8px;color:#e1edff;font-size:clamp(10px,2.9vw,13px);line-height:1.2}
+.form.active{border-color:var(--color);background:#263852;color:#fff}
+.form b{font-size:14px;color:var(--color)}
+p{margin:0;text-align:center;color:#d1ddef;font-size:clamp(10px,3.2vw,13px)}
+dialog{max-width:calc(100% - 24px);padding:clamp(12px,4vw,30px);border:2px solid #6dedac;border-radius:18px;background:#1d2b42;color:#fff;text-align:center}
+dialog::backdrop{background:#101929c9}
+dialog span{font-size:30px}
+h2{margin:6px 0 12px}
+@media (orientation:landscape) and (max-height:480px){
+  #game{grid-template-columns:minmax(0,1fr) 145px;grid-template-rows:auto minmax(0,1fr)}
+  header{grid-column:1/-1}
+  footer{align-content:center}
+  #forms{flex-wrap:wrap}
+  .form{width:65px}
+}
